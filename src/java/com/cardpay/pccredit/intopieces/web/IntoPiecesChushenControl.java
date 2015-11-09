@@ -19,6 +19,8 @@ import com.cardpay.pccredit.customer.service.CustomerInforService;
 import com.cardpay.pccredit.datapri.service.DataAccessSqlService;
 import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.filter.CustomerApplicationProcessFilter;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList;
+import com.cardpay.pccredit.intopieces.service.AttachmentListService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationIntopieceWaitService;
 import com.cardpay.pccredit.intopieces.service.IntoPiecesService;
 import com.cardpay.pccredit.product.service.ProductService;
@@ -76,7 +78,8 @@ public class IntoPiecesChushenControl extends BaseController {
 	@Autowired
 	private CustomerApplicationIntopieceWaitService customerApplicationIntopieceWaitService;
 	
-	
+	@Autowired
+	private AttachmentListService attachmentListService;
 	/**
 	 * 团队初审进件页面
 	 * 
@@ -92,6 +95,7 @@ public class IntoPiecesChushenControl extends BaseController {
 		String loginId = user.getId();
 		filter.setLoginId(loginId);
 		filter.setNodeName(Constant.status_chushen);
+		filter.setFilterTeamLeader("1");//团队长
 		QueryResult<CustomerApplicationIntopieceWaitForm> result = customerApplicationIntopieceWaitService.recieveIntopieceWaitForm(filter);
 		JRadPagedQueryResult<CustomerApplicationIntopieceWaitForm> pagedResult = new JRadPagedQueryResult<CustomerApplicationIntopieceWaitForm>(filter, result);
 
@@ -126,7 +130,7 @@ public class IntoPiecesChushenControl extends BaseController {
 	}
 	
 	/**
-	 * 退回进件(首节点，所以直接删除申请件)
+	 * 退回进件(首节点)
 	 * 
 	 * @param filter
 	 * @param request

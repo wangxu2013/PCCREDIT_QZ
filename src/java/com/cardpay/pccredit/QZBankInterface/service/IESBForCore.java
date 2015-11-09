@@ -26,6 +26,12 @@ import com.wicresoft.jrad.base.database.id.IDGenerator;
 public class IESBForCore {
 	@Autowired
 	private CommonDao commonDao;
+	
+	@Autowired
+	private IESBForCircleCredit iesbForCircleCredit;
+	
+	@Autowired
+	private IESBForCredit IESBForCredit;
     /**
      * 组装CompositeData报文
      * @return
@@ -78,37 +84,42 @@ public class IESBForCore {
      * @param cd
      */
     public Circle_ACCT_INFO parseCoreResponse(CompositeData cd,String type) {
-
-    	Circle_ACCT_INFO circle_ACCT_INFO = new Circle_ACCT_INFO();
     	
-        CompositeData body = cd.getStruct("BODY");
+    	boolean res = IESBForCredit.parseEcifResponse(cd);
+    	if(res){
+    		Circle_ACCT_INFO circle_ACCT_INFO = new Circle_ACCT_INFO();
+        	
+            CompositeData body = cd.getStruct("BODY");
 
-        String ACCT_NO = body.getField("ACCT_NO").strValue();//账号
-        String ACCT_NAME = body.getField("ACCT_NAME").strValue();//户名
-        String CCY = body.getField("CCY").strValue();//币种
-        String OPEN_ACCT_BRANCH_ID = body.getField("OPEN_ACCT_BRANCH_ID").strValue();//开户机构
-        String OPEN_ACCT_BRANCH_NAME = body.getField("OPEN_ACCT_BRANCH_NAME").strValue();//开户行名
-        String C_INTERBANK_ID = body.getField("C_INTERBANK_ID").strValue();//全国联行号
-        String GL_CODE = body.getField("GL_CODE").strValue();//科目号
-        String OPEN_ACCT_DATE = body.getField("OPEN_ACCT_DATE").strValue();//开户日期
-        
-
-        //更新circle
-        circle_ACCT_INFO.setAcctNo(ACCT_NO);
-        circle_ACCT_INFO.setAcctName(ACCT_NAME);
-        circle_ACCT_INFO.setCcy(CCY);
-        circle_ACCT_INFO.setAcctChrt(type);
-        circle_ACCT_INFO.setOpenAcctBranchId(OPEN_ACCT_BRANCH_ID);
-        circle_ACCT_INFO.setOpenAcctBranchName(OPEN_ACCT_BRANCH_NAME);
-        circle_ACCT_INFO.setPayAmt("0.0");
-        circle_ACCT_INFO.setGlCode(GL_CODE);
-        circle_ACCT_INFO.setcInterbankId(C_INTERBANK_ID);
-        circle_ACCT_INFO.setOwnBranchFlag("1");
-        circle_ACCT_INFO.setOpenAcctDate(OPEN_ACCT_DATE);
-        
-        String id = IDGenerator.generateID();
-        circle_ACCT_INFO.setId(id);
-       
-        return circle_ACCT_INFO;
+            String ACCT_NO = body.getField("ACCT_NO").strValue();//账号
+            String ACCT_NAME = body.getField("ACCT_NAME").strValue();//户名
+            String CCY = body.getField("CCY").strValue();//币种
+            String OPEN_ACCT_BRANCH_ID = body.getField("OPEN_ACCT_BRANCH_ID").strValue();//开户机构
+            String OPEN_ACCT_BRANCH_NAME = body.getField("OPEN_ACCT_BRANCH_NAME").strValue();//开户行名
+            String C_INTERBANK_ID = body.getField("C_INTERBANK_ID").strValue();//全国联行号
+            String GL_CODE = body.getField("GL_CODE").strValue();//科目号
+            String OPEN_ACCT_DATE = body.getField("OPEN_ACCT_DATE").strValue();//开户日期
+            
+            //更新circle
+            circle_ACCT_INFO.setAcctNo(ACCT_NO);
+            circle_ACCT_INFO.setAcctName(ACCT_NAME);
+            circle_ACCT_INFO.setCcy(CCY);
+            circle_ACCT_INFO.setAcctChrt(type);
+            circle_ACCT_INFO.setOpenAcctBranchId(OPEN_ACCT_BRANCH_ID);
+            circle_ACCT_INFO.setOpenAcctBranchName(OPEN_ACCT_BRANCH_NAME);
+            circle_ACCT_INFO.setPayAmt("0.0");
+            circle_ACCT_INFO.setGlCode(GL_CODE);
+            circle_ACCT_INFO.setcInterbankId(C_INTERBANK_ID);
+            circle_ACCT_INFO.setOwnBranchFlag("1");
+            circle_ACCT_INFO.setOpenAcctDate(OPEN_ACCT_DATE);
+            
+            String id = IDGenerator.generateID();
+            circle_ACCT_INFO.setId(id);
+           
+            return circle_ACCT_INFO;
+    	}else{
+    		return null;
+    	}
+    	
     }
 }

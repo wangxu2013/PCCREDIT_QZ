@@ -34,9 +34,16 @@ public class Constant {
 	/* 成功进件*/
 	public static String SUCCESS_INTOPICES = "success";
 	
-	/* 申请未通过*/
+	/* 退件*/
 	public static String NOPASS_INTOPICES = "nopass";
+	/* 审核退回*/
+	public static String TRTURN_INTOPICES = "RETURNAPPROVE";
 	
+	/* 退件到申请状态*/
+	public static String RETURN_INTOPICES = "returnedToFirst";
+	
+	/* 申请已通过*/
+	public static String APPROVED_INTOPICES = "approved";
 	
 	/*以下是上传状态*/
 	public static String INITIAL_INTOPICES="initial";
@@ -47,8 +54,6 @@ public class Constant {
 	
 	
 	
-	/* 申请已通过*/
-	public static String APPROVED_INTOPICES = "approved";
 	
 	/*联系人*/
 	public static String CONTACTID = "contactId";
@@ -79,6 +84,7 @@ public class Constant {
 	public static String APP_STATE_1="已申请";
 	public static String APP_STATE_2="未申请";
 	public static String APP_STATE_3="退回";
+	public static String APP_STATE_5="拒件";
 	public static String APP_STATE_4="审批完成";
 	
 	//泉州银行根机构id
@@ -98,7 +104,11 @@ public class Constant {
 	public static String jyd_id="00001";//决议单默认ID
 	public static String htd_id="00002";//合同单默认ID
 	public static String status_buchong="补充上会";
-	
+	public static String status_scan="影像补扫";
+	public static String status_onelevel="一级审核";
+	public static String status_twolevel="二级审核";
+	public static String status_cardquery="卡中心进件查询";
+	public static String status_query="进件查询";
 	/*审批结果*/
 	public static String APPLN_TYPE_1="审批通过";
 	public static String APPLN_TYPE_2="退件";
@@ -110,6 +120,7 @@ public class Constant {
 	public static String APPROVE_EDIT_3="4";//授信岗补充上会--退回客户经理
 	
 	/*待决策资料清单列表*/
+	public static String ATTACH_LIST0="合同扫描件";
 	public static String ATTACH_LIST1="贷款申请表";
 	public static String ATTACH_LIST2="调查报告";
 	public static String ATTACH_LIST3="征信查询授权书";
@@ -137,4 +148,20 @@ public class Constant {
 	public static String ATTACH_LIST25="担保人贷款卡复印件";
 	public static String ATTACH_LIST26="担保人收入证明";
 	public static String ATTACH_LIST27="信用等级证复印件（如有）";
+	
+	public static String ATTACH_LIST99="其他";
+	
+	public static String ATTACH_LIST_ADD_1 = "1";
+	public static String ATTACH_LIST_ADD_2 = "2";
+	public static String ATTACH_LIST_ADD_3 = "3";
+	public static String ATTACH_LIST_ADD_4 = "4";
+	public static String ATTACH_LIST_ADD_5 = "5";
+	public static String ATTACH_LIST_ADD_6 = "6";
+	public static String ATTACH_LIST_ADD_7 = "7";
+	public static String ATTACH_LIST_ADD_8 = "8";
+	public static String ATTACH_LIST_ADD_9 = "9";
+	public static String ATTACH_LIST_ADD_10 = "10";
+	//影像空间放置路劲
+	public static String OCX_FILEPATH="/home/pccredit/sunds_ocx.exe";//生产环境
+	
 }

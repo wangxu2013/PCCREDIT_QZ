@@ -29,6 +29,14 @@ public class CustomerInforCommDao {
 		return null;
 	}
 	
+	public CustomerInfor findCustomerInforByCustomerId(String customerId){
+		List<CustomerInfor> list = commonDao.queryBySql(CustomerInfor.class, "select * from basic_customer_information where id='"+customerId+"'", null);
+		if(list!=null&&!list.isEmpty()){
+			return list.get(0);
+		}
+		return null;
+	}
+	
 	public List<Dict> findOaccountMybankList(){
 		List<Dict> list = commonDao.queryBySql(Dict.class, "select * from DICT t where 1=2", null);
 		return list;
@@ -144,8 +152,11 @@ public class CustomerInforCommDao {
 	/**
 	 * 通过客户id查询申请表
 	 */
-		public List<CustomerApplicationInfo> ifProcess(String customerId){
-			String sql = "select * from customer_application_info where CUSTOMER_ID='"+customerId+"' order by created_time desc";
+		public List<CustomerApplicationInfo> ifProcess(String customerId,String appStatus){
+			String sql = "select * from customer_application_info where CUSTOMER_ID='"+customerId+"'";
+			if(appStatus!=null && appStatus !=""){
+				sql += " and status ='"+appStatus+"' order by created_time desc";
+			}
 			return commonDao.queryBySql(CustomerApplicationInfo.class, sql, null);
 		}
 }

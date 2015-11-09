@@ -186,6 +186,7 @@ public class CustomerApplicationIntopieceWaitService {
 
 	
 	// 查询需要团队初审的进件信息
+	//全部显示
 	public QueryResult<CustomerApplicationIntopieceWaitForm> recieveIntopieceWaitForm(CustomerApplicationProcessFilter filter) {
 		List<CustomerApplicationIntopieceWaitForm> listCAI = customerApplicationIntopieceWaitDao.IntopieceWaitForm(filter);
 		int size = customerApplicationIntopieceWaitDao.CountIntopieceWaitForm(filter);
@@ -193,6 +194,18 @@ public class CustomerApplicationIntopieceWaitService {
 		return qs;
 
 	}
+	
+	// 查询需要团队初审的进件信息
+		//全部显示-根据审核人审核的机构分部（安居贷）
+		public QueryResult<CustomerApplicationIntopieceWaitForm> intopieceWaitFormByUsered(CustomerApplicationProcessFilter filter) {
+			List<CustomerApplicationIntopieceWaitForm> listCAI = customerApplicationIntopieceWaitDao.intopieceWaitFormByUsered(filter);
+			int size = customerApplicationIntopieceWaitDao.CountIntopieceWaitFormByUsered(filter);
+			QueryResult<CustomerApplicationIntopieceWaitForm> qs = new QueryResult<CustomerApplicationIntopieceWaitForm>(size, listCAI);
+			return qs;
+	
+		}
+		
+	
 	// 查询需要团队初审拒件的进件
 	public QueryResult<CustomerApplicationIntopieceWaitForm> IntopieceChushenRejectForm() {
 		List<CustomerApplicationIntopieceWaitForm> listCAI = customerApplicationIntopieceWaitDao.IntopieceChushenRejectForm();
@@ -266,6 +279,9 @@ public class CustomerApplicationIntopieceWaitService {
 		} else if (StringUtils.isNotEmpty(applicationStatus) && applicationStatus.equals(ApplicationStatusEnum.REJECTAPPROVE)) {
 			String refusalReason = request.getParameter("reason");
 			customerApplicationProcess.setRefusalReason(refusalReason);
+		}else{
+			customerApplicationProcess.setRefusalReason("");
+			customerApplicationProcess.setFallbackReason("");
 		}
 		customerApplicationProcess.setProcessOpStatus(applicationStatus);
 		customerApplicationProcess.setSerialNumber(serialNumber);

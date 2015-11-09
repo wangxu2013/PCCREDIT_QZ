@@ -1,0 +1,32 @@
+#parse ("common/iframe_page_header.htm")
+<body>
+  <div class="content_main">
+    <div class="contentinner">
+      <div class="place">
+        <div class="title">客户经理进件状态报表</div>
+      </div>
+      
+      <div class="inquiry">
+<!-----------搜索------------------------------------------->  
+  
+        <div class="search_tag"></div>
+        <div class="search">
+          <form id="submitForm">
+          </form>
+        </div>
+       
+		<!-------------- 信息显示 ------------------------------------->      
+        	<img src="$!chart" width=800 height=400 border=0>
+
+      </div>		
+        <div class="clear"></div>
+      </div>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+	var layout = new TableLayout(2);
+	window.top.currentWindow.setLayout(layout);
+	$(document).ready(function() {
+	});
+</script>
+#parse ("common/iframe_page_footer.htm")

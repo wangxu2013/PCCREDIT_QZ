@@ -52,6 +52,8 @@
 
 		<result column="USER_ID" property="userId"/>
 		<result column="PRODUCT_NAME" property="productName"/>
+		<result column="CONTRACT_AMT" property="contractAmt"/>
+		<result column="DISPLAY_NAME" property="displayName"/>
 
 	</resultMap>
 
@@ -210,6 +212,11 @@
 	</select>
 	
 		<select id="IntopieceWaitForm" resultMap="BaseResultMap">
+		    
+		    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			
 		SELECT
 		b.*, U.CHINESE_NAME as chineseName,
 		U.RESIDENTIAL_ADDRESS AS residentialAddress,
@@ -220,35 +227,53 @@
    		N.NODE_NAME as nodeName,
 		A.AUDIT_TIME as auditTime,
 		A.id as processId,b.id as applicationId,
-		circle.CONTRACT_AMT as contractAmt
+		circle.CONTRACT_AMT as contractAmt,
+		su.DISPLAY_NAME as displayName,
+		A.FALLBACK_REASON as fallbackReason
 		FROM
 		CUSTOMER_APPLICATION_INFO b,
 		BASIC_CUSTOMER_INFORMATION U,
 		CUSTOMER_APPLICATION_PROCESS A,
    		NODE_AUDIT N,NODE_AUDIT_USER p,
-		QZ_IESB_FOR_ECIF ecif,
-		QZ_IESB_FOR_CIRCLE circle 
+		QZ_IESB_FOR_CIRCLE circle,
+		sys_user su
 		WHERE
 		1=1
 		and U.ID = b.CUSTOMER_ID and ((U .process_id !='3' and U .process_id !='4') or U .process_id is null)
 		and a.APPLICATION_ID=b.ID
 		AND N.ID=A.NEXT_NODE_ID
 		and A.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{loginId}
-		and b.status='audit' 
-		and ecif.CUSTOMER_ID = b.CUSTOMER_ID
-		and circle.CLIENT_NO = ecif.CLIENT_NO
+		and (b.status='audit' or b.status='RETURNAPPROVE') 
+		and circle.application_id = a.APPLICATION_ID
+		and u.user_id = su.id
 		<if test="cardId!=null and cardId!=''">
 			and U.card_id=#{cardId}
 		</if>
-		<if test="chineseName!=null ">
+		<if test="chineseName!=null and chineseName!=''">
 			<![CDATA[ and U.chinese_name like '%'||#{chineseName}||'%' ]]>
-		</if>
-		<if test="(cardId==null and chineseName==null) or (cardId=='' and chineseName=='')">
-			and U.card_id is null
 		</if>
 		<if test="nodeName!=null and nodeName!=''">
 			and N.node_name=#{nodeName}
 		</if>
+		
+		<if test="filterTeamLeader!=null and filterTeamLeader!=''">
+			<if test='filterTeamLeader=="1"'>
+				and u.user_id in ( 
+					select user_id from ACCOUNT_MANAGER_PARAMETER where id in (SELECT 
+					mbm.child_id 
+					FROM 
+					manager_belong_map mbm 
+					LEFT JOIN account_manager_parameter amp ON amp. ID = mbm.parent_id 
+					WHERE 
+					amp.user_id = #{loginId}))
+			</if>
+		</if>
+		
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
 		</select>
 		
 		<select id="CountIntopieceWaitForm" resultType="int">
@@ -265,15 +290,12 @@
 		and a.APPLICATION_ID=b.ID
 		AND N.ID=A.NEXT_NODE_ID
 		and A.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{loginId}
-		and b.status='audit' 
+		and (b.status='audit' or b.status='RETURNAPPROVE') 
 		<if test="cardId!=null and cardId!=''">
 			and U.card_id=#{cardId}
 		</if>
-		<if test="chineseName!=null ">
+		<if test="chineseName!=null and chineseName!=''">
 			<![CDATA[ and U.chinese_name like '%'||#{chineseName}||'%' ]]>
-		</if>
-		<if test="(cardId==null and chineseName==null) or (cardId=='' and chineseName=='')">
-			and U.card_id is null
 		</if>
 		<if test="nodeName!=null and nodeName!=''">
 			and N.node_name=#{nodeName}
@@ -281,6 +303,10 @@
 		</select>
 		
 		<select id="IntopieceChushenRejectForm" resultMap="BaseResultMap">
+		    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			
 		SELECT
 		b.*, U.CHINESE_NAME as chineseName,
 		U.RESIDENTIAL_ADDRESS AS residentialAddress,
@@ -304,6 +330,12 @@
 		and A.NEXT_NODE_ID=p.NODE_ID
 		and b.status='audit' and s.application_id=a.application_id and s.operate_type='拒件'
 		
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		
 		</select>
 		<select id="CountIntopieceChushenRejectForm" resultType="int">
 		SELECT count(*) 
@@ -323,6 +355,10 @@
 		</select>
 		
 		<select id="shouxinAddInforForm" resultMap="BaseResultMap">
+		    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			
 		SELECT
 		b.*, U.CHINESE_NAME as chineseName,
 		U.RESIDENTIAL_ADDRESS AS residentialAddress,
@@ -345,6 +381,13 @@
 		AND N.ID=A.NEXT_NODE_ID
 		and A.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{loginId}
 		and b.status='audit' 
+		
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		
 		</select>
 		
 		<select id="CountshouxinAddInforForm" resultType="int">
@@ -362,5 +405,100 @@
 		AND N.ID=A.NEXT_NODE_ID
 		and A.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{loginId}
 		and b.status='audit' 
+		</select>
+		
+		<select id="intopieceWaitFormByUsered" resultMap="BaseResultMap">
+		    
+		    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			
+		SELECT
+		b.*, U.CHINESE_NAME as chineseName,
+		U.RESIDENTIAL_ADDRESS AS residentialAddress,
+		U.CARD_TYPE AS cardType,
+		U.CARD_ID AS cardId,
+		b.APPLY_QUOTA AS applyQuota,
+		A.SERIAL_NUMBER as SERIALNUMBER,
+   		N.NODE_NAME as nodeName,
+		A.AUDIT_TIME as auditTime,
+		A.id as processId,b.id as applicationId,
+		circle.CONTRACT_AMT as contractAmt,
+		su.DISPLAY_NAME as displayName,
+		A.FALLBACK_REASON as fallbackReason
+		FROM
+		CUSTOMER_APPLICATION_INFO b,
+		BASIC_CUSTOMER_INFORMATION U,
+		CUSTOMER_APPLICATION_PROCESS A,
+   		NODE_AUDIT N,NODE_AUDIT_USER p,
+   		sys_user_organization so,
+		QZ_IESB_FOR_CIRCLE circle,
+		sys_user su
+		WHERE
+		1=1
+		and U.ID = b.CUSTOMER_ID and ((U .process_id !='3' and U .process_id !='4') or U .process_id is null)
+		and a.APPLICATION_ID=b.ID
+		AND N.ID=A.NEXT_NODE_ID
+		and A.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{loginId}
+		and (b.status='audit' or b.status='RETURNAPPROVE') 
+		and so.user_id =
+       (select s.login
+          from sys_user s
+         where s.id = #{loginId})
+   		and so.orgno = circle.regist_org_no
+		and circle.application_id = a.APPLICATION_ID
+		and u.user_id = su.id
+		<if test="cardId!=null and cardId!=''">
+			and U.card_id=#{cardId}
+		</if>
+		<if test="chineseName!=null and chineseName!=''">
+			<![CDATA[ and U.chinese_name like '%'||#{chineseName}||'%' ]]>
+		</if>
+		<if test="nodeName!=null and nodeName!=''">
+			and N.node_name=#{nodeName}
+		</if>
+		
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</select>
+		
+		<select id="CountIntopieceWaitFormByUsered" resultType="int">
+		SELECT
+		count(*) 
+		 	FROM CUSTOMER_APPLICATION_INFO    b,
+       		BASIC_CUSTOMER_INFORMATION   U,
+       		CUSTOMER_APPLICATION_PROCESS A,
+       		NODE_AUDIT                   N,
+       		NODE_AUDIT_USER              p,
+       		QZ_IESB_FOR_CIRCLE           circle,
+       		sys_user_organization        so,
+       		sys_user                     su
+ 		WHERE 1 = 1
+   		and U.ID = b.CUSTOMER_ID
+   		and ((U.process_id != '3' and U.process_id != '4') or U.process_id is null)
+   		and a.APPLICATION_ID = b.ID
+   		AND N.ID = A.NEXT_NODE_ID
+   		and A.NEXT_NODE_ID = p.NODE_ID
+   		and (b.status = 'audit' or b.status = 'RETURNAPPROVE')
+   		and circle.application_id = a.APPLICATION_ID
+   		and p.USER_ID = #{loginId}
+   		and so.user_id =
+       	(select s.login
+          from sys_user s
+         where s.id = #{loginId}
+   		and so.orgno = circle.regist_org_no)
+   		and u.user_id = su.id
+		<if test="cardId!=null and cardId!=''">
+			and U.card_id=#{cardId}
+		</if>
+		<if test="chineseName!=null and chineseName!=''">
+			<![CDATA[ and U.chinese_name like '%'||#{chineseName}||'%' ]]>
+		</if>
+		<if test="nodeName!=null and nodeName!=''">
+			and N.node_name=#{nodeName}
+		</if>
 		</select>
 </mapper>

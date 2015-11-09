@@ -9,6 +9,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,7 +28,10 @@ import com.cardpay.pccredit.customer.web.CustomerInforForm;
 import com.cardpay.pccredit.datapri.constant.DataPriConstants;
 import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
+import com.cardpay.pccredit.intopieces.model.CustomerApplicationProcess;
+import com.cardpay.pccredit.intopieces.model.QzApplnJyd;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationInfoService;
+import com.cardpay.pccredit.intopieces.service.CustomerApplicationProcessService;
 import com.cardpay.pccredit.intopieces.service.IntoPiecesService;
 import com.cardpay.pccredit.ipad.util.JsonDateValueProcessor;
 import com.wicresoft.jrad.base.auth.IUser;
@@ -63,6 +67,9 @@ public class IESBForCircleController extends BaseController{
 	
 	@Autowired
 	private IntoPiecesService intoPiecesService;
+	
+	@Autowired
+	private CustomerApplicationProcessService customerApplicationProcessService;
 	
 	/**
 	 * 浏览页面
@@ -103,16 +110,32 @@ public class IESBForCircleController extends BaseController{
 		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/iesbforcircle_display", request);
 		
 		String customerId = request.getParameter(ID);
+		//区分影像补扫入口和内部审核入口的跳转标志（1:影像补扫，默认是内部审核）
+		String flag = request.getParameter("flag");
+		
 		String appId = request.getParameter("appId");
 		String operate = request.getParameter("operate");
-		IESBForECIFReturnMap ecif = eCIFService.findEcifByCustomerId(customerId);
+		String ifHideUser = request.getParameter("ifHideUser");
+		IESBForECIFReturnMap ecif = eCIFService.findEcifMapByCustomerId(customerId);
 		mv.addObject("ecif",ecif);
-				
-		Circle circle = circleService.findCircleByAppId(appId);
+		//根据appid（节点名称）获取节点id
+		CustomerApplicationProcess process =  customerApplicationProcessService.findByAppId(appId);
+		
+		Circle circle = null;
+		if(appId != null && !appId.equals("")){
+			circle = circleService.findCircleByAppId(appId);
+		}else{
+			circle = circleService.findCircle(customerId,null);
+		}
+		if(circle != null && circle.getHigherOrgNo().equals("000000")){//替换为泉州总行id
+			circle.setHigherOrgNo(Constant.QZ_ORG_ROOT_ID);
+		}
 		mv.addObject("circle",circle);
 		mv.addObject("operate",operate);
 		mv.addObject("appId",appId);
 		mv.addObject("returnUrl",intoPiecesService.getReturnUrl(operate));
+		mv.addObject("ifHideUser", ifHideUser);
+		mv.addObject("nodeId", process==null?"":process.getNextNodeId());
 		return mv;
 	}
 	
@@ -129,17 +152,23 @@ public class IESBForCircleController extends BaseController{
 		
 		String customerId = request.getParameter(ID);
 		String appId = request.getParameter("appId");
-		String operate = request.getParameter("operate");
-		IESBForECIFReturnMap ecif = eCIFService.findEcifByCustomerId(customerId);
+		String operate = request.getParameter("operate");//settleDownLoan表示安居贷
+		IESBForECIFReturnMap ecif = eCIFService.findEcifMapByCustomerId(customerId);
 		JSONObject json = new JSONObject();
 		json = JSONObject.fromObject(ecif);
 		
+		//根据appid（节点名称）获取节点id
+		
+		CustomerApplicationProcess process =  customerApplicationProcessService.findByAppId(appId);
+		//获取决议单信息
+		QzApplnJyd jyd = intoPiecesService.getJydByCustomerId(customerId, appId);
 		//Circle circle = circleService.findCircleByClientNo(ecif.getClientNo());
+		
 		Circle circle = null;
-		if(appId!=null){
+		if(appId != null && !appId.equals("")){
 			circle = circleService.findCircleByAppId(appId);
 		}else{
-			circle = circleService.findCircle(customerId, null);
+			circle = circleService.findCircle(customerId,null);
 		}
 		if(circle == null){
 			mv = new JRadModelAndView("/qzbankinterface/iesbforcircle", request);
@@ -147,18 +176,20 @@ public class IESBForCircleController extends BaseController{
 			IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
 			String orgId = user.getOrganization().getId();//机构ID
 			String parentOrgId = user.getOrganization().getParentId();//机构ID
-//			if(parentOrgId.equals("000000")){//替换为泉州总行id
+			if(parentOrgId.equals("000000")){//替换为泉州总行id
 				parentOrgId = Constant.QZ_ORG_ROOT_ID;
-//			}
+			}
 			String externalId = user.getLogin();//工号
 			mv.addObject("orgId",orgId);
 			mv.addObject("parentOrgId",parentOrgId);
 			mv.addObject("externalId",externalId);
 			
-			
 		}
 		else{
 			mv = new JRadModelAndView("/qzbankinterface/iesbforcircle_change", request);
+			if(circle.getHigherOrgNo().equals("000000")){//替换为泉州总行id
+				circle.setHigherOrgNo(Constant.QZ_ORG_ROOT_ID);
+			}
 			mv.addObject("circle",circle);
 		}
 		
@@ -166,7 +197,9 @@ public class IESBForCircleController extends BaseController{
 		mv.addObject("ecif",json);
 		mv.addObject("operate",operate);
 		mv.addObject("appId",appId);
+		mv.addObject("jyd",jyd);
 		mv.addObject("returnUrl",intoPiecesService.getReturnUrl(operate));
+		mv.addObject("nodeId", process==null?"":process.getNextNodeId());
 		
 		return mv;
 	}
@@ -182,54 +215,102 @@ public class IESBForCircleController extends BaseController{
 	@RequestMapping(value = "insert.json")
 	public JRadReturnMap insert(@ModelAttribute IESBForCircleForm iesbForCircleForm, HttpServletRequest request) {
 		JRadReturnMap returnMap = new JRadReturnMap();
+		String appId = request.getParameter("appId");
 		if (returnMap.isSuccess()) {
 			try {
 				//设置级联选项 级联未考虑空情况，已注释
 				if(iesbForCircleForm.getLoanKind_1() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_1().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_1("");
 				}
+				
 				if(iesbForCircleForm.getLoanKind_2() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_2().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_2("");
 				}
+				
 				if(iesbForCircleForm.getLoanKind_3() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_3().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_3("");
 				}
+				
 				if(iesbForCircleForm.getLoanKind_4() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_4().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_4("");
 				}
 				
 				if(iesbForCircleForm.getAgriLoanKind_1() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_1().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_1("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_2() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_2().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_2("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_3() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_3().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_3("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_4() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_4().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_4("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_5() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_5().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_5("");
 				}
 				
 				iesbForCircleForm.setLoanDirection(iesbForCircleForm.getLoanDirection_4().split("_")[1]);
 				
 				if(iesbForCircleForm.getLoanBelong1_1() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_1().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_1("");
 				}
+				
 				if(iesbForCircleForm.getLoanBelong1_2() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_2().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_2("");
 				}
+				
 				if(iesbForCircleForm.getLoanBelong1_3() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_3().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_3("");
 				}
+				
 				if(iesbForCircleForm.getLoanBelong1_4() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_4().split("_")[1]);
 				}
+				else{
+					iesbForCircleForm.setLoanBelong1_4("");
+				}
+				
 				if(iesbForCircleForm.getLoanBelong1_5() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_5().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_5("");
+				}
+				
+				if(StringUtils.isEmpty(iesbForCircleForm.getFeeAmount())){
+					iesbForCircleForm.setFeeAmount("0");
+				}
+				if(StringUtils.isEmpty(iesbForCircleForm.getFeeCcy())){
+					iesbForCircleForm.setFeeCcy("CNY");
 				}
 				
 				iesbForCircleForm.setRegPermResidence(iesbForCircleForm.getRegPermResidence_3().split("_")[1]);
@@ -244,6 +325,7 @@ public class IESBForCircleController extends BaseController{
 				circle.setCreatedBy(user.getId());
 				circle.setUserId(user.getId());
 				circle.setCustomerId(request.getParameter("customerId"));
+				circle.setApplicationId(appId);
 				circleService.insertCustomerInforCircle(circle);
 				
 				returnMap.addGlobalMessage(CREATE_SUCCESS);
@@ -270,56 +352,104 @@ public class IESBForCircleController extends BaseController{
 	@RequestMapping(value = "update.json")
 	public JRadReturnMap update(@ModelAttribute IESBForCircleForm iesbForCircleForm, HttpServletRequest request) {
 		String circleId = request.getParameter(ID);
-		
+		String appId = request.getParameter("appId");
 		JRadReturnMap returnMap = new JRadReturnMap();
 		if (returnMap.isSuccess()) {
 			try {
 				//设置级联选项 级联未考虑空情况，已注释
 				if(iesbForCircleForm.getLoanKind_1() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_1().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_1("");
 				}
+				
 				if(iesbForCircleForm.getLoanKind_2() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_2().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_2("");
 				}
+				
 				if(iesbForCircleForm.getLoanKind_3() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_3().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_3("");
 				}
+				
 				if(iesbForCircleForm.getLoanKind_4() != null){
 					iesbForCircleForm.setLoanKind(iesbForCircleForm.getLoanKind_4().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanKind_4("");
 				}
 				
+				//
 				if(iesbForCircleForm.getAgriLoanKind_1() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_1().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_1("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_2() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_2().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_2("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_3() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_3().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_3("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_4() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_4().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_4("");
 				}
+				
 				if(iesbForCircleForm.getAgriLoanKind_5() != null){
 					iesbForCircleForm.setAgriLoanKind(iesbForCircleForm.getAgriLoanKind_5().split("_")[1]);
+				}else{
+					iesbForCircleForm.setAgriLoanKind_5("");
 				}
 				
+				//
 				iesbForCircleForm.setLoanDirection(iesbForCircleForm.getLoanDirection_4().split("_")[1]);
 				
+				//
 				if(iesbForCircleForm.getLoanBelong1_1() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_1().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_1("");
 				}
 				if(iesbForCircleForm.getLoanBelong1_2() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_2().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_2("");
 				}
+				
 				if(iesbForCircleForm.getLoanBelong1_3() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_3().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_3("");
 				}
+				
 				if(iesbForCircleForm.getLoanBelong1_4() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_4().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_4("");
 				}
+				
 				if(iesbForCircleForm.getLoanBelong1_5() != null){
 					iesbForCircleForm.setLoanBelong1(iesbForCircleForm.getLoanBelong1_5().split("_")[1]);
+				}else{
+					iesbForCircleForm.setLoanBelong1_5("");
+				}
+				
+				if(StringUtils.isEmpty(iesbForCircleForm.getFeeAmount())){
+					iesbForCircleForm.setFeeAmount("0");
+				}
+				if(StringUtils.isEmpty(iesbForCircleForm.getFeeCcy())){
+					iesbForCircleForm.setFeeCcy("CNY");
 				}
 				
 				iesbForCircleForm.setRegPermResidence(iesbForCircleForm.getRegPermResidence_3().split("_")[1]);
@@ -335,6 +465,7 @@ public class IESBForCircleController extends BaseController{
 				circle.setUserId(user.getId());
 				circle.setId(circleId);
 				circle.setCustomerId(request.getParameter("customerId"));
+				circle.setApplicationId(appId);
 				circleService.updateCustomerInforCircle(circle);
 //				returnMap.put(RECORD_ID, id);
 				returnMap.addGlobalMessage(CREATE_SUCCESS);
@@ -349,6 +480,5 @@ public class IESBForCircleController extends BaseController{
 		}
 		return returnMap;
 	}
-	
 }
 

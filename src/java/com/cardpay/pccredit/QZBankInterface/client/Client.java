@@ -47,11 +47,11 @@ public class Client implements InitializingBean{
 		//System.setProperty(ClientConfig.FILEPATH,path.substring(6, path.length()));
 		//jboss weblogic直接写死路径
 		//测试环境
-		System.setProperty(ClientConfig.FILEPATH,"/usr/cardpay/esb/");
+		//System.setProperty(ClientConfig.FILEPATH,"/usr/cardpay/esb/");
 		//生产环境
-		//System.setProperty(ClientConfig.FILEPATH,"/home/pccredit/pccredit_esb/");
+		System.setProperty(ClientConfig.FILEPATH,"/home/pccredit/pccredit_esb/");
         //设置log4j配置文件路径
-        //PropertyConfigurator.configure(new File("").getAbsolutePath()+"/src/java/log4j.properties");
+        PropertyConfigurator.configure("/home/pccredit/pccredit_log/log4j.properties");
 	}
 
     /**

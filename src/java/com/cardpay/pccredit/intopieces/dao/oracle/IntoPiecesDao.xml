@@ -1,7 +1,145 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.cardpay.pccredit.intopieces.dao.IntoPiecesDao" >
+    
+    <resultMap id="ResultMap" type="com.cardpay.pccredit.intopieces.model.IntoPieces">
+	    <result property="id" column="ID" />
+	    <result property="customerId" column="customer_id" />
+	    <result property="chineseName" column="chinese_name" />
+	    <result property="productId" column="product_id" />
+	    <result property="productName" column="product_name" />
+	    <result property="cardId" column="card_id" />
+	    <result property="applyQuota" column="apply_quota" />
+	    <result property="status" column="status" />
+	    <result property="statusName" column="status_name" />
+	    <result property="createTime" column="Created_Time" />
+	    <result property="nodeName" column="node_name" />
+	</resultMap>
+	
   <select id="checkValue" resultType="int">
   select count(1) from account_manager_parameter a, manager_customer_type c   where  a.level_information = c.level_id  and  a.user_id=#{userId} and c.customer_type =#{valueType} 
   </select>
+  
+  <select id="findintoPiecesByFilterWF" resultMap="ResultMap">
+      SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			
+		SELECT cai. ID,cai.customer_id,cai.chinese_name,cai.product_id,cai.card_id,cai.apply_quota,cai.status,cai.Created_Time 
+		FROM 
+		(SELECT * FROM WF_STATUS_QUEUE_RECORD WHERE EXAMINE_USER = #{userId}) wsqr 
+		LEFT JOIN ( SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.SERIAL_NUMBER ,T.Created_Time 
+		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
+
+		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
+		) cai 
+		ON wsqr.CURRENT_PROCESS = CAI.SERIAL_NUMBER where 1=1 
+		
+		<if test="chineseName != null and chineseName != '' ">
+		    and cai.chinese_name like '%'||#{chineseName}||'%' 
+		</if>
+		<if test="cardId != null and cardId != '' ">
+		    and cai.card_id like '%'||#{cardId}||'%' 
+		</if>
+		<if test="status != null and status != '' ">
+		    <if test="status == 'audit' ">
+				and (cai.status=#{status} or cai.status='RETURNAPPROVE')
+			</if>
+			<if test="status != 'audit' ">
+				and cai.status=#{status}
+			</if>
+		</if>
+		
+		union 
+		SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.Created_Time 
+		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
+		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
+		where (b.user_id = #{userId} 
+		or b.user_id in ( 
+		select user_id from ACCOUNT_MANAGER_PARAMETER where id in (SELECT 
+		mbm.child_id 
+		FROM 
+		manager_belong_map mbm 
+		LEFT JOIN account_manager_parameter amp ON amp. ID = mbm.parent_id 
+		WHERE 
+		amp.user_id = #{userId})))
+		
+		<if test="chineseName != null and chineseName != '' ">
+		    and b.chinese_name like '%'||#{chineseName}||'%' 
+		</if>
+		<if test="cardId != null and cardId != '' ">
+		    and b.card_id like '%'||#{cardId}||'%' 
+		</if>
+		<if test="status != null and status != '' ">
+		    <if test="status == 'audit' ">
+				and (T.status=#{status} or T.status='RETURNAPPROVE')
+			</if>
+			<if test="status != 'audit' ">
+				and T.status=#{status}
+			</if>
+		</if>
+			<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+	</select>
+	
+  <select id="findCountintoPiecesByFilterWF" resultType="int">
+		 select count(*) 
+		FROM 
+		(select cai. ID,cai.customer_id,cai.chinese_name,cai.product_id,cai.card_id,cai.apply_quota,cai.status,cai.Created_Time
+		from 
+		(SELECT * FROM WF_STATUS_QUEUE_RECORD WHERE EXAMINE_USER = #{userId}) wsqr 
+		LEFT JOIN ( SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.SERIAL_NUMBER ,T.Created_Time 
+		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
+
+		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
+		) cai 
+		ON wsqr.CURRENT_PROCESS = CAI.SERIAL_NUMBER where 1=1 
+		
+		<if test="chineseName != null and chineseName != '' ">
+		    and cai.chinese_name like '%'||#{chineseName}||'%' 
+		</if>
+		<if test="cardId != null and cardId != '' ">
+		    and cai.card_id like '%'||#{cardId}||'%' 
+		</if>
+		<if test="status != null and status != '' ">
+		    <if test="status == 'audit' ">
+				and (cai.status=#{status} or cai.status='RETURNAPPROVE')
+			</if>
+			<if test="status != 'audit' ">
+				and cai.status=#{status}
+			</if>
+		</if>
+		union 
+		SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.Created_Time 
+		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
+		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
+		where (b.user_id = #{userId} 
+		or b.user_id in ( 
+		select user_id from ACCOUNT_MANAGER_PARAMETER where id in (SELECT 
+		mbm.child_id 
+		FROM 
+		manager_belong_map mbm 
+		LEFT JOIN account_manager_parameter amp ON amp. ID = mbm.parent_id 
+		WHERE 
+		amp.user_id = #{userId})))
+		
+		<if test="chineseName != null and chineseName != '' ">
+		    and b.chinese_name like '%'||#{chineseName}||'%' 
+		</if>
+		<if test="cardId != null and cardId != '' ">
+		    and b.card_id like '%'||#{cardId}||'%' 
+		</if>
+		<if test="status != null and status != '' ">
+		    <if test="status == 'audit' ">
+				and (T.status=#{status} or T.status='RETURNAPPROVE')
+			</if>
+			<if test="status != 'audit' ">
+				and T.status=#{status}
+			</if>
+		</if>
+		)
+	</select>
 </mapper>

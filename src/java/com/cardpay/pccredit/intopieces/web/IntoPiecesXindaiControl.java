@@ -31,7 +31,9 @@ import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.filter.CustomerApplicationProcessFilter;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationProcess;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList;
 import com.cardpay.pccredit.intopieces.model.VideoAccessories;
+import com.cardpay.pccredit.intopieces.service.AttachmentListService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationIntopieceWaitService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationProcessService;
 import com.cardpay.pccredit.intopieces.service.IntoPiecesService;
@@ -72,6 +74,9 @@ public class IntoPiecesXindaiControl extends BaseController {
 	private CircleService circleService;
 	@Autowired
 	private ECIFService eCIFService;
+	
+	@Autowired
+	private AttachmentListService attachmentListService;
 	/**
 	 * 行政岗终进件页面
 	 * 
@@ -158,21 +163,32 @@ public class IntoPiecesXindaiControl extends BaseController {
 		JRadReturnMap returnMap = new JRadReturnMap();
 		try {
 			String appId = request.getParameter("id");
+			//是否上传合同单
+			/*Boolean ifAddHt = intoPiecesService.getDcnrList(appId);
+			if(!ifAddHt){
+				returnMap.put(JRadConstants.MESSAGE, "请先上传\"合同扫描件\"");
+				returnMap.put(JRadConstants.SUCCESS, false);
+				return returnMap;
+			}*/
 			CustomerApplicationProcess process =  customerApplicationProcessService.findByAppId(appId);
 			request.setAttribute("serialNumber", process.getSerialNumber());
 			request.setAttribute("applicationId", process.getApplicationId());
 			request.setAttribute("applicationStatus", ApplicationStatusEnum.APPROVE);
 			request.setAttribute("objection", "false");
 			//查找审批金额
-			CustomerApplicationInfo appInfo = intoPiecesService.findCustomerApplicationInfoByApplicationId(appId);
-			IESBForECIFReturnMap ecif = eCIFService.findEcifByCustomerId(appInfo.getCustomerId());
-			Circle circle = circleService.findCircleByClientNo(ecif.getClientNo());
+			Circle circle = circleService.findCircleByAppId(appId);
 			
+			if(StringUtils.isBlank(circle.getaClientNo())){
+				returnMap.setSuccess(false);
+				returnMap.put("message", "客户号不能为空");
+				return returnMap;
+			}
 			request.setAttribute("examineAmount", circle.getContractAmt());
 			customerApplicationIntopieceWaitService.updateCustomerApplicationProcessBySerialNumberApplicationInfo1(request);
 			returnMap.addGlobalMessage(CHANGE_SUCCESS);
 		} catch (Exception e) {
 			returnMap.addGlobalMessage("保存失败");
+			returnMap.put("message", "保存失败");
 			e.printStackTrace();
 		}
 		return returnMap;
@@ -194,4 +210,36 @@ public class IntoPiecesXindaiControl extends BaseController {
 		}
 		return mv;
 	}
+	
+	/**
+	 * 申请件退件
+	 * 从填写合同--中心复核
+	 * @param filter
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "returnAppln.json")
+	public JRadReturnMap returnAppln(HttpServletRequest request) throws SQLException {
+		JRadReturnMap returnMap = new JRadReturnMap();
+		try {
+			String nodeNo = "";
+			String appId = request.getParameter("appId");
+			String operate = request.getParameter("operate");//当前审批节点
+			String nodeName = request.getParameter("nodeName");//退回目标节点id
+			//退回客户经理和其他岗位不一致
+			if("1".equals(nodeName)){
+				
+				intoPiecesService.checkDoNotToManager(appId,request);
+			}else{
+				intoPiecesService.returnAppln(appId, request,nodeName);
+			}
+			returnMap.addGlobalMessage(CHANGE_SUCCESS);
+		} catch (Exception e) {
+			returnMap.addGlobalMessage("保存失败");
+			e.printStackTrace();
+		}
+		return returnMap;
+	}
+	
 }

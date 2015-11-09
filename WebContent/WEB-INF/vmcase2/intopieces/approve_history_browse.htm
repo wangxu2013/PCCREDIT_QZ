@@ -9,7 +9,7 @@
             <colgroup>
               <col width="5%" />
               <col width="15%" />
-              <col width="15%" />
+              <col width="30%" />
               #if($!ifHideUser == 'YES')
               	<col width="15%"/>
               #end
@@ -33,7 +33,7 @@
             <colgroup>
               <col width="5%" />
               <col width="15%" />
-              <col width="15%" />
+              <col width="30%" />
               #if($!ifHideUser == 'YES')
               	<col width="15%"/>
               #end
@@ -44,7 +44,11 @@
             <tr>
               <td nowrap="nowrap">$velocityCount</td>
               <td nowrap="nowrap">$!history.statusName</td>
-              <td nowrap="nowrap">#dictVal("approveOperationSpecialStatus" , $!history.examineResult)</td>
+              <td nowrap="nowrap">#if($!history.examineResult.indexOf(',') < 0)
+              #dictVal("approveOperationSpecialStatus" , $!history.examineResult)
+              #else
+              $!history.examineResult
+              #end</td>
               #if($!ifHideUser == 'YES')
               <td nowrap="nowrap">$!history.displayName</td>
               #end

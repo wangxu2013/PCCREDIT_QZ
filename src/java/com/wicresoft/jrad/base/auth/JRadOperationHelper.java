@@ -64,6 +64,10 @@ public class JRadOperationHelper {
 		opsStr2Long.put(JRadOperation.ASSESS, "assess");
 		opsStr2Long.put(JRadOperation.SUBTURNOTHER, "subturnother");
 		opsStr2Long.put(JRadOperation.FEEDBACK, "feedback");
+		opsStr2Long.put(JRadOperation.SCAN, "scan");//影像补扫
+		opsStr2Long.put(JRadOperation.FREEZE, "freeze");
+		opsStr2Long.put(JRadOperation.THAW, "thaw");
+		opsStr2Long.put(JRadOperation.CONTEND, "contend");
 		
 		
 		for (Entry<Long, String> entry : opsStr2Long.entrySet()) {

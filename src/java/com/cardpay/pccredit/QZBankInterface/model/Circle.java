@@ -132,11 +132,19 @@ public class Circle extends BusinessModel{
 //	private String cInterbankId;
 	private String userId;
 	
+	private String retMsg;
+	private String retCode;
+	private String retContno;
+	private String loanStatus;
+	
 	private String acctNo1;//收息收款账号
 	private String acctNo2;//放款账号
 	
 	private String customerId;
 	private String applicationId;
+	
+	private String shenHeRen1;
+	private String shenHeRen2;
 	
 	public String getContractNo() {
 		return contractNo;
@@ -745,4 +753,41 @@ public class Circle extends BusinessModel{
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
 	}
+	public String getRetMsg() {
+		return retMsg;
+	}
+	public void setRetMsg(String retMsg) {
+		this.retMsg = retMsg;
+	}
+	public String getRetCode() {
+		return retCode;
+	}
+	public void setRetCode(String retCode) {
+		this.retCode = retCode;
+	}
+	public String getRetContno() {
+		return retContno;
+	}
+	public void setRetContno(String retContno) {
+		this.retContno = retContno;
+	}
+	public String getLoanStatus() {
+		return loanStatus;
+	}
+	public void setLoanStatus(String loanStatus) {
+		this.loanStatus = loanStatus;
+	}
+	public String getShenHeRen1() {
+		return shenHeRen1;
+	}
+	public void setShenHeRen1(String shenHeRen1) {
+		this.shenHeRen1 = shenHeRen1;
+	}
+	public String getShenHeRen2() {
+		return shenHeRen2;
+	}
+	public void setShenHeRen2(String shenHeRen2) {
+		this.shenHeRen2 = shenHeRen2;
+	}
+	
 }

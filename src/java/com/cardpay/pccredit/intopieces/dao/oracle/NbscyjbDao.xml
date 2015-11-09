@@ -22,6 +22,7 @@
 		<result property="isComplete" column="IS_COMPLETE" />
 		<result property="createdBy" column="CREATED_BY" />
 		<result property="createdTime" column="CREATED_TIME" />
+		<result property="hcryqz1" column="HCRYQZ1" />
 	</resultMap>
 	
 	

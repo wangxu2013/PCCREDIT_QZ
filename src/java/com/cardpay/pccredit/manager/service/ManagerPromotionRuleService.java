@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cardpay.pccredit.manager.dao.comdao.ManagerPromotionRuleComdao;
+import com.cardpay.pccredit.manager.model.ManagerPromotionDownRule;
 import com.cardpay.pccredit.manager.model.ManagerPromotionRule;
 import com.wicresoft.jrad.base.auth.IUser;
 import com.wicresoft.jrad.base.database.dao.common.CommonDao;
@@ -39,6 +40,16 @@ public class ManagerPromotionRuleService {
 	
 		return managerPromotionRuleComdao.getManagerPromotionRule();
 		
+	}
+	
+
+	/**
+	 * ty
+	 * 查询客户经理晋降级规则
+	 * @return
+	 */
+	public List<ManagerPromotionDownRule> getManagerPromotionDownRule(){
+		return managerPromotionRuleComdao.getManagerPromotionDownRule();
 	}
 	
 	/**
@@ -111,6 +122,65 @@ public class ManagerPromotionRuleService {
 				managerPromotionRule.setCreatedBy(userId);
 				managerPromotionRule.setCreatedTime(calendar.getTime());
 				commonDao.insertObject(managerPromotionRule);		
+					
+			}
+	
+		}
+		
+		
+	}
+	
+	
+	/**
+	 * ty
+	 * 修改客户经理晋降级规则
+	 * @param request
+	 */
+	public void updateManagerPromotionDownRule(HttpServletRequest request) {
+		
+		Calendar calendar = Calendar.getInstance();
+		IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
+		String userId = user.getId();
+		String[] id= request.getParameterValues("id");
+		String[] initialLevel= request.getParameterValues("initialLevel");
+		String[] quarterAverageCreditBalance= request.getParameterValues("quarterAverageCreditBalance");
+		String[] tubeNumber= request.getParameterValues("tubeNumber");
+		String[] overLoanRatio= request.getParameterValues("overLoanRatio");
+		String[] kpiScore= request.getParameterValues("kpiScore");
+
+
+		
+		for(int i=0;i<id.length;i++){
+			ManagerPromotionDownRule managerPromotionDownRule = new ManagerPromotionDownRule();
+			String idValue= id[i];
+			String initialLevelValue=initialLevel[i];
+			managerPromotionDownRule.setInitialLevel(initialLevelValue);
+			
+			if(quarterAverageCreditBalance[i] !=null && quarterAverageCreditBalance[i] !=""){	
+				managerPromotionDownRule.setQuarterAverageCreditBalance(quarterAverageCreditBalance[i]);
+			}
+			
+			if(tubeNumber[i] !="" && tubeNumber[i] !=null){
+				int tubeNumberValue=Integer.parseInt(tubeNumber[i]);
+				managerPromotionDownRule.setTubeNumber(tubeNumberValue);
+			}
+			
+            if(overLoanRatio[i] !=null && overLoanRatio[i] !=""){
+				managerPromotionDownRule.setOverLoanRatio(overLoanRatio[i]);
+			}
+			
+            managerPromotionDownRule.setKpiScore(kpiScore[i]);
+			
+			managerPromotionDownRule.setModifiedBy(userId);
+			managerPromotionDownRule.setModifiedTime(calendar.getTime());
+			
+			if(idValue != null && idValue !=""){
+				managerPromotionDownRule.setId(idValue);
+				commonDao.updateObject(managerPromotionDownRule);
+			}else{
+				managerPromotionDownRule.setCreatedBy(userId);
+				managerPromotionDownRule.setCreatedTime(calendar.getTime());
+				commonDao.insertObject(managerPromotionDownRule);		
 					
 			}
 	

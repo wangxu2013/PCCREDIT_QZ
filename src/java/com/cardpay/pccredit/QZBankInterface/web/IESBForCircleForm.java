@@ -134,6 +134,9 @@ public class IESBForCircleForm extends BaseForm{
 	private String acctNo1;//收息收款账号
 	private String acctNo2;//放款账号
 	
+	private String shenHeRen1;
+	private String shenHeRen2;
+	
 	public String getContractNo() {
 		return contractNo;
 	}
@@ -781,6 +784,18 @@ public class IESBForCircleForm extends BaseForm{
 	}
 	public void setAcctNo2(String acctNo2) {
 		this.acctNo2 = acctNo2;
+	}
+	public String getShenHeRen1() {
+		return shenHeRen1;
+	}
+	public void setShenHeRen1(String shenHeRen1) {
+		this.shenHeRen1 = shenHeRen1;
+	}
+	public String getShenHeRen2() {
+		return shenHeRen2;
+	}
+	public void setShenHeRen2(String shenHeRen2) {
+		this.shenHeRen2 = shenHeRen2;
 	}
 	
 }

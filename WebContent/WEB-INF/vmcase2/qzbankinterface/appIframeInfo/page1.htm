@@ -20,11 +20,11 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				<tr>
 					<td class="table-label">机构名称：</td>
 					<td>
-						<input type="text" value="$!orgName" disabled>
+						<input type="text" value="$!orgName" readonly>
 						<input type="hidden" value="$!orgName" name="orgName">
-						<input type="hidden" name="orgId" value="$!orgId"></select></td>
-					<td class="table-label">申请日期：</td>
-					<td><input type="text" name="applyTime" onmouseover="_calendar()"/></td>					
+						<input type="hidden" name="orgId" value="$!orgId"></td>
+					<td class="table-label">申请日期：<font color="#ff0000">*</font></td>
+					<td><input type="text" name="applyTime" onmouseover="_calendar()" readonly/></td>					
 				</tr>
 			</table>
 		</div>
@@ -48,7 +48,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				<tr>
 					<td class="table-label">姓名：<font color="#ff0000">*</font></td>
 					<td>
-						<input type="text" value="$!ecif.clientName" disabled />
+						<input type="text" value="$!ecif.clientName" readonly />
 						<input type="hidden" name="name" value="$!ecif.clientName" /></td>	
 					<td class="table-label">性别：<font color="#ff0000">*</font></td>
 					<td>
@@ -60,7 +60,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				</tr>
 				<tr>
 					<td class="table-label">证件号码：<font color="#ff0000">*</font></td>
-					<td><input type="text" value="$!ecif.globalId" disabled/><input type="hidden" name="globalId" value="$!ecif.globalId" /></td>	
+					<td><input type="text" value="$!ecif.globalId" readonly/><input type="hidden" name="globalId" value="$!ecif.globalId" /></td>	
 					<td class="table-label">证件类型：<font color="#ff0000">*</font></td>
 					<td>
 						<select id="globalType" name="globalType" onchange="setSelect(this,'qtzjlx')">
@@ -223,13 +223,17 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 					<td class="table-label">贷款金额(万)：<font color="#ff0000">*</font></td>
 					<td><input type="text" name="applyAmount"/></td>	
 					<td class="table-label">贷款期限(月)：<font color="#ff0000">*</font></td>					
-					<td><input type="text" name="applyDeadline"/></td>		
+					<td>
+						<select name="applyDeadline">
+	                    	#dict("APPLY_DEADLINE", '')
+	                  	</select>
+	                </td>		
 				</tr>	
 				<tr>
 					<td class="table-label">贷款用途：<font color="#ff0000">*</font></td>
 					<td><input type="text" name="applyUse"/></td>	
 					<td class="table-label">申请到期日：<font color="#ff0000">*</font></td>					
-					<td><input type="text" name="applyEndTime" onmouseover="_calendar()"/></td>		
+					<td><input type="text" name="applyEndTime" onmouseover="_calendar()" readonly/></td>		
 				</tr>	
 				<tr>
 					<td class="table-label">月还款能力(万)：<font color="#ff0000">*</font></td>
@@ -357,7 +361,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 					<td class="tableTitle" colspan="8" style="text-align:left;">
 						借款记录
 						<label><input type="radio" name="borrowHistory" value="1" onclick="$('#buttons').show();$('#jkjl .input').removeAttr('disabled')"/>有</label>
-						<label><input type="radio" name="borrowHistory" value="0" onclick="$('#buttons').hide();$('#jkjl .input').val('');$('#jkjl .input').attr('disabled','disabled')" checked/>无</label>
+						<label><input type="radio" name="borrowHistory" value="0" onclick="$('#buttons').hide();$('#jkjl .input').attr('disabled','disabled')" checked/>无</label>
 						<span class="display" id="buttons">
 							<a class="add" onclick="addTd('jkjl')"><img src="${contextPath}/images/add.png"/></a>
 							<a class="del" onclick="removeTd('jkjl')"><img src="${contextPath}/images/del.png"/></a>
@@ -380,7 +384,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 					<td><input type="text" class="input" name="purpose_jkjl_1" disabled/></td>					
 					<td><input type="text" class="input" name="totalAmount_jkjl_1" disabled/></td>	
 					<script>
-						document.write('<td><input type="text" class="input" name="loanDate_jkjl_1" value="'+timestr+'" onmouseover="_calendar()" disabled/></td>');
+						document.write('<td><input type="text" class="input" name="loanDate_jkjl_1" value="'+timestr+'" onmouseover="_calendar()" disabled readonly/></td>');
 					</script>
 					<td><input type="text" class="input" name="deadline_jkjl_1" disabled/></td>					
 					<td><input type="text" class="input" name="rates_jkjl_1" disabled/></td>	
@@ -490,9 +494,9 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				</tr>						
 				<tr>
 					<td class="table-label">客户签名：<font color="#ff0000">*</font></td>
-					<td><input type="text" value="$!ecif.clientName" disabled/><input type="hidden" name="sign" value="$!ecif.clientName"/></td>	
+					<td><input type="text" value="$!ecif.clientName" readonly/><input type="hidden" name="sign" value="$!ecif.clientName"/></td>	
 					<td class="table-label">签名日期：<font color="#ff0000">*</font></td>	
-					<td><input type="text" name="signDate" onmouseover="_calendar()"/></td>	
+					<td><input type="text" name="signDate" onmouseover="_calendar()" readonly/></td>	
 				</tr>	
 			</table>
 		</div><!--/content-->
@@ -519,7 +523,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 						<select name="infoType" onchange="setSelect(this,'qtxxqd')">
 							#dict("INFO_TYPE", "")
 						</select>
-						<input type="text" name="infoTypeOther" id="qtxxqd" disabled/>	
+						<input type="text" name="infoTypeOther" id="qtxxqd" readonly/>	
 					</td>	
 						
 				</tr>
@@ -542,11 +546,16 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				</tr>
 				<tr>
 					<td class="table-label">经办人：</td>
-					<td><input type="text" value="$!userName" disabled/>
+					<td><input type="text" value="$!userName" readonly/>
 						<input type="hidden" name="managerName" value="$!userName"/>
 						<input type="hidden" name="managerId" value="$!externalId"/></td>	
+					<td class="table-label">协办客户经理：</td>
+					<td><input type="text" name="helpManagerName" value="$!qzApplnYwsqb.helpManagerName" />
+					</td>	
+				</tr>
+				<tr>		
 					<td class="table-label">日期：<font color="#ff0000">*</font></td>	
-					<td><input type="text" name="managerTime" onmouseover="_calendar()"/></td>	
+					<td><input type="text" name="managerTime" onmouseover="_calendar()" readonly/></td>	
 				</tr>	
 			</table>
 		</div><!--/content-->
@@ -603,23 +612,32 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 		$(document).ready(function() {	
 			//保存
 			$("#id_save_button").click(function() {
+				if(submitFlag == 1){
+					alert("请勿重复提交!")
+					return;
+				}
+				submitFlag = 1;
 				if ($($formName).valid()) {
 					var formjson = $($formName).serialize();
-					var url = "${contextPath}/intopieces/intopiecesapprove/insert_page1.json?customerId=${customerId}";
+					var url = "${contextPath}/intopieces/intopiecesapprove/insert_page1.json?customerId=${customerId}&appId=${appId}";
 					$.ajax({
+						
 						url : url,
 						type : "get",
 						data : formjson,
 						success : function(data) {
 							if (data.success) {
 								topWin.Dialog.message("保存成功！");
-								window.location.href = "${contextPath}/intopieces/intopiecesapprove/page1.page?customerId=${customerId}";
+								window.location.href = "${contextPath}/intopieces/intopiecesapprove/page1.page?id=${customerId}&appId=${appId}";
 							}
 							else{
 								topWin.Dialog.message("保存失败！");
 						    }
+							submitFlag = 0;
 						}
 					});
+				}else{
+					submitFlag = 0;
 				}
 			});
 			

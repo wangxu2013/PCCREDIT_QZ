@@ -5,14 +5,13 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList;
-import com.cardpay.pccredit.intopieces.model.QzApplnDbrxx;
-import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxDkjl;
-import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxFc;
-import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxJdc;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentListAdd;
 import com.wicresoft.util.annotation.Mapper;
 
 @Mapper
 public interface AttachmentListDao {
 	public QzApplnAttachmentList findAttachmentList(@Param("customerId")String customerId,@Param("applicationId")String applicationId);
 	public QzApplnAttachmentList findAttachmentListByAppId(@Param("applicationId")String applicationId);
+	public QzApplnAttachmentListAdd findAttachmentListAddByAttId(@Param("attId")String attId,
+			@Param("parentValue")String parentValue);
 }

@@ -288,13 +288,20 @@ public class IntoPiecesComdao {
 		if(dataType.equals("application")){
 			sql += " left join customer_application_process aa on pr.id = aa.serial_number" +
 					" left join sys_user su on t.examine_user = su.id " +
-					" where aa.application_id = #{id}";
+					" where aa.application_id = #{id} and su.display_name is not null";
 		} else if(dataType.equals("amountadjustment")){
 			sql += " left join amount_adjustment_process aa on pr.id = aa.serial_number" +
 					" left join sys_user su on t.examine_user = su.id " +
 					" where aa.amount_adjustment_id = #{id}";
 		}
-		sql += " order by t.start_examine_time desc";
+		
+		sql += " union select r.node_name as status_name," +
+       "r.operate_type ||','|| r.Remark as examine_result," +
+       " r.user_name as display_name,"+
+       " '' as examine_amount,"+
+       " r.created_time as start_examine_time " +
+				" from qz_appln_process_result r where r.application_id=#{id}";
+		sql += " order by start_examine_time desc";
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("id", id);
 		
@@ -307,12 +314,19 @@ public class IntoPiecesComdao {
 	 * @return
 	 */
 	public String findAprroveProgress(String id){
-		String sql = " select status_name from (select s.status_name from wf_status_queue_record t "+
+		/*String sql = " select status_name from (select s.status_name from wf_status_queue_record t "+
 				" left join wf_status_info s on t.current_status = s.id "+
 				" left join wf_process_record pr on t.current_process = pr.id "+
 				" left join customer_application_process aa on pr.id = aa.serial_number "+
 				" where aa.application_id=#{id} " +
-				" order by t.start_examine_time desc) where rownum=1";
+				" order by t.start_examine_time desc) where rownum=1";*/
+		String sql = "select wsi.STATUS_NAME from "
+				+ "customer_application_process cap,wf_process_record wpr,wf_status_queue_record wsqr,wf_status_info wsi "
+				+ "where "
+				+ "cap.application_id = #{id} "
+				+ "and cap.SERIAL_NUMBER = wsqr.CURRENT_PROCESS "
+				+ "and wpr.wf_status_queue_record = wsqr.id "
+				+ "and wsqr.current_status = wsi.id ";
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("id", id);
 		List<HashMap<String, Object>> list = commonDao.queryBySql(sql, params);
@@ -337,4 +351,33 @@ public class IntoPiecesComdao {
 			return null;
 		}
 	}
+	
+	//查询进件信息
+	/* 查询进价信息 */
+	public QueryResult<IntoPieces> findintoPiecesAllByFilter(IntoPiecesFilter filter) {
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		String id = filter.getId();
+		String chineseName = filter.getChineseName();
+		String userId = filter.getUserId();
+		String cardId = filter.getCardId();
+		
+		StringBuffer sql = new StringBuffer("SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status ");
+		sql.append("FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID ");
+		if(StringUtils.trimToNull(cardId)!=null||StringUtils.trimToNull(chineseName)!=null){
+			if(StringUtils.trimToNull(cardId)!=null&&StringUtils.trimToNull(chineseName)!=null){
+			    sql.append(" and (b.card_id like '%"+cardId+"%' or b.chinese_name like '%"+chineseName+"%' )");
+			}else if(StringUtils.trimToNull(cardId)!=null&&StringUtils.trimToNull(chineseName)==null){
+				params.put("cardId", cardId);
+				sql.append(" and b.card_id like '%'||#{cardId}||'%' ");
+			}else if(StringUtils.trimToNull(cardId)==null&&StringUtils.trimToNull(chineseName)!=null){
+				params.put("chineseName", chineseName);
+				sql.append(" and b.chinese_name like '%'||#{chineseName}||'%' ");
+			}
+		}
+		sql.append("LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id ");
+		sql.append(" order by T.created_time desc");
+		return commonDao.queryBySqlInPagination(IntoPieces.class, sql.toString(), params,
+				filter.getStart(), filter.getLimit());
+	}
+		
 }

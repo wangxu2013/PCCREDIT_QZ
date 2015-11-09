@@ -15,8 +15,18 @@
 		<result property="user_2" column="USER_2" />
 		<result property="user_3" column="USER_3" />
 		<result property="user_4" column="USER_4" />
+		<result property="docid" column="DOCID" />
+		<result property="uploadValue" column="UPLOAD_VALUE" />
 		<result property="createdBy" column="CREATED_BY" />
 		<result property="createdTime" column="CREATED_TIME" />
+	</resultMap>
+	
+    <resultMap id="ResultMapAttachmentListAdd" type="com.cardpay.pccredit.intopieces.model.QzApplnAttachmentListAdd">
+        <result property="id" column="ID" />
+		<result property="attId" column="ATT_ID" />
+		<result property="parentValue" column="PARENT_VALUE" />
+		<result property="chkValue" column="CHK_VALUE" />
+		<result property="uploadValue" column="UPLOAD_VALUE" />
 	</resultMap>
 	
 	<select id="findAttachmentList" resultMap="ResultMapAttachmentList">
@@ -38,4 +48,15 @@
 		</if>
 	</select>
 	
+	<select id="findAttachmentListAddByAttId" resultMap="ResultMapAttachmentListAdd">
+		 select * 
+		 from qz_appln_attachment_list_add   
+		 where 1=1
+	 	<if test="attId != null and attId != '' ">
+			AND att_id=#{attId}
+		</if>
+		<if test="parentValue != null and parentValue != '' ">
+			AND parent_value=#{parentValue}
+		</if>
+	</select>
 </mapper>

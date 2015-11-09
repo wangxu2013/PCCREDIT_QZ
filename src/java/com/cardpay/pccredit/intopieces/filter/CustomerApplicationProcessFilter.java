@@ -28,6 +28,9 @@ public class CustomerApplicationProcessFilter extends BusinessFilter {
 	private String cardId;
 	private String nodeName;//进件状态
 	private String chineseName;
+	
+	private String filterTeamLeader;//团队长查看各小组成员的进件 1要过滤 0 不过滤
+	
 	public String getLoginId() {
 		return loginId;
 	}
@@ -138,6 +141,14 @@ public class CustomerApplicationProcessFilter extends BusinessFilter {
 
 	public void setChineseName(String chineseName) {
 		this.chineseName = chineseName;
+	}
+
+	public String getFilterTeamLeader() {
+		return filterTeamLeader;
+	}
+
+	public void setFilterTeamLeader(String filterTeamLeader) {
+		this.filterTeamLeader = filterTeamLeader;
 	}
 
 }

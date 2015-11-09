@@ -31,9 +31,11 @@ import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.filter.CustomerApplicationProcessFilter;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationProcess;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList;
 import com.cardpay.pccredit.intopieces.model.QzApplnJyxx;
 import com.cardpay.pccredit.intopieces.model.QzApplnNbscyjb;
 import com.cardpay.pccredit.intopieces.model.VideoAccessories;
+import com.cardpay.pccredit.intopieces.service.AttachmentListService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationInfoService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationIntopieceWaitService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationProcessService;
@@ -78,6 +80,9 @@ public class IntoPiecesXingzhengbeginControl extends BaseController {
 	private NbscyjbService nbscyjbService;
 	@Autowired
 	private JyxxService jyxxService;
+	
+	@Autowired
+	private AttachmentListService attachmentListService;
 	
 	/**
 	 * 行政岗初进件页面
@@ -173,9 +178,7 @@ public class IntoPiecesXingzhengbeginControl extends BaseController {
 			request.setAttribute("applicationStatus", ApplicationStatusEnum.APPROVE);
 			request.setAttribute("objection", "false");
 			//查找审批金额
-			CustomerApplicationInfo appInfo = intoPiecesService.findCustomerApplicationInfoByApplicationId(appId);
-			IESBForECIFReturnMap ecif = eCIFService.findEcifByCustomerId(appInfo.getCustomerId());
-			Circle circle = circleService.findCircleByClientNo(ecif.getClientNo());
+			Circle circle = circleService.findCircleByAppId(appId);
 			
 			request.setAttribute("examineAmount", circle.getContractAmt());
 			customerApplicationIntopieceWaitService.updateCustomerApplicationProcessBySerialNumberApplicationInfo1(request);
@@ -200,7 +203,15 @@ public class IntoPiecesXingzhengbeginControl extends BaseController {
 		JRadReturnMap returnMap = new JRadReturnMap();
 		try {
 			String appId = request.getParameter("appId");
-			intoPiecesService.returnAppln(appId, request);
+			String operate = request.getParameter("operate");
+			String nodeName = request.getParameter("nodeName");
+			//退回客户经理和其他岗位不一致
+			if("1".equals(nodeName)){
+				
+				intoPiecesService.checkDoNotToManager(appId,request);
+			}else{
+				intoPiecesService.returnAppln(appId, request,nodeName);
+			}
 			returnMap.addGlobalMessage(CHANGE_SUCCESS);
 		} catch (Exception e) {
 			returnMap.addGlobalMessage("保存失败");
@@ -227,8 +238,16 @@ public class IntoPiecesXingzhengbeginControl extends BaseController {
 		mv.addObject("type", type);
 		CustomerInfor customerInfo = customerInforService.findCustomerInforById(intoPiecesService.findCustomerApplicationInfoByApplicationId(appId).getCustomerId());
 		mv.addObject("customerInfo", customerInfo);
+		//修改为appid查询
 		QzApplnJyxx qzApplnJyxx = jyxxService.findJyxx(customerInfo.getId(), null);
 		mv.addObject("qzApplnJyxx", qzApplnJyxx);
+		
+		IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
+		String loginId = user.getLogin();
+		String displayName = user.getDisplayName();
+		mv.addObject("displayName", displayName);
+		mv.addObject("loginId", loginId);
+		
 		return mv;
 	}
 	
@@ -248,5 +267,4 @@ public class IntoPiecesXingzhengbeginControl extends BaseController {
 		}
 		return mv;
 	}
-
 }

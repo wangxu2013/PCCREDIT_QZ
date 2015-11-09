@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -131,6 +132,7 @@ public class IESBForCircleCredit {
         //END_DATE.setValue(formatter10.format(circle.getEndDate()));//todo:传入结束日期
         //结束日期加上期限传给信贷
         END_DATE.setValue(formatter10.format(DateUtil.shiftMonth(circle.getEndDate(), Integer.parseInt(circle.getTerm()))));
+        //END_DATE.setValue(formatter10.format(circle.getEndDate()));
         body_struct.addField("END_DATE", END_DATE);
 
         //外币时需要换算
@@ -290,7 +292,7 @@ public class IESBForCircleCredit {
         //贷款投向
         Field LOAN_DIRECTION=new Field(new FieldAttr(FieldType.FIELD_STRING, 20));
         //LOAN_DIRECTION.setValue("01");//todo:传入贷款投向
-        LOAN_DIRECTION.setValue(circle.getLoanDirection());//todo:传入贷款投向
+        LOAN_DIRECTION.setValue(circle.getLoanDirection().substring(1, circle.getLoanDirection().length()));//todo:传入贷款投向
         body_struct.addField("LOAN_DIRECTION", LOAN_DIRECTION);
 
         //贷款归属1
@@ -581,7 +583,7 @@ public class IESBForCircleCredit {
         //账号
         Field ACCT_NO=new Field(new FieldAttr(FieldType.FIELD_STRING, 50));
         //ACCT_NO.setValue("2233");//todo:传入账号
-        ACCT_NO.setValue(circle.getFeeAcctNo());//todo:传入账号
+        ACCT_NO.setValue(circle.getAcctNo2());//todo:传入账号 费用账号与放款账号一样 modified by nihc 20150718
         FeeArrayStruct.addField("ACCT_NO", ACCT_NO);
 
         //信息加入数组
@@ -690,13 +692,19 @@ public class IESBForCircleCredit {
 			</SYS_HEAD>
 		</service>
      */
-	public boolean parseEcifResponse(CompositeData resp) {
+	public String parseEcifResponse(CompositeData resp,Circle circle) {
+		String retMsg = "";
+		if(resp == null){
+			retMsg = "解析放贷返回信息失败";
+			return retMsg;
+		}
 		CompositeData SYS_HEAD = resp.getStruct("SYS_HEAD");
 
         //根据数组名称去获取数组
         Array RET = SYS_HEAD.getArray("RET");
         
         String RET_CODE = "";
+        String RET_MSG = "";
         if(null != RET && RET.size() > 0){
             int m = RET.size();
             CompositeData array_element = null;
@@ -705,13 +713,21 @@ public class IESBForCircleCredit {
                 array_element = RET.getStruct(i);
 
                 RET_CODE = array_element.getField("RET_CODE").strValue();
+                RET_MSG = array_element.getField("RET_MSG").strValue();
             }
         }
+        //更新贷款信息表
+        circle.setRetCode(RET_CODE);
+        circle.setRetMsg("000000".equals(RET_CODE) ? "放款成功" : RET_MSG);
+        circle.setRetContno("000000".equals(RET_CODE) ? RET_MSG : "");
+        commonDao.updateObject(circle);
         if(RET_CODE.equals( com.cardpay.pccredit.QZBankInterface.constant.Constant.RET_CODE_CIRCLE)){
-        	return true;
+        	retMsg ="放款成功";
+        	return retMsg;
         }
         else{
-        	return false;
+        	retMsg = RET_MSG;
+        	return retMsg;
         }
 	}
 }

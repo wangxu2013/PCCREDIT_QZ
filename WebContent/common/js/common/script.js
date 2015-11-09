@@ -51,7 +51,7 @@ function addTd(table){	//表格添加行
 								"<td><input type='text' class='input' name='bankOrOtherType_jkjl_"+cnt+"'/></td>" + 
 								"<td><input type='text' class='input' name='purpose_jkjl_"+cnt+"'/></td>" + 
 								"<td><input type='text' class='input' name='totalAmount_jkjl_"+cnt+"'/></td>" + 
-								"<td><input type='text' class='input' name='loanDate_jkjl_"+cnt+"' value='"+timestr+"' onmouseover='_calendar()'/></td>" + 
+								"<td><input type='text' class='input' name='loanDate_jkjl_"+cnt+"' value='"+timestr+"' onmouseover='_calendar()' readonly/></td>" + 
 								"<td><input type='text' class='input' name='deadline_jkjl_"+cnt+"'/></td>" + 
 								"<td><input type='text' class='input' name='rates_jkjl_"+cnt+"'/></td>" + 
 								"<td><input type='text' class='input' name='repayType_jkjl_"+cnt+"'/></td>" + 
@@ -63,7 +63,7 @@ function addTd(table){	//表格添加行
 								"<td><input type='text' class='input' name='loanType_"+cnt+"' /></td>	" +
 								"<td><input type='text' class='input' name='amount_"+cnt+"' /></td>" +					
 								"<td><input type='text' class='input' name='deadline_"+cnt+"' /></td>" +	
-								"<td><input type='text' class='input' name='loanDate_"+cnt+"' value='"+timestr+"' onmouseover='_calendar()'/></td>	" +
+								"<td><input type='text' class='input' name='loanDate_"+cnt+"' value='"+timestr+"' onmouseover='_calendar()' readonly/></td>	" +
 								"<td><input type='text' class='input' name='purpose_"+cnt+"' /></td>" +					
 								"<td><input type='text' class='input' name='remainAmount_"+cnt+"' /></td>" +	
 								"<td><input type='text' class='input' name='guntForOther_"+cnt+"' /></td>" +	
@@ -95,7 +95,7 @@ function addTd(table){	//表格添加行
 		$("#"+table).append("<tr>" + 
 								"<td><input type='text' class='input' name='cardNo_"+cnt+"' /></td>	" +
 								"<td><input type='text' class='input' name='price_"+cnt+"' /></td>	" +
-								"<td><input type='text' class='input' value='"+timestr+"' name='buyDate_"+cnt+"' onmouseover='_calendar()'/></td>	" +			
+								"<td><input type='text' class='input' value='"+timestr+"' name='buyDate_"+cnt+"' onmouseover='_calendar()' readonly/></td>	" +			
 								"<td>" +
 									"<select name='haveCopy_1_"+cnt+"'>" +
 										"<option value='1'>有</option>" +
@@ -112,13 +112,14 @@ function addTd(table){	//表格添加行
 	}
 	if(table=="htqdtz"){//合同签订台账
 		$("#"+table).append("<tr>" + 
-								"<td><input type='text' class='input' name='slrq' onmouseover='_calendar()'/></td>" + 
+								"<td><input type='text' class='input' name='slrq' onmouseover='_calendar()' readonly/></td>" + 
 								"<td><input type='text' class='input' name='jkrxm'/></td>" + 
 								"<td><input type='text' class='input' name='pzje'/></td>" + 
-								"<td><input type='text' class='input' name='yyqdrq' onmouseover='_calendar()'/></td>" + 
-								"<td><input type='text' class='input' name='sjqdrq' onmouseover='_calendar()'/></td>" + 
+								"<td><input type='text' class='input' name='yyqdrq' onmouseover='_calendar()' readonly/></td>" + 
+								"<td><input type='text' class='input' name='sjqdrq' onmouseover='_calendar()' readonly/></td>" + 
 								"<td><input type='text' class='input' name='zbkhjl'/></td>" + 
-								"<td><input type='text' class='input' name='jbr'/></td>" + 
+								"<td><input type='text' class='input' name='jbr'/></td>" +
+								"<td><input type='text' class='input' name='lrz' value='$!loginId'/></td>" +
 								"<td><input type='text' class='input' name='bz'/></td>" + 
 							"</tr>");      
 	}
@@ -144,6 +145,27 @@ function addTd(table){	//表格添加行
 							"</tr>");      
 	}
 	
+}
+
+function addTdforT(table,loginId){	//表格添加行
+	var tr= document.getElementById(table).getElementsByTagName("tr");
+	//更新行数
+	var cnt = tr.length-2+1;
+	$("#"+table+"_cnt").val(cnt);
+	if(table=="htqdtz"){//合同签订台账
+		$("#"+table).append("<tr>" + 
+								"<td><input type='text' class='input' name='slrq' onmouseover='_calendar()' readonly/></td>" + 
+								"<td><input type='text' class='input' name='jkrxm'/></td>" + 
+								"<td><input type='text' class='input' name='pzje'/></td>" + 
+								"<td><input type='text' class='input' name='yyqdrq' onmouseover='_calendar()' readonly/></td>" + 
+								"<td><input type='text' class='input' name='sjqdrq' onmouseover='_calendar()' readonly/></td>" + 
+								"<td><input type='text' class='input' name='zbkhjl'/></td>" + 
+								"<td><input type='text' class='input' name='jbr'/></td>" +
+								"<td><input type='text' class='input' name='lrz' value='"+loginId+"' readonly/></td>" +
+								"<td><input type='text' class='input' name='bz'/></td>" + 
+							"</tr>");      
+	}
+
 }
 
 function removeTd(table){ //表格删除行 

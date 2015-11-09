@@ -11,7 +11,7 @@
 					<td class="tableTitle" colspan="8" style="text-align:left;">
 						合同签订台账
 						#if($!type=="modify")
-						<a class="add" onclick="addTd('htqdtz')"><img src="${contextPath}/images/add.png"/></a>
+						<a class="add" onclick="addTdforT('htqdtz',$!loginId)"><img src="${contextPath}/images/add.png"/></a>
 						<a class="del" onclick="removeTd('htqdtz')"><img src="${contextPath}/images/del.png"/></a>
 						#end
 					</td>		
@@ -23,7 +23,8 @@
 					<td><b>预约签订日期</b></td>	
 					<td><b>实际签订日期</b></td>					
 					<td><b>主办客户经理</b></td>					
-					<td><b>经办人</b></td>					
+					<td><b>经办人</b></td>
+					<td><b>录入人</b></td>					
 					<td><b>备注</b></td>	
 				</tr>
 				#foreach ($result in $list)
@@ -34,7 +35,13 @@
 					<td><input type="text" class="input" name="yyqdrq" onmouseover='_calendar()' value="$!date.format("yyyy-MM-dd", $!result.yyqdrq)"/></td>	
 					<td><input type="text" class="input" name="sjqdrq" onmouseover='_calendar()' value="$!date.format("yyyy-MM-dd", $!result.sjqdrq)"/></td>					
 					<td><input type="text" class="input" name="zbkhjl" value="$!result.zbkhjl"/></td>	
-					<td><input type="text" class="input" name="jbr" value="$!result.jbr"/></td>	
+					<td><input type="text" class="input" name="jbr" value="$!result.jbr"/></td>
+					<td><input type="text" class="input" name="lrz" 
+					#if($!result.lrz == $null)
+						value="$!loginId"
+					#else	
+					 	value="$!result.lrz"
+					#end readonly/></td>	
 					<td><input type="text" class="input" name="bz" value="$!result.bz"/></td>	
 				</tr>
 				#end
@@ -59,12 +66,19 @@
 			$("textarea").attr("disabled",true);
 		};
 		$("#id_save_button").click(function() {
+			if(submitFlag == 1){
+				alert("请勿重复提交!")
+				return;
+			}
+			submitFlag = 1;
 			var formjson = $($formName).serialize();
    	          $.post("${contextPath}/intopieces/intopiecesxingzheng2/tz_save.json?id=${appId}", formjson, function(data, textStatus, jqXhr) {
    	            if (data.success) {
    	            	Dialog.message("保存成功!");
    	            }
+   	         	submitFlag = 0;
 	          });
+   	          
 		});
 		//通过
 		$("#id_in_button").click(function() {

@@ -26,6 +26,7 @@ public class QzApplnHtqdtz extends BusinessModel {
 	private String zbkhjl;
 	private String jbr;
 	private String bz;
+	private String lrz;
 	public String getCustomerId() {
 		return customerId;
 	}
@@ -85,6 +86,12 @@ public class QzApplnHtqdtz extends BusinessModel {
 	}
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
+	}
+	public String getLrz() {
+		return lrz;
+	}
+	public void setLrz(String lrz) {
+		this.lrz = lrz;
 	}
 	
 }

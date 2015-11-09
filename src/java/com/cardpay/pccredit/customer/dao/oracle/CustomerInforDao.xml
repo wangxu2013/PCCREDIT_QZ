@@ -27,6 +27,12 @@
 		<result property="beforeYearWorkUnit" column="before_Year_Work_Unit" />
 		<result property="workTime" column="work_Time" />
 </resultMap>
+<resultMap id="DictResultMap" type="com.cardpay.pccredit.system.model.Dict">
+		<result property="dictType" column="DICT_TYPE" />
+		<result property="TypeCode" column="TYPE_CODE" />
+		<result property="TypeName" column="TYPE_NAME" />
+		<result property="bankCode" column="BANK_CODE" />
+</resultMap>
 
 <select id="findcloneCustomerCareersByCustomerId" resultMap="customerCareersInformationMap">
 	select * from customer_careers_information_s t 
@@ -61,6 +67,13 @@
 	where 1=1 
 	and 
 	Dict_Type like 'CMMSCMRC%'
+</select>
+<select id="findDict" resultMap="DictResultMap">
+	select * 
+	from Dict
+	where 1=1 
+	and 
+	Dict_Type = #{dict_type}
 </select>
 <select id="findResidentialPropertie" resultType="com.cardpay.pccredit.system.model.Dict">
 	select Type_code as TypeCode,Type_name as TypeName 

@@ -23,6 +23,7 @@ import com.cardpay.pccredit.customer.service.CustomerInforService;
 import com.cardpay.pccredit.customer.service.CustomerMarketingService;
 import com.cardpay.pccredit.customer.service.MaintenanceService;
 import com.cardpay.pccredit.divisional.service.DivisionalService;
+import com.cardpay.pccredit.afterloan.service.AfterloanCheckService;
 import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationInfoService;
 import com.cardpay.pccredit.manager.dao.StatisticsManagerDao;
@@ -37,6 +38,7 @@ import com.cardpay.pccredit.report.service.StatisticalCommonService;
 import com.cardpay.pccredit.riskControl.dao.NplsInfomationDao;
 import com.cardpay.pccredit.riskControl.service.CustomerOverdueService;
 import com.cardpay.pccredit.riskControl.service.RiskCustomerCollectionService;
+import com.cardpay.pccredit.system.model.Dict;
 import com.cardpay.pccredit.system.service.SystemUserService;
 import com.wicresoft.jrad.base.auth.IUser;
 import com.wicresoft.jrad.base.enviroment.GlobalSetting;
@@ -122,6 +124,9 @@ public class MainController {
 	private MainService mainService;
 	
 	@Autowired
+	private AfterloanCheckService afterLoanCheckService;
+	
+	@Autowired
 	private StatisticalCommonService statisticalCommonService;
 	
 	@ResponseBody
@@ -158,13 +163,31 @@ public class MainController {
 		//Date day2 = DateHelper.normalizeDate(DateHelper.shiftDay(date, 4), "yyyy-MM-dd");
 		Organization organization = organizationService.findOrgByUserId(userId);
 		AccountManagerParameterForm accountManagerParameter = accountManagerParameterService.findAccountManagerParameterByUserId(userId);
+		//查询贷后检查任务数
+		int loanCount = afterLoanCheckService.findAferLoanCheckCountByUserId(userId);
+		//查询所检查提醒任务
+		//获取贷后点击通知时限和截止时限
+		List<Dict> dict = customerInforService.findDict("afterloan");
+		String reminddate="";
+		String enddate="";
+		for(int i=0;i<dict.size();i++){
+			Dict dictd = dict.get(i);
+			if("reminddate".equals(dictd.getTypeCode())){
+				reminddate=dictd.getTypeName();
+			}else if("enddate".equals(dictd.getTypeCode())){
+				enddate=dictd.getTypeName();
+			}
+		}
+		int remindCount = afterLoanCheckService.findAferLoanCheckRemindCount(reminddate,userId);
+		//获取该用户角色
+		String roleName = accountManagerParameterService.findRoleNameByUserId(userId);
 		//客户经理层级
 		String level = "";
 		if(accountManagerParameter != null ){
 		 level = accountManagerParameter.getLevelInformation();
 		}
 		String pageurl ="";
-		if(level =="MANA005" || level =="MANA003" ){
+		if(level.equals("MANA005") || level.equals("MANA003") ){
 			
 			pageurl = "home/managerhome";
 		}
@@ -186,6 +209,9 @@ public class MainController {
 		mv.addObject("doubleApply",doubleApply);
 		mv.addObject("day1",day1);
 		mv.addObject("day2",day2);
+		mv.addObject("loanCount",loanCount);
+		mv.addObject("remindCount",remindCount);
+		mv.addObject("roleName",roleName);
 		/*center*/
 		mv.addObject("marketing",homeData.get("marketing"));
 		mv.addObject("divisional",homeData.get("divisional"));
@@ -216,7 +242,7 @@ public class MainController {
 		mv.addObject("riskCustomer",rightHomeData.get("riskCustomer"));
 		mv.addObject("verificationCustomer",rightHomeData.get("verificationCustomer"));
 		
-		if(level =="MANA005" || level =="MANA003" ){
+		if(level.equals("MANA005") || level.equals("MANA003") ){
 			// 当前进件状况
 			mv.addObject("applicationStatusJson",statisticalCommonService.getApplicationStatusJson());
 			// 当前贷款状况

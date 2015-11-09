@@ -17,6 +17,11 @@ import com.wicresoft.util.annotation.Mapper;
 @Mapper
 public interface CustomerInforDao {
 	/**
+	 * 根据dict_type获取字典
+	 * @return
+	 */
+	public List<Dict> findDict(@Param("dict_type") String dict_type);
+	/**
 	 * 获得国籍
 	 * @return
 	 */

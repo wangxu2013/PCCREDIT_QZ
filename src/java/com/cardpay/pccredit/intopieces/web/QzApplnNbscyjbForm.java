@@ -31,6 +31,7 @@ public class QzApplnNbscyjbForm extends BaseForm {
 	private Date checkSignDate;
 	private String isComplete;
 	private String hcryqz;
+	private String hcryqz1;
 	
 	public String getCustomerId() {
 		return customerId;
@@ -139,6 +140,12 @@ public class QzApplnNbscyjbForm extends BaseForm {
 	}
 	public void setHcryqz(String hcryqz) {
 		this.hcryqz = hcryqz;
+	}
+	public String getHcryqz1() {
+		return hcryqz1;
+	}
+	public void setHcryqz1(String hcryqz1) {
+		this.hcryqz1 = hcryqz1;
 	}
 
 }

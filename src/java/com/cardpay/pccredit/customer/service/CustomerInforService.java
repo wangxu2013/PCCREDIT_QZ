@@ -49,6 +49,7 @@ import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationOther;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationProcess;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationRecom;
+import com.cardpay.pccredit.intopieces.model.IntoPieces;
 import com.cardpay.pccredit.intopieces.model.QzApplnDcnr;
 import com.cardpay.pccredit.intopieces.model.VideoAccessories;
 import com.cardpay.pccredit.ipad.model.ProductAttribute;
@@ -120,6 +121,15 @@ public class CustomerInforService {
 	public CustomerInfor findCustomerInforByCardId(String cardId){
 		return customerinforcommDao.findCustomerInforByCardId(cardId);
 	}
+	
+	/**
+	 * 根据证件号码查询
+	 * 
+	 */
+	public CustomerInfor findCustomerInforByCustomerId(String customerId){
+		return customerinforcommDao.findCustomerInforByCustomerId(customerId);
+	}
+	
 	/**
 	 * 插入数据
 	 * @param customerinfo
@@ -148,12 +158,40 @@ public class CustomerInforService {
 	 * @param filter
 	 * @return
 	 */
-	public QueryResult<CustomerInfor> findCustomerInforWithEcifByFilter(CustomerInforFilter filter) {
+	public QueryResult<IntoPieces> findCustomerInforWithEcifByFilter(CustomerInforFilter filter) {
 		/*filter.setSqlString(dataAccessSqlService.getSqlByResTbl(filter.getRequest(), ResourceTableEnum.KEHU));*/
 		
 		return eCIFService.findCustomerInforWithEcifByFilter(filter);
 	}
 	
+	/**
+	 * 过滤查询  关联ecif开户信息
+	 * @param filter
+	 * @return
+	 */
+	public QueryResult<CustomerInfor> findCustomerInfoWithEcifByFilter(CustomerInforFilter filter) {
+		/*filter.setSqlString(dataAccessSqlService.getSqlByResTbl(filter.getRequest(), ResourceTableEnum.KEHU));*/
+		
+		return eCIFService.findCustomerInfoWithEcifByFilter(filter);
+	}
+	
+	/**
+	 * 过滤查询  关联ecif开户信息(查询有做过贷款业务的客户)
+	 * @param filter
+	 * @return
+	 */
+	public QueryResult<CustomerInfor> findCustomerInfoWithLoanByFilter(CustomerInforFilter filter){
+		return eCIFService.findCustomerInfoWithLoanByFilter(filter);
+	}
+	
+	/**
+	 * 过滤查询  关联ecif开户信息(为做过贷款的客户)
+	 * @param filter
+	 * @return
+	 */
+	public QueryResult<CustomerInfor> findCustomerInfoWithNotByFilter(CustomerInforFilter filter){
+		return eCIFService.findCustomerInfoWithNotByFilter(filter);
+	}
 	/**
 	 * 过滤查询影像资料
 	 * @param filter
@@ -210,6 +248,13 @@ public class CustomerInforService {
 	public List<Dict> findNationality(){
 		List<Dict> nationalities = customerInforDao.findNationality();
 		return nationalities;
+	}
+	/**
+	 * 根据dictType获取字典
+	 */
+	public List<Dict> findDict(String dict_type){
+		List<Dict> dict = customerInforDao.findDict(dict_type);
+		return dict;
 	}
 	/**
 	 * 获取证件类型
@@ -1385,12 +1430,13 @@ public class CustomerInforService {
 	/**
 	 * 查询客户是否已有进件流程
 	 */
-	public CustomerApplicationInfo ifProcess(String customerId){
+	public List<CustomerApplicationInfo> ifProcess(String customerId,String appStatus){
 		CustomerApplicationInfoFilter info = new CustomerApplicationInfoFilter();
 		info.setCustomerId(customerId);
-		List<CustomerApplicationInfo> listApplicationInfo = customerinforcommDao.ifProcess(customerId);
+		info.setStatus(appStatus);
+		List<CustomerApplicationInfo> listApplicationInfo = customerinforcommDao.ifProcess(customerId,appStatus);
 		if(listApplicationInfo.size()>0){
-			return listApplicationInfo.get(0);
+			return listApplicationInfo;
 		}else{
 			return null;
 		}

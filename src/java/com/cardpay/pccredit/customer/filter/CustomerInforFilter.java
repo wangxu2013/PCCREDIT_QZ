@@ -35,6 +35,7 @@ public class CustomerInforFilter extends BaseQueryFilter{
 	private String cashAdvanceRatio;
 	private String cardStatus;
 	private String userId;
+	private String appStatus;
 	
 	public String getUserId() {
 		return userId;
@@ -179,5 +180,11 @@ public class CustomerInforFilter extends BaseQueryFilter{
 	}
 	public void setCardStatus(String cardStatus) {
 		this.cardStatus = cardStatus;
+	}
+	public String getAppStatus() {
+		return appStatus;
+	}
+	public void setAppStatus(String appStatus) {
+		this.appStatus = appStatus;
 	}
 }

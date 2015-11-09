@@ -15,6 +15,8 @@ public class ApproveHistoryForm extends BaseModel{
 	private String examineAmount;
 	
 	private Date startExamineTime;
+	
+	private String reason;
 
 	public String getStatusName() {
 		return statusName;
@@ -54,6 +56,14 @@ public class ApproveHistoryForm extends BaseModel{
 
 	public void setStartExamineTime(Date startExamineTime) {
 		this.startExamineTime = startExamineTime;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 	
 }

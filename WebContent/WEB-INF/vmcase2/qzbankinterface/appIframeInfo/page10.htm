@@ -30,6 +30,7 @@
 <body>
 <!--*************************************************************审贷会审议纪要*************************************************************-->
 <form id="id_module_form">
+<div class="forms" id="formsId">
 	<div class="box">
 		<div name="content">
 			<table class="myTable">
@@ -56,7 +57,10 @@
 					<td class="table-label">申请利率</td>
 					<td><input type="text" name="sqll" value="$!result.sqll" readonly/></td>
 					<td class="table-label">担保方式</td>
-					<td><input type="text" name="dbfs" value="$!result.dbfs" readonly/></td>
+					<td>
+						<input type="text" value="#dictVal('ASSURE_MAIN',$!result.dbfs)" readonly/>
+						<input type="hidden" name="dbfs" value="$!result.dbfs" readonly/>
+					</td>
 				</tr>			
 				<tr>
 					<td class="table-label">借款人优势<font color="#ff0000">*</font></td>
@@ -88,25 +92,26 @@
 					</td>
 					<td class="table-label">核实情况：<font color="#ff0000">*</font></td>
 					<td colspan="4">
-						<textarea  name="hsqk">$!result.hsqk</textarea>
+						<textarea  name="hsqk" >$!result.hsqk</textarea>
 					</td>
 				</tr>	
 				<tr>
 					<td class="table-label">贷审成员<font color="#ff0000">*</font></td>
-					<td><input type="text" name="dscyqz" value="$!result.dscyqz"/></td>
+					<td><input type="text" name="dscyqz" value="$!result.dscyqz" /></td>
 					<td class="table-label">日期<font color="#ff0000">*</font></td>
 					<td colspan="3"><input type="text" name="rq" onmouseover="_calendar()" value="$!date.format("yyyy-MM-dd", $!result.rq)"/></td>	
 				</tr>		
 				<tr>
 					<td class="table-label">主办客户经理<font color="#ff0000">*</font></td>
-					<td><input type="text" name="zbkhjlqz" value="$!result.zbkhjlqz"/></td>
+					<td><input type="text" name="zbkhjlqz" value="$!result.zbkhjlqz" /></td>
 					<td class="table-label">协助调查人员<font color="#ff0000">*</font></td>
-					<td><input type="text" name="xzdcryqz" value="$!result.xzdcryqz"/></td>
+					<td><input type="text" name="xzdcryqz" value="$!result.xzdcryqz" /></td>
 					<td class="table-label">日期<font color="#ff0000">*</font></td>
-					<td><input type="text" name="rq1" onmouseover="_calendar()" value="$!date.format("yyyy-MM-dd", $!result.rq1)"/></td>	
+					<td><input type="text" name="rq1" onmouseover="_calendar()" value="$!date.format("yyyy-MM-dd", $!result.rq1)" /></td>	
 				</tr>	
 			</table>			
 		</div>
+	</div>
 	</div>
 </form>
 	 <div class="dialog2">
@@ -154,25 +159,46 @@
 	<script type="text/javascript" src="jquery-1.js"></script>
 	<script type="text/javascript" src="script.js"></script>
 	<script type="text/javascript">		
+	var layout=new FormsLayout("formsId");	
+	window.top.currentWindow.setLayout(layout);
+	
 	#set ($formName = "'#id_module_form'")
 	#parse ("qzbankinterface/appIframeInfo/page10_validation.js")
 	$(document).ready(function() {
 		if("${type}"=="readonly"){
-			$("input[type='text']").attr("disabled",true);
-			$("input[type='radio']").attr("disabled",true);
-			$("input[type='checkbox']").attr("disabled",true);
-			$("select").attr("disabled",true);
-			$("textarea").attr("disabled",true);
+			$("input[type='text']").attr("readonly",true);
+			$("input[type='radio']").attr("readonly",true);
+			$("input[type='checkbox']").attr("readonly",true);
+			$("select").attr("readonly",true);
+			$("textarea").attr("readonly",true);
 		};
 		
 		$("#id_save_button").click(function() {
+			if(submitFlag == 1){
+				alert("请勿重复提交!")
+				return;
+			}
+			submitFlag = 1;
 			if ($($formName).valid()) {
-			var formjson = $($formName).serialize();
-   	          $.post("${contextPath}/intopieces/intopiecesshouxin/syjy_save.json?id=${customerId}&appId=${appId}", formjson, function(data, textStatus, jqXhr) {
-   	            if (data.success) {
-   	            	Dialog.message("保存成功!");
-   	            }
-	          });
+				var formjson = $($formName).serialize();
+				var url = "${contextPath}/intopieces/intopiecesshouxin/syjy_save.json?id=${customerId}&appId=${appId}";
+				$.ajax({
+					url : url,
+					type : "get",
+					data : formjson,
+					success : function(data) {
+						if (data.success) {
+							topWin.Dialog.message("保存成功！");
+							window.location.reload(true);
+						}
+						else{
+							topWin.Dialog.message("保存失败！");
+					    }
+						submitFlag = 0;
+					}
+				});
+			}else{
+				submitFlag = 0;
 			}
 		});
 		function checkJKTJ(obj){

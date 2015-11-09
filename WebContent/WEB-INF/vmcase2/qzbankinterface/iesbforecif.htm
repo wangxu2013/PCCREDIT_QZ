@@ -260,14 +260,32 @@
 		#parse("common/part_create.js")
 		
 		$("#id_save_button").click(function() {
+			if(submitFlag == 1){
+				alert("请勿重复提交!")
+				return;
+			}
+			submitFlag = 1;
 			if ($($formName).valid()) {
 				var formjson = $($formName).serialize();
-	   	          $.post("${modulePath}/insert.json", formjson, function(data, textStatus, jqXhr) {
-	   	            if (data.success) {
-	   	            	Dialog.message("保存成功!");
-	   	            	window.location.href= contextPath+"/intopieces/intopiecesapprove/approve.page" ;
-	   	            }
-	   	          });
+	   	       var url = "${modulePath}/insert.json";
+				$.ajax({
+					url : url,
+					type : "get",
+					data : formjson,
+					success : function(data) {
+						if (data.success) {
+							topWin.Dialog.message("保存成功！");
+							window.location.href= contextPath+"/customer/ecif/browse.page" ;
+						}
+						else{
+							topWin.Dialog.message(data.message);
+					    }
+						submitFlag = 0;
+					}
+				});
+					
+			}else{
+				submitFlag = 0;
 			}
 			      
 		})
