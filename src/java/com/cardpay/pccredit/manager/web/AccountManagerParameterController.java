@@ -1,8 +1,12 @@
 package com.cardpay.pccredit.manager.web;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cardpay.pccredit.customer.model.CustomerInfor;
 import com.cardpay.pccredit.manager.filter.AccountManagerParameterFilter;
 import com.cardpay.pccredit.manager.model.AccountManagerParameter;
 import com.cardpay.pccredit.manager.service.AccountManagerParameterService;
@@ -23,7 +28,11 @@ import com.wicresoft.jrad.base.web.JRadModelAndView;
 import com.wicresoft.jrad.base.web.controller.BaseController;
 import com.wicresoft.jrad.base.web.result.JRadPagedQueryResult;
 import com.wicresoft.jrad.base.web.result.JRadReturnMap;
+import com.wicresoft.jrad.base.web.security.LoginManager;
 import com.wicresoft.jrad.base.web.utility.WebRequestHelper;
+import com.wicresoft.jrad.modules.privilege.business.UserManager;
+import com.wicresoft.jrad.modules.privilege.model.User;
+import com.wicresoft.util.spring.Beans;
 import com.wicresoft.util.spring.mvc.mv.AbstractModelAndView;
 import com.wicresoft.util.web.RequestHelper;
 
@@ -41,7 +50,7 @@ import com.wicresoft.util.web.RequestHelper;
 public class AccountManagerParameterController extends BaseController {
 	
 	Logger logger = Logger.getLogger(this.getClass());
-
+	
 	@Autowired
 	private AccountManagerParameterService accountManagerParameterService;
 	
@@ -83,6 +92,44 @@ public class AccountManagerParameterController extends BaseController {
 		return mv;
 	}
 
+	@ResponseBody
+	@RequestMapping(value = "chooseByName.json", method = { RequestMethod.GET })
+	public AbstractModelAndView chooseCustomerName(HttpServletRequest request,
+			HttpServletResponse response) {
+		// TODO q?
+		String userId = Beans.get(LoginManager.class)
+				.getLoggedInUser(request).getId();
+		String chineseName = request.getParameter("q");
+		List<User> list = accountManagerParameterService.findUserByName(chineseName);
+		String json = JSONArray.fromObject(list).toString();
+		try {
+			response.getWriter().print(json);
+		} catch (IOException e) {
+			// TODO 有日志功能，在这一步应保持返回统一，出错以后查看日志
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "chooseByNameInMgr.json", method = { RequestMethod.GET })
+	public AbstractModelAndView chooseCustomerNameInMgr(HttpServletRequest request,
+			HttpServletResponse response) {
+		// TODO q?
+		String userId = Beans.get(LoginManager.class)
+				.getLoggedInUser(request).getId();
+		String chineseName = request.getParameter("q");
+		List<User> list = accountManagerParameterService.findUserByNameInMgr(chineseName);
+		String json = JSONArray.fromObject(list).toString();
+		try {
+			response.getWriter().print(json);
+		} catch (IOException e) {
+			// TODO 有日志功能，在这一步应保持返回统一，出错以后查看日志
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	/**
 	 * 执行添加
 	 * 

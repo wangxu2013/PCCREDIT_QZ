@@ -127,7 +127,13 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 		<a class="btn_gr"  onclick="parent.location.href = '${contextPath}/afterloan/afterloancheck/browse.page'" title="返回">返回</a>
 	#else
 		<a id="id_save_button" class="btn_g" href="javascript:void(0);" title="保存">保存</a>
-		<a id="id_approve_button" class="btn_g" href="javascript:void(0);" title="提交">提交</a>
+		<!-- #if($!pspCheckTask.uploadFlag=="0")
+			<a id="id_browse_button" class="btn_g" href="javascript:void(0);" onclick="browseFolder()" title="提交影像" disabled>正在上传,禁止提交审核</a>
+		#else
+			<a id="id_browse_button" class="btn_g" href="javascript:void(0);" onclick="browseFolder()" title="提交影像">提交影像</a>
+			<a id="id_server_button" class="btn_g" href="javascript:void(0);" onclick="displayServer()" title="查看影像">查看影像</a>
+			<a id="id_approve_button" class="btn_g" href="javascript:void(0);" title="提交">提交</a>
+		#end -->
 		<a id="id_back_button" class="btn_gr" href="javascript:void(0);" title="返回">返回</a>
 	#end
 	</div>
@@ -142,7 +148,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 			//保存
 			$("#id_save_button").click(function() {
 				if(submitFlag == 1){
-					alert("请勿重复提交!")
+					alert("等待后台响应,请勿重复提交!")
 					return;
 				}
 				submitFlag = 1;
@@ -171,7 +177,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 			//提交
 			$("#id_approve_button").click(function() {
 				if(submitFlag == 1){
-					alert("请勿重复提交!")
+					alert("等待后台响应,请勿重复提交!")
 					return;
 				}
 				submitFlag = 1;
@@ -212,6 +218,16 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				$("#"+id).val('');
 				$("#"+id).attr('readonly','readonly');
 			}
+		}
+		
+		//提交影像
+		function browseFolder(){
+			window.location.href = "${contextPath}/afterloan/afterloancheck/browse_folder.page?taskId=${taskId}&clientNo=${clientNo}&type=$!{type}";
+		}
+		
+		//查看影像
+		function displayServer(){
+			window.location.href = "${contextPath}/afterloan/afterloancheck/display_server.page?taskId=${taskId}&clientNo=${clientNo}&type=$!{type}&first_flag=1";
 		}
 	</script>	
 </body>

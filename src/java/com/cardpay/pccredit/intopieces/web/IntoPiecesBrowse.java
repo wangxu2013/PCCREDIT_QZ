@@ -57,6 +57,7 @@ import com.wicresoft.jrad.base.auth.IUser;
 import com.wicresoft.jrad.base.auth.JRadModule;
 import com.wicresoft.jrad.base.auth.JRadOperation;
 import com.wicresoft.jrad.base.constant.JRadConstants;
+import com.wicresoft.jrad.base.database.dao.common.CommonDao;
 import com.wicresoft.jrad.base.database.id.IDGenerator;
 import com.wicresoft.jrad.base.database.model.BusinessModel;
 import com.wicresoft.jrad.base.database.model.QueryResult;
@@ -86,15 +87,21 @@ public class IntoPiecesBrowse extends BaseController {
 	@Autowired
 	private CustomerInforService customerInforservice;
 	
+	@Autowired
+	private CommonDao commonDao;
+	
+	//贷成长/贷生活查询界面
 	@ResponseBody
 	@RequestMapping(value = "browseAll.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.BROWSE)
 	public AbstractModelAndView browseAll(@ModelAttribute IntoPiecesFilter filter,
 			HttpServletRequest request) {
 		filter.setRequest(request);
 		IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
 		String userId = user.getId();
 		filter.setUserId(userId);
+		if(StringUtils.isNotEmpty(filter.getProductId()) && filter.getProductId().equals("ALL")){//全部
+			filter.setProductId(null);
+		}
 		QueryResult<IntoPieces> result = intoPiecesService.findintoPiecesAllByFilter(filter);
 		JRadPagedQueryResult<IntoPieces> pagedResult = new JRadPagedQueryResult<IntoPieces>(
 				filter, result);
@@ -106,4 +113,28 @@ public class IntoPiecesBrowse extends BaseController {
 		return mv;
 	}
 
+	//安居贷查询界面
+	@ResponseBody
+	@RequestMapping(value = "browseAll_2.page", method = { RequestMethod.GET })
+	public AbstractModelAndView browseAll_2(@ModelAttribute IntoPiecesFilter filter,
+			HttpServletRequest request) {
+		filter.setRequest(request);
+		IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
+		String userId = user.getId();
+		filter.setUserId(userId);
+		if(StringUtils.isEmpty(filter.getProductId())){
+			String sql = "select * from PRODUCT_ATTRIBUTE where PRODUCT_NAME  = '安居贷'";
+			ProductAttribute tmp = commonDao.queryBySql(ProductAttribute.class, sql, null).get(0);
+			filter.setProductId(tmp.getId());
+		}
+		QueryResult<IntoPieces> result = intoPiecesService.findintoPiecesAllByFilter(filter);
+		JRadPagedQueryResult<IntoPieces> pagedResult = new JRadPagedQueryResult<IntoPieces>(
+				filter, result);
+
+		JRadModelAndView mv = new JRadModelAndView(
+				"/intopieces/intopieces_browseAll_2", request);
+		mv.addObject(PAGED_RESULT, pagedResult);
+
+		return mv;
+	}
 }

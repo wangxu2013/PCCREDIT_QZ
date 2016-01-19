@@ -16,6 +16,7 @@ import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
 import com.cardpay.pccredit.intopieces.model.VideoAccessories;
 import com.cardpay.pccredit.system.model.Dict;
 import com.wicresoft.jrad.base.database.dao.common.CommonDao;
+import com.wicresoft.jrad.modules.privilege.model.User;
 @Service
 public class CustomerInforCommDao {
 	
@@ -159,4 +160,11 @@ public class CustomerInforCommDao {
 			}
 			return commonDao.queryBySql(CustomerApplicationInfo.class, sql, null);
 		}
+		
+	   //根据登陆名查询userId
+	   public List<User> findUserByLogin(String login) {
+			List<User> list = commonDao.queryBySql(User.class, "select * from sys_user t where t.login='"+login+"'", null);
+			return list;
+	   }
+
 }

@@ -3,6 +3,7 @@
 <mapper namespace="com.cardpay.pccredit.intopieces.dao.QuotaFreezeOrThawDao">
 	<resultMap id="ResultMap"
 		type="com.cardpay.pccredit.intopieces.model.QuotaFreezeInfo">
+		<result property="id" column="ID" />
 		<result property="clientNo" column="CLIENT_NO" />
 		<result property="contractAmt" column="CONTRACT_AMT" />
 		<result property="startDate" column="START_DATE" />
@@ -17,18 +18,27 @@
 		
 		<result property="productId" column="PRODUCT_ID" />
 		<result property="cardNo" column="CARD_NO" />
+		<result property="processId" column="PROCESS_ID" />
+		<result property="circleId" column="CIRCLE_ID" />
+		<result property="processStatus" column="PROCESS_STATUS" />
+		<result property="operateType" column="OPERATE_TYPE" />
 	</resultMap>
+	
 	<select id="getQzIesbForCircleByFilter" parameterType="com.cardpay.pccredit.intopieces.filter.QuotaFreezeOrThawFilter"
 	    resultMap="ResultMap">
 		SELECT * FROM (
 	    SELECT ROW_.*,ROWNUM ROWNUM_
 			FROM (
-		select c.CLIENT_NO,c.CONTRACT_AMT,c.START_DATE,c.END_DATE,c.CLIENT_NAME,c.GLOBAL_TYPE,c.GLOBAL_ID,
-		c.RET_CONTNO,c.LOAN_STATUS,i.PRODUCT_ID,c.CARD_NO 
-		FROM qz_iesb_for_circle c,customer_application_info i
+		select c.ID as CIRCLE_ID,c.CLIENT_NO,c.CONTRACT_AMT,c.START_DATE,c.END_DATE,c.CLIENT_NAME,c.GLOBAL_TYPE,c.GLOBAL_ID,
+		c.RET_CONTNO,c.LOAN_STATUS,i.PRODUCT_ID,c.CARD_NO,c.PROCESS_STATUS,qp.OPERATE_TYPE
+		FROM qz_iesb_for_circle c left join quota_process qp on c.SERIALNUMBER_QUOTA = qp.SERIAL_NUMBER,
+		customer_application_info i,
+	    BASIC_CUSTOMER_INFORMATION U
 		where 1=1
 		and c.application_id = i.id
 		and c.ret_code = '000000'
+		and c.customer_id = u.id
+		and U.USER_ID=#{userId}
 		<if test="customerName != null and customerName != '' ">
 			<![CDATA[ and c.client_name like '%'||#{customerName}||'%']]>
 		</if>
@@ -41,6 +51,7 @@
 		<if test="loanStatus != null and loanStatus != '' ">
 		    and c.loan_status = #{loanStatus}
 		</if>
+			
 		<![CDATA[		
 				) ROW_
 			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
@@ -51,10 +62,14 @@
 	<select id="getQzIesbForCircleCountByFilter" parameterType="com.cardpay.pccredit.intopieces.filter.QuotaFreezeOrThawFilter"
 	    resultType="int">
 		select count(*) 
-		FROM qz_iesb_for_circle c,customer_application_info i
+		FROM qz_iesb_for_circle c left join quota_process qp on c.SERIALNUMBER_QUOTA = qp.SERIAL_NUMBER,
+		customer_application_info i,
+	    BASIC_CUSTOMER_INFORMATION U
 		where 1=1
 		and c.application_id = i.id
 		and c.ret_code = '000000'
+		and c.customer_id = u.id
+		and U.USER_ID=#{userId}
 		<if test="customerName != null and customerName != '' ">
 			<![CDATA[ and c.client_name like '%'||#{customerName}||'%']]>
 		</if>
@@ -67,5 +82,102 @@
 		<if test="loanStatus != null and loanStatus != '' ">
 		    and c.loan_status = #{loanStatus}
 		</if>
+	</select>
+	
+	<select id="getQzIesbForCircleWFByFilter" parameterType="com.cardpay.pccredit.intopieces.filter.QuotaFreezeOrThawFilter"
+	    resultMap="ResultMap">
+		SELECT * FROM (
+	    SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+		select c.ID as CIRCLE_ID,c.CLIENT_NO,c.CONTRACT_AMT,c.START_DATE,c.END_DATE,c.CLIENT_NAME,c.GLOBAL_TYPE,c.GLOBAL_ID,
+	    c.RET_CONTNO,c.LOAN_STATUS,i.PRODUCT_ID,c.CARD_NO,qp.id as PROCESS_ID,c.PROCESS_STATUS,qp.OPERATE_TYPE 
+	    FROM qz_iesb_for_circle c,customer_application_info i,
+	    quota_process qp,
+	    BASIC_CUSTOMER_INFORMATION U,
+	       NODE_AUDIT N,NODE_AUDIT_USER p
+	    where 1=1
+	    and c.application_id = i.id
+	    and c.ret_code = '000000'
+	    and c.serialnumber_quota = qp.serial_number
+	    and c.process_status != 'returnedToFirst' and c.process_status != 'refuse' and c.process_status != 'approved'
+	    and c.customer_id = u.id
+	    and N.ID=qp.NEXT_NODE_ID
+	    and qp.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{userId}
+		<if test="customerName != null and customerName != '' ">
+			<![CDATA[ and c.client_name like '%'||#{customerName}||'%']]>
+		</if>
+		<if test="certNo != null and certNo != '' ">
+		    <![CDATA[ and c.global_id like '%'||#{certNo}||'%']]>
+		</if>
+		<if test="clientNo != null and clientNo != '' ">
+		    <![CDATA[ and c.client_no like '%'||#{clientNo}||'%']]>
+		</if>
+		<if test="loanStatus != null and loanStatus != '' ">
+		    and c.loan_status = #{loanStatus}
+		</if>
+			
+		<if test="filterTeamLeader!=null and filterTeamLeader!=''">
+			<if test='filterTeamLeader=="1"'>
+				and u.user_id in ( 
+					select user_id from ACCOUNT_MANAGER_PARAMETER where id in (SELECT 
+					mbm.child_id 
+					FROM 
+					manager_belong_map mbm 
+					LEFT JOIN account_manager_parameter amp ON amp. ID = mbm.parent_id 
+					WHERE 
+					amp.user_id = #{userId}))
+			</if>
+		</if>
+      
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+	</select>
+	
+	<select id="getQzIesbForCircleCountWFByFilter" parameterType="com.cardpay.pccredit.intopieces.filter.QuotaFreezeOrThawFilter"
+	    resultType="int">
+		SELECT count(*)
+			FROM (
+		select c.ID as CIRCLE_ID,c.CLIENT_NO,c.CONTRACT_AMT,c.START_DATE,c.END_DATE,c.CLIENT_NAME,c.GLOBAL_TYPE,c.GLOBAL_ID,
+	    c.RET_CONTNO,c.LOAN_STATUS,i.PRODUCT_ID,c.CARD_NO ,qp.id as PROCESS_ID 
+	    FROM qz_iesb_for_circle c,customer_application_info i,
+	    quota_process qp,
+	    BASIC_CUSTOMER_INFORMATION U,
+	       NODE_AUDIT N,NODE_AUDIT_USER p
+	    where 1=1
+	    and c.application_id = i.id
+	    and c.ret_code = '000000'
+	    and c.serialnumber_quota = qp.serial_number
+	    and c.customer_id = u.id
+	    and N.ID=qp.NEXT_NODE_ID
+	    and qp.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{userId}
+		<if test="customerName != null and customerName != '' ">
+			<![CDATA[ and c.client_name like '%'||#{customerName}||'%']]>
+		</if>
+		<if test="certNo != null and certNo != '' ">
+		    <![CDATA[ and c.global_id like '%'||#{certNo}||'%']]>
+		</if>
+		<if test="clientNo != null and clientNo != '' ">
+		    <![CDATA[ and c.client_no like '%'||#{clientNo}||'%']]>
+		</if>
+		<if test="loanStatus != null and loanStatus != '' ">
+		    and c.loan_status = #{loanStatus}
+		</if>
+			
+		<if test="filterTeamLeader!=null and filterTeamLeader!=''">
+			<if test='filterTeamLeader=="1"'>
+				and u.user_id in ( 
+					select user_id from ACCOUNT_MANAGER_PARAMETER where id in (SELECT 
+					mbm.child_id 
+					FROM 
+					manager_belong_map mbm 
+					LEFT JOIN account_manager_parameter amp ON amp. ID = mbm.parent_id 
+					WHERE 
+					amp.user_id = #{userId}))
+			</if>
+		</if>
+      )
 	</select>
 </mapper>

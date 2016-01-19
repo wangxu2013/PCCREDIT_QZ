@@ -61,14 +61,13 @@ public class DivisionalController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "browse.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.BROWSE)
 	public AbstractModelAndView browse(@ModelAttribute DivisionalFilter filter, HttpServletRequest request) {
 		filter.setRequest(request);
 		IUser user =Beans.get(LoginManager.class).getLoggedInUser(request);
-		String orgId = user.getOrganization().getId();
-		filter.setCurrentOrganizationId(orgId);
-		filter.setDivisionalProgress(DivisionalConstant.CHARGE);
-		QueryResult<DivisionalWeb> result = divisionalservice.findDivisional(filter);
+		//String orgId = user.getOrganization().getId();
+		//filter.setCurrentOrganizationId(orgId);
+		//filter.setDivisionalProgress(DivisionalConstant.CHARGE);
+		QueryResult<DivisionalWeb> result = divisionalservice.findDivisional_qz(filter);
 		JRadPagedQueryResult<DivisionalWeb> pagedResult = new JRadPagedQueryResult<DivisionalWeb>(filter, result);
 		JRadModelAndView mv = new JRadModelAndView("/divisional/customerallot/customerallot_browse", request);
 		mv.addObject(PAGED_RESULT, pagedResult);
@@ -83,7 +82,6 @@ public class DivisionalController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "divisional.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.DISTRIBUTION)
 	public AbstractModelAndView browse(HttpServletRequest request) {
 		JRadModelAndView mv = new JRadModelAndView("/divisional/customerallot/customerallot_divisional", request);
 		String divisionalId = RequestHelper.getStringValue(request, ID);
@@ -109,7 +107,6 @@ public class DivisionalController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "divisional.json", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.DISTRIBUTION)
 	public Map<String, Object> divisional(@ModelAttribute DivisionalForm form,HttpServletRequest request) {
 		Map<String, Object> returnMap = new HashMap<String,Object>();
 		IUser user =(User)Beans.get(LoginManager.class).getLoggedInUser(request);
@@ -130,7 +127,8 @@ public class DivisionalController extends BaseController{
 		}
 		returnMap.put(RECORD_ID, id);
 		return returnMap;
-	}	
+	}
+	
 	/**
 	 * 上传到卡中心 
 	 * @param request

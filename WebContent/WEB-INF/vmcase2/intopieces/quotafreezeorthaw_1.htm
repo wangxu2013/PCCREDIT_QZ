@@ -1,0 +1,177 @@
+#parse ("common/iframe_page_header.htm")
+#parse ("common/customerInfor.htm")
+<body>
+  <div class="content_main">
+    <div class="contentinner">
+      <div class="place">
+        <div class="title">额度冻结/解冻(客户经理)</div>
+      </div>
+ <div class="inquiry">
+        <div class="search_tag"></div>
+        <div class="search">
+          <form id="submitForm" action="${contextPath}/intopieces/quotafreezeorthaw1/browse.page">
+            <ul>
+              <li>
+                <span>客户名称：<input type="text" id="customerName" name="customerName" value="$!result.filter.customerName" /></span>
+              </li>
+               <li>
+                <span>证件号码：<input type="text" id="certNo" name="certNo" value="$!result.filter.certNo" /></span>
+              </li>
+              <li>
+                <span>客户号：<input type="text" id="clientNo" name="clientNo" value="$!result.filter.clientNo" /></span>
+              </li>
+              <li>
+                <span>贷款状态：
+                <select id="loanStatus" name="loanStatus">
+                       <option value="">请选择...</option>
+	                   #dict("loanStatus", $!result.filter.loanStatus)
+	                </select></span>
+              </li>
+              <li class="search_button">
+                <input type="button" value="#i18n('button.browse')" class="search_button_inquiry"
+                  title="#i18n('button.browse.hint')" style="height: 26px; line-height: 24px;" onclick="javascript:this.form.submit();"/>
+              </li>
+            </ul>
+          </form>
+        </div>
+               <div id="topDiv" class="inquiry_list inquiry_top">
+          <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="8%" />
+              <col width="13%"/>
+              <col width="12%"/>
+              <col width="8%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col width="7%"/>
+              <col width="7%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col />
+            </colgroup>
+            <tr class="title">
+              <th nowrap="nowrap"></th>
+              <th nowrap="nowrap">客户名称</th>
+              <th nowrap="nowrap">证件号码</th>
+              <th nowrap="nowrap">客户号</th>
+              <th nowrap="nowrap">贷款额度</th>
+              <th nowrap="nowrap">授信开始时间</th>
+              <th nowrap="nowrap">授信结束时间</th>
+              <th nowrap="nowrap">贷款状态</th>
+              <th nowrap="nowrap">申请</th>
+              <th nowrap="nowrap">审批状态</th>
+              <th nowrap="nowrap">进度</th>
+            </tr>
+          </table>
+        </div>
+        <div id="downDiv" class="inquiry_list inquiry_down">
+          <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="8%" />
+              <col width="13%"/>
+              <col width="12%"/>
+              <col width="8%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col width="7%"/>
+              <col width="7%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col />
+            </colgroup>
+            #foreach ($intoPieces in $result.items)
+            <tr>
+              <td class="checkbox"><input type="radio" name="checkbox" value="$!{intoPieces.clientNo}_$!{intoPieces.retContno}_$!{intoPieces.loanStatus}_$!{intoPieces.cardNo}_$!{intoPieces.circleId}_$!{intoPieces.processStatus}"/></td>
+              <td nowrap="nowrap">$!intoPieces.clientName</td>
+              <td nowrap="nowrap">$!intoPieces.globalId</td>
+              <td nowrap="nowrap">$!intoPieces.clientNo</td>
+              <td nowrap="nowrap">$!intoPieces.contractAmt</td>
+              <td nowrap="nowrap">$!date.format("yyyy-MM-dd",$!intoPieces.startDate)</td>
+              <td nowrap="nowrap">$!date.format("yyyy-MM-dd",$!intoPieces.endDate)</td>
+              <td nowrap="nowrap">#dictVal("loanStatus",$!intoPieces.loanStatus)</td>
+              <td nowrap="nowrap">#dictVal("loanStatus2",$!intoPieces.operateType)</td>
+              <td nowrap="nowrap">
+	              #if($!intoPieces.processStatus=='audit')已申请
+	              #elseif($!intoPieces.processStatus=='RETURNAPPROVE')退回
+	              #elseif($!intoPieces.processStatus=='refuse')被拒绝
+	              #elseif($!intoPieces.processStatus=='approved')审批结束 
+	              #elseif($!intoPieces.processStatus=='returnedToFirst')退回客户经理
+	              #end
+              </td>
+              <td nowrap="nowrap">$!intoPieces.nodeName</td>
+            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+      <div class="pagebar">
+        <div class="controlbtn">
+            <a class="btn_g" href="javascript:void(0);" title="申请冻结额度" onclick="quotafreeze('10')">申请冻结额度</a>
+        	<a class="btn_g" href="javascript:void(0);" title="申请解冻额度" onclick="quotafreeze('20')">申请解冻额度</a>
+        	<a class="btn_g" href="javascript:void(0);" title="申请合同终止" onclick="quotafreeze('30')">申请终止贷款</a>
+        </div>
+        #parse ("common/pagination.htm")
+        <div class="clear"></div>
+      </div>
+    </div>
+  </div>
+</body>
+<script language="javascript" type="text/javascript">
+	var layout = new TableLayout(2);
+	window.top.currentWindow.setLayout(layout);
+
+	$(document).ready(function() {
+		var opsObj = new Object();
+		opsObj.formObj = $("#submitForm");
+		opsObj.browseUrl = "${contextPath}/intopieces/quotafreezeorthaw1/browse.page";
+		prepareOperations(opsObj);
+	});
+	function quotafreeze(operateType){
+		var clientNo = null;
+		var contNo = null;
+		var loanStatus = null;
+		var cardNo = null;
+		var circleId = null;
+		var processStatus = null;
+		$("input[name='checkbox']:checked").each(function() {
+			clientNo = $(this).val().split("_")[0];
+			contNo = $(this).val().split("_")[1];
+			loanStatus = $(this).val().split("_")[2];
+			cardNo = $(this).val().split("_")[3];
+			circleId = $(this).val().split("_")[4];
+			processStatus = $(this).val().split("_")[5];
+		});
+		if(clientNo!=null && cardNo!=null && contNo != null && loanStatus!=null ){
+			
+			if(processStatus != "" && processStatus != "approved" && processStatus != "refuse"){
+				topWin.Dialog.message("冻结/解冻流程未结束，不能重复申请！");
+				return;
+			}
+			Dialog.confirm("确定要执行该操作吗？", "提示",
+					function(){
+				    $.ajax({
+				    
+				    	url:"${contextPath}/intopieces/quotafreezeorthaw1/quot_operate.json?clientNo="+clientNo+"&contNo="+contNo+"&cardNo="+cardNo+"&operateType="
+				    			+operateType+"&loanStatus="+loanStatus+"&circleId="+circleId,
+				    	type : "get",
+						success : function(data) {
+							if (data.success) {
+								topWin.Dialog.message(data.retMsg);
+								window.location.href="${contextPath}/intopieces/quotafreezeorthaw1/browse.page"
+							}else{
+								topWin.Dialog.message(data.retMsg);
+							}
+						}
+				    });
+			});
+		}else{
+			Dialog.message("请选择一条记录!");
+		}
+	  
+	}
+</script>
+   <script src="${contextPath}/js/customerInfor/customer_infor.js"></script>
+#parse ("common/iframe_page_footer.htm")
+

@@ -1,6 +1,10 @@
 package com.cardpay.pccredit.intopieces.constant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Constant {
+		
 	/* 操作失败 */
 	public static String FAIL_MESSAGE = "操作失败";
 	
@@ -23,28 +27,29 @@ public class Constant {
 	public static String FILE_PATH = "/home/pccredit/pccredit_upload/";
 	
 	/* 保存进件*/
-	public static String SAVE_INTOPICES = "save";
+	public static String SAVE_INTOPICES = "save";//泉州用到(进件)
+	public static String SAVE_INTOPICES_CN = "暂存";//泉州用到(进件)
 	
 	/* 申请进件*/
-	public static String APPROVE_INTOPICES = "audit";  
-	
+	public static String APPROVE_INTOPICES = "audit";  //泉州用到(进件/冻结)
+	public static String APPROVE_INTOPICES_CN = "已申请";
 	/* 拒绝进件*/
-	public static String REFUSE_INTOPICES = "refuse";
-	
+	public static String REFUSE_INTOPICES = "refuse";//泉州用到(进件/冻结)
+	public static String REFUSE_INTOPICES_CN = "拒绝";
 	/* 成功进件*/
 	public static String SUCCESS_INTOPICES = "success";
 	
 	/* 退件*/
 	public static String NOPASS_INTOPICES = "nopass";
 	/* 审核退回*/
-	public static String TRTURN_INTOPICES = "RETURNAPPROVE";
-	
+	public static String TRTURN_INTOPICES = "RETURNAPPROVE";//泉州用到(进件/冻结)
+	public static String TRTURN_INTOPICES_CN = "审核退回";
 	/* 退件到申请状态*/
-	public static String RETURN_INTOPICES = "returnedToFirst";
-	
+	public static String RETURN_INTOPICES = "returnedToFirst";//泉州用到(进件/冻结)
+	public static String RETURN_INTOPICES_CN = "退回客户经理";
 	/* 申请已通过*/
-	public static String APPROVED_INTOPICES = "approved";
-	
+	public static String APPROVED_INTOPICES = "approved";//泉州用到(进件/冻结)
+	public static String APPROVED_INTOPICES_CN = "审批通过";
 	/*以下是上传状态*/
 	public static String INITIAL_INTOPICES="initial";
 	
@@ -105,9 +110,10 @@ public class Constant {
 	public static String htd_id="00002";//合同单默认ID
 	public static String status_buchong="补充上会";
 	public static String status_scan="影像补扫";
-	public static String status_onelevel="一级审核";
-	public static String status_twolevel="二级审核";
+	public static String status_onelevel="行长";
+	public static String status_twolevel="团队长";
 	public static String status_cardquery="卡中心进件查询";
+	public static String status_anjudai="安居贷进件查询";
 	public static String status_query="进件查询";
 	/*审批结果*/
 	public static String APPLN_TYPE_1="审批通过";
@@ -120,48 +126,42 @@ public class Constant {
 	public static String APPROVE_EDIT_3="4";//授信岗补充上会--退回客户经理
 	
 	/*待决策资料清单列表*/
-	public static String ATTACH_LIST0="合同扫描件";
-	public static String ATTACH_LIST1="贷款申请表";
-	public static String ATTACH_LIST2="调查报告";
-	public static String ATTACH_LIST3="征信查询授权书";
-	public static String ATTACH_LIST4="工作底稿";
-	public static String ATTACH_LIST5="信用报告及联网核查";
-	public static String ATTACH_LIST6="贷审小组决议表";
-	public static String ATTACH_LIST7="规范操作承诺书";
-	public static String ATTACH_LIST8="收入证明文件";
-	public static String ATTACH_LIST9="借款人资产文件、住址证明";
-	public static String ATTACH_LIST10="借款人及共同借款人身份证复印件";
-	public static String ATTACH_LIST11="借款人及共同借款人婚姻状况证明";
-	public static String ATTACH_LIST12="担保人及配偶身份证明复印件";
-	public static String ATTACH_LIST13="担保人及配偶婚姻状况说明";
-	public static String ATTACH_LIST14="担保人收入证明";
-	public static String ATTACH_LIST15="申请表";
-	public static String ATTACH_LIST16="营业执照（副本）复印件";
-	public static String ATTACH_LIST17="税务登记证（副本）复印件";
-	public static String ATTACH_LIST18="组织机构代码证（副本）复印件";
-	public static String ATTACH_LIST19="贷款卡及年检报告复印件";
-	public static String ATTACH_LIST20="公司章程（包括验资报告复印件）";
-	public static String ATTACH_LIST21="股东会或董事会决议原件";
-	public static String ATTACH_LIST22="法定代表人身份证明文件复印件";
-	public static String ATTACH_LIST23="股东身份证明复印件";
-	public static String ATTACH_LIST24="担保人身份证明复印件";
-	public static String ATTACH_LIST25="担保人贷款卡复印件";
-	public static String ATTACH_LIST26="担保人收入证明";
-	public static String ATTACH_LIST27="信用等级证复印件（如有）";
+	//<option value="1">工薪类</option>
+	public static Map<Integer,String> ATT_BATCH_1 = new HashMap<Integer,String>(){{
+		put(1,"合同扫描件");
+		
+		put(2,"贷款申请表");put(4,"调查报告");put(8,"征信查询授权书");
+		put(16,"工作底稿");put(32,"信用报告及联网核查");put(64,"贷审小组决议表");
+		put(128,"规范操作承诺书");put(256,"收入证明文件");put(512,"借款人资产文件、住址证明");
+		put(1024,"借款人及共同借款人身份证复印件");put(2048,"借款人及共同借款人婚姻状况证明");
+		put(4096,"担保人及配偶身份证明复印件");put(8192,"担保人及配偶婚姻状况说明");
+		put(16384,"担保人收入证明");
+		
+		put(1073741824,"其他");
+	}};
 	
-	public static String ATTACH_LIST99="其他";
+	//<option value="2">经营类</option>
+	public static Map<Integer,String> ATT_BATCH_2 = new HashMap<Integer,String>(){{
+		put(1,"合同扫描件");
+		
+		put(4,"调查报告");put(8,"征信查询授权书");
+		put(16,"工作底稿");put(32,"信用报告及联网核查");put(64,"贷审小组决议表");
+		put(128,"规范操作承诺书");
+		
+		put(2,"申请表");put(256,"营业执照（副本）复印件");put(512,"税务登记证（副本）复印件");
+		put(1024,"组织机构代码证（副本）复印件");put(2048,"贷款卡及年检报告复印件");
+		put(4096,"公司章程（包括验资报告复印件）");put(8192,"股东会或董事会决议原件");
+		put(16384,"法定代表人身份证明文件复印件");put(32768,"股东身份证明复印件");
+		put(65536,"担保人身份证明复印件");put(131072,"担保人贷款卡复印件");
+		put(262144,"担保人收入证明");put(524288,"信用等级证复印件（如有）");
+		
+		put(1073741824,"其他");
+	}};
 	
-	public static String ATTACH_LIST_ADD_1 = "1";
-	public static String ATTACH_LIST_ADD_2 = "2";
-	public static String ATTACH_LIST_ADD_3 = "3";
-	public static String ATTACH_LIST_ADD_4 = "4";
-	public static String ATTACH_LIST_ADD_5 = "5";
-	public static String ATTACH_LIST_ADD_6 = "6";
-	public static String ATTACH_LIST_ADD_7 = "7";
-	public static String ATTACH_LIST_ADD_8 = "8";
-	public static String ATTACH_LIST_ADD_9 = "9";
-	public static String ATTACH_LIST_ADD_10 = "10";
 	//影像空间放置路劲
 	public static String OCX_FILEPATH="/home/pccredit/sunds_ocx.exe";//生产环境
 	
+	//其他流程配置
+	public static String QUOTAFREEZEORTHAW_ID = "100000";
+	public static String HETONG_ID = "200000";
 }

@@ -99,6 +99,7 @@
 				<property name="excludeContains">
 					<list> <!-- 不需要验证的匹配 -->
 						<value>/ipad/</value>
+						<value>/ESBprvdServlet/</value>
 					</list>
 				</property>
 				<property name="mainPage" value="/main.page" />

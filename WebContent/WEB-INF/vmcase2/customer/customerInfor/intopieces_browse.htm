@@ -76,13 +76,16 @@
               <td nowrap="nowrap">$!intoPieces.cardId</td>
               <td nowrap="nowrap">$!intoPieces.productName</td>
               <td nowrap="nowrap">$format.formatNumber($!intoPieces.applyQuota,2,100)</td>
-              <td nowrap="nowrap">#if($!intoPieces.status=='audit')已申请  
+              <td nowrap="nowrap">
+              	#if($!intoPieces.status=='audit')已申请  
 	              #elseif($!intoPieces.status=='save')暂存 
 	              #elseif($!intoPieces.status=='nopass')申请未通过 
-	              #elseif($!intoPieces.status=='refuse')被拒绝
+	              #elseif($!intoPieces.status=='refuse')拒绝
+	              #elseif($!intoPieces.status=='RETURNAPPROVE')审核退回
 	              #elseif($!intoPieces.status=='approved')审批结束  
-	              #elseif($!intoPieces.status=='success')申请成功 
-	              #end</td>
+	              #elseif($!intoPieces.status=='succeed')申请成功
+	              #elseif($!intoPieces.status=='returnedToFirst')退回客户经理
+	              #end
             </tr>
             #end
           </table>

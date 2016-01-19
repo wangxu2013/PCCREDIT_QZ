@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.cardpay.pccredit.divisional.filter.DivisionalFilter;
+import com.cardpay.pccredit.divisional.model.DivisionalTransfer;
+import com.cardpay.pccredit.divisional.model.DivisionalWeb;
 import com.cardpay.pccredit.system.model.Dict;
+import com.wicresoft.jrad.base.database.model.QueryResult;
 import com.wicresoft.util.annotation.Mapper;
 /**
  * 
@@ -90,4 +94,11 @@ public interface DivisionalDao {
 	 * @return
 	 */
 	public int findDivisionalCounsToday(@Param("customerManagerId") String customerManagerId,@Param("result") String result,@Param("process") String process);
+	
+	public List<DivisionalWeb> findDivisional_qz(DivisionalFilter filter);
+	public int findDivisional_qz_count(DivisionalFilter filter);
+	public List<DivisionalTransfer> findDivisionalTransfer(DivisionalFilter filter);
+	public int findDivisionalTransferCount(DivisionalFilter filter);
+	public List<DivisionalWeb> findDivisionalByCustomerManager(DivisionalFilter filter);
+	public int findDivisionalByCustomerManagerCount(DivisionalFilter filter);
 }

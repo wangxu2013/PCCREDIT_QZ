@@ -1,124 +1,118 @@
-<script src='${contextPath}/common/js/common/jquery.min.js'></script>
-<script src='${contextPath}/common/js/common/JTimer_2.0.js'></script>
-<script src='${contextPath}/common/js/common/bm.jquery.validate.js'></script>
-<script src="${contextPath}/common/js/common/jquery-ui-1.10.3.custom.min.js"></script>
-<script src="${contextPath}/common/js/common/common.js"></script>
-<script src="${contextPath}/common/js/common/dialog.js"></script>
-<script type="text/javascript" src="${uicasePath}/js/common/layoutInfo.js"></script>
+#parse ("common/iframe_page_header.htm")
+#parse ("common/customerInfor.htm")
+<body>
+<div class="content_main">
+   <div class="contentinner">
+ 	<div class="inquiry">
+ 		<div id="topDiv" class="inquiry_list inquiry_top">
+          <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="5%" />
+              <col width="10%" />
+              <col width="15%" />
+              <col width="5%" />
+              <col width="25%" />
+            </colgroup>
+            <tr class="title">
+              <th nowrap="nowrap"></th>
+              <th nowrap="nowrap">客户姓名</th>
+              <th nowrap="nowrap">证件号码</th>
+              <th nowrap="nowrap">文件类型</th>
+              <th nowrap="nowrap">状态</th>
+              <th nowrap="nowrap">操作</th>
+            </tr>
+          </table>
+        </div>
+        <div id="downDiv" class="inquiry_list inquiry_down">
+          <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="5%" />
+              <col width="10%" />
+              <col width="15%" />
+              <col width="5%" />
+              <col width="25%" />
+            </colgroup>
+            #foreach ($obj in $batch_ls)
+            <tr>
+              <td class="checkbox"><input type="radio" name="checkbox" value="$!obj.id"/></td>
+              <td nowrap="nowrap">$!ecif.clientName</td>
+              <td nowrap="nowrap">$!ecif.globalId</td>
+              <td nowrap="nowrap">$!obj.name</td>
+              <td nowrap="nowrap">
+              #if($!obj.isUpload == $null)
+              	未缓存,未上传
+              #elseif($!obj.isUpload == "0")
+              	已缓存,未上传
+              #elseif($!obj.isUpload == "1")
+              	已上传
+              #end
+              </td>
+              <td nowrap="nowrap">
+              	#if($!obj.isUpload == "0")
+              		上传中,禁止操作！
+              	#elseif($!obj.isUpload == $null)
+              		<a id="id_browse_button" class="btn_g" href="javascript:void(0);" title="浏览" onclick="browseFolder('$!{obj.id}','$!obj.isUpload')">浏览</a>
+              		<a id="id_detail_button" class="btn_g" href="javascript:void(0);" title="查看缓存" onclick="displayDetail('$!{obj.id}','$!obj.isUpload')">查看缓存</a>
+              	#elseif($!obj.isUpload == "1")
+              		<a id="id_browse_button" class="btn_g" href="javascript:void(0);" title="浏览" onclick="browseFolder('$!{obj.id}','$!obj.isUpload')">浏览</a>
+              		<a id="id_detail_button" class="btn_g" href="javascript:void(0);" title="查看缓存" onclick="displayDetail('$!{obj.id}','$!obj.isUpload')">查看缓存</a>
+              		<a id="id_server_button" class="btn_g" href="javascript:void(0);" title="查看已上传" onclick="displayServer('$!{obj.id}','$!obj.isUpload')">查看已上传</a>
+              		<a id="id_delete_button" class="btn_g" href="javascript:void(0);" title="删除该批次" onclick="deleteBatch('$!{obj.id}')">删除该批次</a>
+              	#end
+              </td>
+            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script language="javascript" type="text/javascript">
+	var layout = new TableLayout(2);
+	window.top.currentWindow.setLayout(layout);
 
-<script src="${uicasePath}/js/jquery.cookie.js" type="text/javascript"></script>
-<script src="${uicasePath}/js/jquery.dynatree.js" type="text/javascript"></script>
-
-#if ($request.getHeader("user-agent").indexOf("MSIE 6.0")!=-1 || $request.getHeader("user-agent").indexOf("MSIE 7.0")!=-1 || $request.getHeader("user-agent").indexOf("MSIE 8.0")!=-1)
-<script type="text/javascript" src="${contextPath}/common/js/common/json2.js"></script>
-#end
-<link rel="stylesheet" type="text/css" href="${uicasePath}/css/skin-vista/ui.dynatree.css">
-<link rel="stylesheet" type="text/css" href="${uicasePath}/css/competence.css" />
-<link rel="stylesheet" type="text/css" href="${uicasePath}/css/css.css" />
-<link rel="stylesheet" type="text/css" href="${uicasePath}/css/box.css" />
-
-<script type="text/javascript">
-var unit={key:"",title:""};
-$(function() {
-		$("#departmentTree").empty();
-		$("#departmentTree").dynatree({
-		
-					selectMode : 2,
-					checkbox : false,
-					autoFocus : true,
-					minExpandLevel : 4,
-					strings : {
-						loading : "Loading…",
-						loadError : "Load error!"
-					},
-					children:$!{children},
-					onClick : function(node) {
-						if (node.tree.isUserEvent()) {
-							if(!node.data.isFolder){
-								//alert(node.data.key.split("_")[0]);
-								//alert(node.data.key.split("_")[1]);
-								//alert(node.data.title);
-								var url = "${contextPath}/intopieces/intopiecesapprove/getPage5UploadValue.json?appId=${appId}&docID="+node.data.key.split("_")[1];
-								if(node.data.key.split("_").length>2){
-									url = "${contextPath}/intopieces/intopiecesapprove/getPage5UploadValueAdd.json?appId=${appId}&docID="+
-											node.data.key.split("_")[1]+"_"+node.data.key.split("_")[2]+"_"+node.data.key.split("_")[3];
-								}
-								
-								$.ajax({
-									url : url,
-									type : "get",
-									success : function(data) {
-										if (data.success) {
-											if(data.uploadFlag != "0"){
-												if(node.data.key.split("_").length>2){
-													loadBydocId(node.data.key.split("_")[1]+node.data.key.split("_")[2]+node.data.key.split("_")[3],"level2");
-													level2_chk_value = node.data.key.split("_")[3];
-													parentValue = node.data.key.split("_")[2];
-												}
-												else{
-													loadBydocId(node.data.key.split("_")[1],"level1");
-													level2_chk_value = "";
-													parentValue = "";
-												}
-											}
-											else{
-												if(node.data.key.split("_").length>2){
-													initBydocId(node.data.key.split("_")[1]+node.data.key.split("_")[2]+node.data.key.split("_")[3],"level2");
-													level2_chk_value = node.data.key.split("_")[3];
-													parentValue = node.data.key.split("_")[2];
-													
-												}
-												else{
-													initBydocId(node.data.key.split("_")[1],"level1");
-													level2_chk_value = "";
-													parentValue = "";
-												}
-											}
-										}
-									}
-								});
-							}
+	$(document).ready(function() {
+	});
+	
+	function browseFolder(id,is_upload){
+		var url = "${contextPath}/intopieces/intopiecesapprove/browse_folder.page?batch_id="+id;
+		window.location.href = url;
+	}
+	
+	function displayDetail(id,is_upload){
+		var url = "${contextPath}/intopieces/intopiecesapprove/display_detail.page?batchId="+id;
+		window.location.href = url;
+	}
+	
+	function displayServer(id,is_upload){
+		//Dialog.load();
+		var url = "${contextPath}/intopieces/intopiecesapprove/display_server.page?batchId="+id+"&first_flag=1";
+		window.location.href = url;
+	}
+	
+	function deleteBatch(id){
+		Dialog.confirm("确定删除该批次吗？", "提示",
+			function() {
+				Dialog.load();
+				$.ajax({
+					url : "${contextPath}/intopieces/intopiecesapprove/delete_batch.json?batchId="+id,
+					type : "get",
+					success : function(data) {
+						Dialog.closeLoad();
+						if (data.success) {
+							topWin.Dialog.message("批次删除成功！");
+							window.location.reload();
 						}
+						else{
+							topWin.Dialog.message("批次删除失败！");
+					    }
 					}
 				});
-		/*调整树边框的颜色 */
-		$(".dynatree-no-connector").css("border","1px solid #C3CCCE");
-	});
-
-	var docID = "";
-	var level2_chk_value ="";
-	var parentValue = "";
-	function initBydocId(val,level){
-		docID = val;
-		displayIframe.window.location.href = "${contextPath}/intopieces/intopiecesapprove/WDScan.page?appId=${appId}&level="+level;
+			});
 	}
-	function loadBydocId(val,level){
-		docID = val;
-		displayIframe.window.location.href = "${contextPath}/intopieces/intopiecesapprove/WDModify.page?appId=${appId}&level="+level;
-	}
-		</script>
-		
-<body style="height: 100%;" >
-	<div class="content">
-		<div class="contentinner" style="height: 100%;" >
-			 <div  class="inquiry" style="height: 100%;" id="inquiry">
-				<div  id="treeDiv" class="inquiry_list inquiry_left" style="height: 100%;padding-bottom: 10px;border:0px;">
-					<div id="departmentTree" style="height: 100%; width: 100%;"></div>
-				</div>
-			
-				<div id="iframeDiv" style="float: left; width: 75%;height: 100%;  margin-bottom: 0px;">
-					 <iframe id="displayIframe" name="displayIframe" width="100%" height="100%" 
-						      frameborder="0" marginheight="0" marginwidth="0" scrolling="no"
-						      src="${contextPath}/intopieces/intopiecesapprove/WDScan.page?appId=${appId}" name="displayIframe" allowtransparency="true" >
-					</iframe>
-				</div> 
-			</div>
-		</div>
-		
-	</div>
 	
-	<script>
-	 $(document).ready(function() {
-	  });
-	</script>
-</body>
+</script>
+#parse ("common/iframe_page_footer.htm")

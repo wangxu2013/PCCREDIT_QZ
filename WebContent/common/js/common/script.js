@@ -49,6 +49,7 @@ function addTd(table){	//表格添加行
 	if(table=="jkjl"){//借款记录
 		$("#"+table).append("<tr>" + 
 								"<td><input type='text' class='input' name='bankOrOtherType_jkjl_"+cnt+"'/></td>" + 
+								"<td><input type='text' class='input' name='guaranteeMode_jkjl_"+cnt+"'/></td>" +
 								"<td><input type='text' class='input' name='purpose_jkjl_"+cnt+"'/></td>" + 
 								"<td><input type='text' class='input' name='totalAmount_jkjl_"+cnt+"'/></td>" + 
 								"<td><input type='text' class='input' name='loanDate_jkjl_"+cnt+"' value='"+timestr+"' onmouseover='_calendar()' readonly/></td>" + 

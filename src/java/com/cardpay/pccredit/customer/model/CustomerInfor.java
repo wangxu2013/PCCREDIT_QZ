@@ -40,6 +40,16 @@ public class CustomerInfor extends BusinessModel{
 	private String status;//增加一个属性，表中不新增。  方便查看该客户的状态
 	private String clientNo;//增加一个属性，表中不新增。  方便查看该客户的状态
 	
+	private String chl;//渠道
+	
+	
+	
+	public String getChl() {
+		return chl;
+	}
+	public void setChl(String chl) {
+		this.chl = chl;
+	}
 	public String getChineseName() {
 		return chineseName;
 	}

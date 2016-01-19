@@ -17,6 +17,7 @@ import com.dc.eai.data.Field;
 import com.dc.eai.data.FieldAttr;
 import com.dc.eai.data.FieldType;
 import com.cardpay.pccredit.customer.model.CustomerInfor;
+import com.cardpay.pccredit.ipad.constant.IpadConstant;
 import com.wicresoft.jrad.base.database.dao.common.CommonDao;
 
 @Service
@@ -31,6 +32,7 @@ public class IESBForED {
 		String clientNo = (String)map.get("clientNo");
 		String cardNo = (String)map.get("cardNo");
 		String operateType = (String)map.get("operateType");
+		String contNo = (String)map.get("contNo");
 		
         //SYS_HEAD
         CompositeData syaHead_struct = new CompositeData();
@@ -77,7 +79,7 @@ public class IESBForED {
         //新增字段
         //合同号
         Field CONTRACT_NO=new Field(new FieldAttr(FieldType.FIELD_STRING, 60));
-        CONTRACT_NO.setValue("");//个人资助
+        CONTRACT_NO.setValue(contNo);//个人资助
         body_struct.addField("CONTRACT_NO", CONTRACT_NO);
         //业务类型
         Field APPLY_TYPE=new Field(new FieldAttr(FieldType.FIELD_STRING, 3));
@@ -92,11 +94,11 @@ public class IESBForED {
      * 解析CompositeData报文
      * @param cd
      */
-    public  Map parseCoreResponse(CompositeData cd) {
+    public Map<String,String> parseCoreResponse(CompositeData cd) {
     	if(cd == null){
     		return null;
     	}
-    	Map result = new HashMap();
+    	Map<String,String> result = new HashMap<String,String>();
         CompositeData sysHead = cd.getStruct("SYS_HEAD");
         
         //根据数组名称去获取数组
@@ -116,8 +118,15 @@ public class IESBForED {
                 RET_CODE=array_element.getField("RET_CODE").strValue();
             }
         }
+        
+        CompositeData body = cd.getStruct("BODY");
+        
         result.put("RET_MSG", RET_MSG);
         result.put("RET_CODE", RET_CODE);
+        if(RET_CODE.equals(IpadConstant.RET_CODE_SUCCESS)){
+        	result.put("LOAN_STATUS", body.getField("LOAN_STATUS").strValue());
+        }
+        
         return result;
     }
 }

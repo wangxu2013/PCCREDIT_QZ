@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.cardpay.pccredit.QZBankInterface.model.Credit;
+import com.cardpay.pccredit.ipad.constant.IpadConstant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -338,7 +339,7 @@ public class IESBForCredit {
                 
             }
         }
-        if(RET_CODE.equals( com.cardpay.pccredit.QZBankInterface.constant.Constant.RET_CODE_CIRCLE)){
+        if(RET_CODE.equals(IpadConstant.RET_CODE_SUCCESS)){
         	
         	return true;
         }

@@ -13,6 +13,8 @@ public class DivisionalWeb extends BusinessModel{
 	private String residentialAddress;
 	private String telephone;
 	private String divisionalResult;
+	private String remark;
+	
 	public String getCustomerId() {
 		return customerId;
 	}
@@ -61,6 +63,10 @@ public class DivisionalWeb extends BusinessModel{
 	public void setDivisionalResult(String divisionalResult) {
 		this.divisionalResult = divisionalResult;
 	}
-	
-	
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 }

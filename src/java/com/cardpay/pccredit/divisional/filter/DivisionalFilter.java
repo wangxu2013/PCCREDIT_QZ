@@ -18,6 +18,10 @@ public class DivisionalFilter extends BaseQueryFilter{
 	private String currentOrganizationId;
 	private String divisionalProgress;
 	private Integer divisionalType;
+	
+	private String chineseName;
+	private String cardId;
+	
 	public String getId() {
 		return id;
 	}
@@ -79,6 +83,17 @@ public class DivisionalFilter extends BaseQueryFilter{
 	public void setDivisionalType(Integer divisionalType) {
 		this.divisionalType = divisionalType;
 	}
-	
+	public String getChineseName() {
+		return chineseName;
+	}
+	public void setChineseName(String chineseName) {
+		this.chineseName = chineseName;
+	}
+	public String getCardId() {
+		return cardId;
+	}
+	public void setCardId(String cardId) {
+		this.cardId = cardId;
+	}
 	
 }

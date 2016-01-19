@@ -33,7 +33,6 @@ import com.cardpay.pccredit.customer.filter.VideoAccessoriesFilter;
 import com.cardpay.pccredit.customer.model.CustomerInfor;
 import com.cardpay.pccredit.customer.service.CustomerInforService;
 import com.cardpay.pccredit.datapri.constant.DataPriConstants;
-import com.cardpay.pccredit.intopieces.constant.ApplicationStatusEnum;
 import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.filter.CustomerApplicationProcessFilter;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
@@ -49,6 +48,7 @@ import com.cardpay.pccredit.intopieces.service.AttachmentListService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationIntopieceWaitService;
 import com.cardpay.pccredit.intopieces.service.CustomerApplicationProcessService;
 import com.cardpay.pccredit.intopieces.service.IntoPiecesService;
+import com.cardpay.workflow.constant.ApproveOperationTypeEnum;
 import com.wicresoft.jrad.base.auth.IUser;
 import com.wicresoft.jrad.base.auth.JRadModule;
 import com.wicresoft.jrad.base.auth.JRadOperation;
@@ -261,7 +261,7 @@ public class IntoPiecesShouxinControl extends BaseController {
 			CustomerApplicationProcess process =  customerApplicationProcessService.findByAppId(appId);
 			request.setAttribute("serialNumber", process.getSerialNumber());
 			request.setAttribute("applicationId", process.getApplicationId());
-			request.setAttribute("applicationStatus", ApplicationStatusEnum.APPROVE);
+			request.setAttribute("applicationStatus", ApproveOperationTypeEnum.APPROVE.toString());
 			request.setAttribute("objection", "false");
 			//查找审批金额
 			Circle circle = circleService.findCircleByAppId(appId);
@@ -328,8 +328,8 @@ public class IntoPiecesShouxinControl extends BaseController {
 		IESBForECIFReturnMap ecif = eCIFService.findEcifMapByCustomerId(appInfo.getCustomerId());
 		mv.addObject("ecif",ecif);
 				
-		Circle circle = circleService.findCircleByClientNo(ecif.getClientNo());
-		mv.addObject("circle",circle);
+		List<Circle> circle_ls = circleService.findCircleByClientNo(ecif.getClientNo());
+		mv.addObject("circle",circle_ls.get(circle_ls.size()-1));
 		return mv;
 	}
 	
@@ -348,7 +348,8 @@ public class IntoPiecesShouxinControl extends BaseController {
 		JRadReturnMap returnMap = new JRadReturnMap();
 		if (returnMap.isSuccess()) {
 			try {
-				Circle circle = circleService.findCircleByClientNo(clientNo);
+				List<Circle> circle_ls = circleService.findCircleByClientNo(clientNo);
+				Circle circle = circle_ls.get(circle_ls.size()-1);
 				circle.setContractAmt(iesbForCircleForm.getContractAmt());
 				
 				circleService.updateCustomerInforCircle(circle);

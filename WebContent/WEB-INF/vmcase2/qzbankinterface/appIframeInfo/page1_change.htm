@@ -3,6 +3,8 @@
 var now = new Date();
 var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate();
 </script>
+<style>
+</style>
 <body>
 <form id="id_module_form">
 <div class="forms" id="formsId">
@@ -376,6 +378,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				</tr>
 				<tr>
 					<td><b>银行或其他方式</b></td>	
+					<td><b>担保方式</b></td>
 					<td><b>目的</b></td>					
 					<td><b>贷款总额</b></td>	
 					<td><b>发放日期</b></td>					
@@ -387,6 +390,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				#foreach ($obj in $jkjl_ls)
 				<tr>
 					<td><input type="text" class="input" name="bankOrOtherType_jkjl_${obj.lsh}" value="$!obj.bankOrOtherType" #if($!qzApplnYwsqb.borrowHistory=='0') disabled #end/></td>	
+					<td><input type="text" class="input" name="guaranteeMode_jkjl_${obj.lsh}" value="$!obj.guaranteeMode" #if($!qzApplnYwsqb.borrowHistory=='0') disabled #end/></td>	
 					<td><input type="text" class="input" name="purpose_jkjl_${obj.lsh}" value="$!obj.purpose" #if($!qzApplnYwsqb.borrowHistory=='0') disabled #end/></td>					
 					<td><input type="text" class="input" name="totalAmount_jkjl_${obj.lsh}" value="$!obj.totalAmount" #if($!qzApplnYwsqb.borrowHistory=='0') disabled #end/></td>	
 					<td><input type="text" class="input" name="loanDate_jkjl_${obj.lsh}" value="$date.format('yyyy-MM-dd', $!obj.loanDate)" onmouseover="_calendar()" #if($!qzApplnYwsqb.borrowHistory=='0') disabled #end readonly/></td>	
@@ -586,7 +590,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 	#if($!type=="readonly")
 			<a class="btn_gr"  onclick="parent.location.href = '${contextPath}${returnUrl}'" title="返回">返回</a>
 	#else
-		<a id="id_save_button" class="btn_g" href="javascript:void(0);" title="提交">提交</a>
+		<a id="id_save_button" class="btn_g" href="javascript:void(0);" title="保存">保存</a>
 		<a id="id_back_button" class="btn_gr" href="javascript:void(0);" title="返回">返回</a>
 	#end
 	</div>
@@ -630,16 +634,16 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 		$(document).ready(function() {	
 			//初始化
 			if("${type}"=="readonly"){
-				$("input[type='text']").attr("readonly",true);
-				$("input[type='radio']").attr("readonly",true);
-				$("input[type='checkbox']").attr("readonly",true);
-				$("textarea").attr("readonly",true);
-				$("select").attr("readonly",true);
+				$("input[type='text']").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
+				$("input[type='radio']").attr("disabled",true);
+				$("input[type='checkbox']").attr("disabled",true);
+				$("textarea").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
+				$("select").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
 			}
 			//保存
 			$("#id_save_button").click(function() {
 				if(submitFlag == 1){
-					alert("请勿重复提交!")
+					alert("等待后台响应,请勿重复提交!")
 					return;
 				}
 				submitFlag = 1;

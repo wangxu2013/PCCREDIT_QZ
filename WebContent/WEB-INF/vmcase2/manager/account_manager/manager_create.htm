@@ -19,15 +19,10 @@
             </colgroup>
             <tr>
             <td><label for="userId">客户经理姓名：</label></td>
-              <td><select class="rinpsty" id="userId" name="userId" value="">
-                  <option value=""></option>
-                  #dict('CUSTOMERMANAGER', '')
-                </select>
-                </td>
+              	<td><input type="text" id="userId" name="userId" /></td>
                  <td><label for="levelInformation">客户经理层级信息:</label></td>
               <td>
                <select class="rinpsty" id="levelInformation" name="levelInformation">
-                 			   <option value=""></option>
                 			    #dict("CUSTOMERMANAGERLEVEL","")
               </td>
             </tr>
@@ -54,6 +49,31 @@
 	#validator($formName)
 	$(document).ready(function() {	
 		#parse("common/part_create.js")
+		
+		 $("#userId").autocomplete(contextPath+"/manager/managercreate/chooseByName.json", {
+				minChars: 0,
+				max: 12,
+				autoFill: true,
+				//mustMatch: true,
+				matchContains: false,
+				scrollHeight: 220,
+				width:250,
+				dataType:'json',
+				parse:function(data){
+					var parsed = [];
+					for(var i = 0; i < data.length; i++){
+						parsed[i] = {
+							data : data[i] ,
+							value : data[i].id,
+							result: data[i].id// 返回的结果显示内容 
+						};
+					}
+					return parsed;
+				}, 
+				formatItem: function(item) {// 显示下拉列表的内容
+					return "<div style='width:50%;float:left;'> " + item.displayName + "</div><div style='width:50%;float:left;'>" + item.id + "</div>";
+				}
+			});
 	});
 	</script>
 </body>

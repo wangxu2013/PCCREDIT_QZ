@@ -8,6 +8,10 @@ import com.cardpay.pccredit.QZBankInterface.model.Circle;
 import com.cardpay.pccredit.QZBankInterface.model.Circle_ACCT_INFO;
 import com.cardpay.pccredit.QZBankInterface.model.Credit;
 import com.cardpay.pccredit.QZBankInterface.model.ECIF;
+import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
+import com.cardpay.pccredit.intopieces.service.CustomerApplicationInfoService;
+import com.cardpay.pccredit.intopieces.web.IntoPiecesApproveControl;
+import com.cardpay.pccredit.ipad.constant.IpadConstant;
 import com.dc.eai.data.CompositeData;
 
 import java.util.ArrayList;
@@ -20,6 +24,7 @@ import com.wicresoft.jrad.base.database.id.IDGenerator;
 import com.wicresoft.jrad.base.database.model.QueryResult;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +38,9 @@ public class CircleService {
     
     @Autowired
 	private IESBForCircleCredit iesbForCircleCredit;
-    
+    @Autowired
+	private CustomerApplicationInfoService customerApplicationInfoService;
+	
     @Autowired
 	private IESBForCore iesbForCore;
     
@@ -42,7 +49,10 @@ public class CircleService {
     
     @Autowired
 	private CircleDao circleDao;
+    @Autowired
+	private IESBForCCH iESBForCCH;
     
+    public static final Logger logger = Logger.getLogger(CircleService.class);
     /**
      * 插入数据
      * @param circle
@@ -68,12 +78,32 @@ public class CircleService {
     //对接并存db
     public String updateCustomerInforCircle_ESB(Circle circle) {
     	String returnMessage = "";
-    	//先开户
-//    	boolean rtn = ecifService.updateCustomerInfor(circle,ecifService.findEcifByCustomerId(circle.getCustomerId()));
-//    	if(rtn == false){
-//    		returnMessage = "开户失败";
-//    		return returnMessage;
-//    	}
+    	
+    	//先查询app看是否续授信操作
+    	String appId = circle.getApplicationId();
+    	CustomerApplicationInfo app = customerApplicationInfoService.findById(appId);
+    	String isContinue = app.getIsContinue();
+    	if(StringUtils.isNotEmpty(isContinue)){
+    		//根据客户号 查询上一笔授信
+    		try {
+    			CompositeData req0 = iESBForCCH.createCCHRequest(circle.getClientNo());
+    			CompositeData resp0 = client.sendMess(req0);
+    			String CREDIT_STATUS = iESBForCCH.parseCCHResponse(resp0,circle.getClientNo());//返回授信状态
+    			if(CREDIT_STATUS.equals("30") || CREDIT_STATUS.equals("40")){
+    				//标记前一笔贷款状态为终止
+    				String CONTRACT_NO = iESBForCCH.parseCCHResponse2(resp0);
+    				Circle circleTmp = this.findCircleByCONTRACT_NO(CONTRACT_NO);
+    				if(circleTmp != null){
+    					circleTmp.setLoanStatus(CREDIT_STATUS);
+        				commonDao.updateObject(circleTmp);
+    				}
+    			}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				logger.info("查询授信状态失败",e);
+				return e.getMessage();
+			}
+    	}
     	
 		//先查询核心
 		List<Circle_ACCT_INFO> acct_info_ls = new ArrayList<Circle_ACCT_INFO>();
@@ -81,7 +111,7 @@ public class CircleService {
 		CompositeData req1 = iesbForCore.createCoreRequest(circle.getAcctNo1());
 		CompositeData resp1 = client.sendMess(req1);
 		if(resp1 == null){
-			returnMessage = "收息账号不存在";
+			returnMessage = "查询收息收款账号接口调用失败";
 			return returnMessage;
 		}
 		Circle_ACCT_INFO acct_Info1 = iesbForCore.parseCoreResponse(resp1,"03");
@@ -95,7 +125,7 @@ public class CircleService {
 		CompositeData req2 = iesbForCore.createCoreRequest(circle.getAcctNo2());
 		CompositeData resp2 = client.sendMess(req2);
 		if(resp2 == null){
-			returnMessage = "放款账号不存在";
+			returnMessage = "查询放款账号接口调用失败";
 			return returnMessage;
 		}
 		Circle_ACCT_INFO acct_Info2 = iesbForCore.parseCoreResponse(resp2,"01");
@@ -109,7 +139,7 @@ public class CircleService {
 		CompositeData req3 = iesbForCore.createCoreRequest(circle.getAcctNo2());
 		CompositeData resp3 = client.sendMess(req3);
 		if(resp3 == null){
-			returnMessage = "费用账号不存在";
+			returnMessage = "查询费用账号接口调用失败";
 			return returnMessage;
 		}
 		Circle_ACCT_INFO fee_Acct_Info = iesbForCore.parseCoreResponse(resp3,"07");
@@ -141,6 +171,11 @@ public class CircleService {
 		return res;
 	}
     
+	private Circle findCircleByCONTRACT_NO(String CONTRACT_NO) {
+		// TODO Auto-generated method stub
+		return circleDao.findCircleByCONTRACT_NO(CONTRACT_NO);
+	}
+
 	/**
 	 * 查询新开户
 	 * @param filter
@@ -154,7 +189,7 @@ public class CircleService {
 	}
 
 	//按客户号查询circle
-	public Circle findCircleByClientNo(String clientNo) {
+	public List<Circle> findCircleByClientNo(String clientNo) {
 		return circleDao.findCircleByClientNo(clientNo);
 	}
 	
@@ -175,5 +210,10 @@ public class CircleService {
 	//按照客户号号和合同号查询贷款记录
 	public Circle findCircleByClientNoAndContNo(String clientNo,String retContNo){
 		return circleDao.findCircleByClientNoAndContNo(clientNo, retContNo);
+	}
+
+	public List<Circle> findCircleApproved(String customerId) {
+		// TODO Auto-generated method stub
+		return circleDao.findCircleApproved(customerId);
 	}
 }

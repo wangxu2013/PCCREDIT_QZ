@@ -84,16 +84,16 @@
 	
 	$(document).ready(function() {	
 		if("${type}"=="readonly"){
-			$("input[type='text']").attr("readonly",true);
-			$("input[type='radio']").attr("readonly",true);
-			$("input[type='checkbox']").attr("readonly",true);
-			$("select").attr("readonly",true);
-			$("textarea").attr("readonly",true);
+			$("input[type='text']").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
+			$("input[type='radio']").attr("disabled",true);
+			$("input[type='checkbox']").attr("disabled",true);
+			$("select").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
+			$("textarea").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
 		}
 		//保存
 		$("#id_save_button").click(function() {
 			if(submitFlag == 1){
-				alert("请勿重复提交!")
+				alert("等待后台响应,请勿重复提交!")
 				return;
 			}
 			submitFlag = 1;

@@ -53,6 +53,8 @@ public class CustomerApplicationInfo  extends BusinessModel {
     
     private String serialNumber;
 
+	private String isContinue;//续授信
+	
     public String getCustomerId() {
         return customerId;
     }
@@ -219,6 +221,14 @@ public class CustomerApplicationInfo  extends BusinessModel {
 
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
+	}
+
+	public String getIsContinue() {
+		return isContinue;
+	}
+
+	public void setIsContinue(String isContinue) {
+		this.isContinue = isContinue;
 	}
 	
 }

@@ -20,6 +20,7 @@ import com.wicresoft.jrad.base.auth.IUser;
 import com.wicresoft.jrad.base.database.dao.common.CommonDao;
 import com.wicresoft.jrad.base.database.model.QueryResult;
 import com.wicresoft.jrad.base.web.security.LoginManager;
+import com.wicresoft.jrad.modules.privilege.model.User;
 import com.wicresoft.util.date.DateHelper;
 import com.wicresoft.util.spring.Beans;
 
@@ -522,5 +523,16 @@ public class AccountManagerParameterService {
 	//获取用户角色
 	public String findRoleNameByUserId(String userId){
 		return accountManagerParameterDao.findRoleNameByUserId(userId);
+	}
+	public List<User> findUserByName(String chineseName) {
+		// TODO Auto-generated method stub
+		String sql = "select * from sys_user where display_name like '%"+chineseName+"%' and id not in (select user_id from ACCOUNT_MANAGER_PARAMETER)";
+		return commonDao.queryBySql(User.class, sql, null);
+	}
+	
+	public List<User> findUserByNameInMgr(String chineseName) {
+		// TODO Auto-generated method stub
+		String sql = "select * from sys_user where display_name like '%"+chineseName+"%' and id in (select user_id from ACCOUNT_MANAGER_PARAMETER)";
+		return commonDao.queryBySql(User.class, sql, null);
 	}
 }

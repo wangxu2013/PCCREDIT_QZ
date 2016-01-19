@@ -37,6 +37,8 @@ public class CustomerInforFilter extends BaseQueryFilter{
 	private String userId;
 	private String appStatus;
 	
+	private String isContinue;//是否续授信
+	
 	public String getUserId() {
 		return userId;
 	}
@@ -186,5 +188,11 @@ public class CustomerInforFilter extends BaseQueryFilter{
 	}
 	public void setAppStatus(String appStatus) {
 		this.appStatus = appStatus;
+	}
+	public String getIsContinue() {
+		return isContinue;
+	}
+	public void setIsContinue(String isContinue) {
+		this.isContinue = isContinue;
 	}
 }

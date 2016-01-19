@@ -1,5 +1,7 @@
 package com.cardpay.pccredit.afterloan.model;
 
+import java.util.Date;
+
 import com.wicresoft.jrad.base.database.model.BusinessModel;
 import com.wicresoft.jrad.base.database.model.ModelParam;
 

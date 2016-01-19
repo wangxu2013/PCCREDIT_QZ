@@ -110,7 +110,7 @@
 	$(document).ready(function() {
 		$("#id_apply_button").click(function() {
 			if(submitFlag == 1){
-				alert("请勿重复提交!")
+				alert("等待后台响应,请勿重复提交!")
 				return;
 			}
 			submitFlag = 1;
@@ -140,7 +140,7 @@
 	
 	$("#id_approve_button").click(function() {
 		if(submitFlag == 1){
-			alert("请勿重复提交!")
+			alert("等待后台响应,请勿重复提交!")
 			return;
 		}
 		submitFlag = 1;

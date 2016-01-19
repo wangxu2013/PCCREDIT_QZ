@@ -64,8 +64,27 @@
 	    <result property="overdueCusM4" column="M4" />
 	 </resultMap>
 	 
+	<resultMap id="PsNormIntAmtResultMap" type="com.cardpay.pccredit.report.model.PsNormIntAmt">
+	    <result property="id" column="id" />
+	    <result property="rowIndex" column="row_index" />
+	    <result property="psTime" column="pstime" />
+	    <result property="ps_norm_int_amt" column="ps_norm_int_amt" />
+	    <result property="ps_od_int_amt" column="ps_od_int_amt" />
+	    <result property="setl_norm_int" column="setl_norm_int" />
+	    <result property="setl_od_int_amt" column="setl_od_int_amt" />
+	    <result property="ps_amt" column="ps_amt" />
+	    <result property="cus_id" column="cus_id" />
+	    <result property="client_name" column="client_name" />
+	 </resultMap>
+	 
 	<select id="getAfterAccLoan" resultMap="ResultMap"
 			parameterType="com.cardpay.pccredit.report.filter.OClpmAccLoanFilter">
+	    
+	    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+where CAI.STATUS = 'approved')
+
 	    SELECT * FROM
 			(SELECT ROW_.*,ROWNUM row_index
 			FROM (
@@ -86,7 +105,7 @@
        		loan.ACC_STATUS as accStatus,
        		circle.client_name as clientName
   		from O_CLPM_ACC_LOAN loan
-  		inner join (select * from QZ_IESB_FOR_CIRCLE where ret_code is not null and ret_code = '000000') circle on loan.cus_id = circle.client_no
+  		left join circle on loan.cont_no = circle.RET_CONTNO
   		inner join O_CLPM_IQP_CUS_ACCT acct on loan.cont_no = acct.cont_no
   		inner join O_CLPM_CTR_LOAN_CONT cont on loan.cont_no = cont.cont_no
   		inner join sys_user su on circle.registered_id = su.login
@@ -116,6 +135,12 @@
 	
 	<select id="getAfterAccLoanCount" resultType="int"
 			parameterType="com.cardpay.pccredit.report.filter.OClpmAccLoanFilter">
+ 		
+	    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+where CAI.STATUS = 'approved')
+
  		SELECT count(*)
 			FROM (
 	    select distinct su.display_name as managerId,
@@ -134,7 +159,7 @@
        		loan.ACC_STATUS as accStatus,
        		circle.client_name as clientName
   		from O_CLPM_ACC_LOAN loan
-  		inner join (select * from QZ_IESB_FOR_CIRCLE where ret_code is not null and ret_code = '000000') circle on loan.cus_id = circle.client_no
+  		left join circle on loan.cont_no = circle.RET_CONTNO
   		inner join O_CLPM_IQP_CUS_ACCT acct on loan.cont_no = acct.cont_no
   		inner join O_CLPM_CTR_LOAN_CONT cont on loan.cont_no = cont.cont_no
   		inner join sys_user su on circle.registered_id = su.login
@@ -159,6 +184,12 @@
    </select>		
 	<select id="getLoanOverdue" resultMap="OverResultMap"
 			parameterType="com.cardpay.pccredit.report.filter.OClpmAccLoanFilter">
+ 		
+	    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+where CAI.STATUS = 'approved')
+	    
 	     select a.*,rownum row_index from
 	    (
 	    select distinct su.display_name as managerId,
@@ -177,7 +208,7 @@
        		(loan.Rec_Int_Accum - loan.recv_int_accum) as overdueMoney,
        		loan.overdue as overdue
   		from O_CLPM_ACC_LOAN loan
-  		inner join (select * from QZ_IESB_FOR_CIRCLE where ret_code is not null and ret_code='000000') circle on loan.cus_id = circle.client_no
+  		left join circle on loan.cont_no = circle.RET_CONTNO
   		inner join O_CLPM_IQP_CUS_ACCT acct on loan.cont_no = acct.cont_no
   		inner join O_CLPM_CTR_LOAN_CONT cont on loan.cont_no = cont.cont_no
   		inner join sys_user su on circle.registered_id = su.login
@@ -202,6 +233,12 @@
  		
 	<select id="getAccLoanCollect" resultMap="CollectResultMap"
 			parameterType="com.cardpay.pccredit.report.filter.AccLoanCollectFilter">
+
+with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+where CAI.STATUS = 'approved')
+
 select t1.*,
        t2.*,
        t3.*,
@@ -222,332 +259,270 @@ select t1.*,
        t18.*,
        t19.*,
        rownum rowindex
-  FROM (select count(laons.cont_no) as newUsedLoans
-  from (select distinct loan.cont_no
+  FROM 
+  (select count(laons.CUS_ID) as newUsedLoans
+  from (select loan.CUS_ID,min(loan.distr_date)
                from o_clpm_acc_loan loan
-               inner join o_clpm_ctr_loan_cont cont on cont.cus_id=loan.cus_id
-               inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-               			on loan.cus_id = circle.client_no
-               inner join customer_application_info info on circle.customer_id =info.customer_id
+               left join circle on loan.cont_no = circle.ret_contno
+               
                 where 1=1
-                 and loan.distr_date <![CDATA[ <=  ]]> #{endDate}
-                and  loan.distr_date <![CDATA[ >=  ]]> #{startDate}
+                and loan.distr_date <![CDATA[ <=  ]]> #{endDate}
+                and loan.distr_date <![CDATA[ >=  ]]> #{startDate}
               <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
                 </if>
                 <if test="userId != null and userId != '' ">
-                  and circle.user_id =#{userId}
+                  and circle.manager_id =#{userId}
                 </if>        
                and  (loan.prd_id='100084' or loan.prd_id='100085') 
-              order by loan.cont_no)  laons ) t1,
- (select count(laons.cont_no) as allLoans
-  from (select distinct loan.cont_no
+              group by loan.CUS_ID)  laons ) t1,
+ (select count(laons.CUS_ID) as allLoans
+  from (select loan.CUS_ID
                from o_clpm_acc_loan loan
-               inner join o_clpm_ctr_loan_cont cont on cont.cus_id=loan.cus_id
-               inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-               			on loan.cus_id = circle.client_no
-               inner join customer_application_info info on circle.customer_id =info.customer_id
+               left join circle on loan.cont_no = circle.ret_contno
+               
                 where 1=1
-                 and loan.distr_date <![CDATA[ <=  ]]> #{endDate}
+                and loan.distr_date <![CDATA[ <=  ]]> #{endDate}
               <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
                 </if>
                 <if test="userId != null and userId != '' ">
-                  and circle.user_id =#{userId}
+                  and circle.manager_id =#{userId}
                 </if>        
                and  (loan.prd_id='100084' or loan.prd_id='100085') 
-              order by loan.cont_no)  laons) t2,
- (select count(cont.cont_no) as newCreditLoans
+              group by loan.CUS_ID)  laons ) t2,
+ (select count(laons.CUS_ID) as newCreditLoans
+ from (select cont.CUS_ID
           from o_clpm_ctr_loan_cont cont
-          inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-          			on cont.cus_id = circle.client_no
-          inner join customer_application_info info on circle.customer_id =
-                                                      info.customer_id
+          left join circle on cont.cont_no = circle.ret_contno
          where cont.cont_start_date <![CDATA[ <=  ]]> #{endDate}
            and cont.cont_start_date <![CDATA[ >=  ]]> #{startDate}
            and (cont.prd_id='100084' or cont.prd_id='100085')
             <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
             </if>
             <if test="userId != null and userId != '' ">
-                and circle.user_id =#{userId}
-            </if>) t3,
- (select count(cont.cont_no) as allCreditLoans
+                and circle.manager_id =#{userId}
+            </if>
+            group by cont.CUS_ID)  laons) t3,
+ (select count(laons.CUS_ID) as allCreditLoans
+ from (select cont.CUS_ID
           from o_clpm_ctr_loan_cont cont
-          inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-          			on cont.cus_id = circle.client_no
-          inner join customer_application_info info on circle.customer_id =
-                                                      info.customer_id
+          left join circle on cont.cont_no = circle.ret_contno
          where cont.cont_start_date <![CDATA[ <=  ]]> #{endDate}
          and (cont.prd_id='100084' or cont.prd_id='100085')
             <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
             </if>
             <if test="userId != null and userId != '' ">
-                and circle.user_id =#{userId}
-            </if>) t4,
+                and circle.manager_id =#{userId}
+            </if>
+            group by cont.CUS_ID)  laons) t4,
  (select sum(loan.LOAN_BALANCE) as loanBalanceSum
           from o_clpm_acc_loan loan
-          inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-          			on loan.cus_id = circle.client_no
-          inner join customer_application_info info on circle.customer_id =info.customer_id
-          inner join o_clpm_ctr_loan_cont cont on cont.cus_id=loan.cus_id
-         where cont.cont_start_date <![CDATA[ <=  ]]> #{endDate}
-           and cont.cont_start_date <![CDATA[ >=  ]]> #{startDate}
-           and (cont.prd_id='100084' or cont.prd_id='100085')
+               left join circle on loan.cont_no = circle.ret_contno
+         where loan.DISTR_DATE <![CDATA[ <=  ]]> #{endDate}
+           and loan.DISTR_DATE <![CDATA[ >=  ]]> #{startDate}
+           and (loan.SETTL_DATE is null or loan.SETTL_DATE <![CDATA[ >  ]]> #{endDate})
+           and (loan.prd_id='100084' or loan.prd_id='100085')
             <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
             </if>
             <if test="userId != null and userId != '' ">
-                and circle.user_id =#{userId}
+                and circle.manager_id =#{userId}
             </if>) t5,
  (select sum(cont.cont_amt) as contAmt
                           from o_clpm_ctr_loan_cont cont
-                          inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                          			on cont.cus_id = circle.client_no
-                          inner join customer_application_info info on circle.customer_id =
-                                                                      info.customer_id
+                          left join circle on cont.cont_no = circle.ret_contno
                          where cont.cont_start_date <![CDATA[ <=  ]]> #{endDate}
-                           
+                           and cont.cont_end_date <![CDATA[ <=  ]]> #{endDate}
                            and (cont.prd_id='100084' or cont.prd_id='100085')
                             <if test="productId != null and productId != '' ">
-                      and info.product_id = #{productId}
+                      and circle.product_id = #{productId}
                        </if>
                        <if test="userId != null and userId != '' ">
-                        and circle.user_id =#{userId}
+                        and circle.manager_id =#{userId}
                     </if>) t6,
  (select sum(loan.loan_balance) as contBalace
                           from o_clpm_acc_loan loan
-                          inner join o_clpm_ctr_loan_cont cont on cont.cus_id=loan.cus_id
-                          inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                          			on cont.cus_id = circle.client_no
-                          inner join customer_application_info info on circle.customer_id =
-                                                                      info.customer_id
+                          left join circle on loan.cont_no = circle.ret_contno
                          where loan.distr_date <![CDATA[ <=  ]]> #{endDate}
-                           
-                           and (cont.prd_id='100084' or cont.prd_id='100085')
-                           and loan.acc_status='1'
+                           and (loan.SETTL_DATE is null or loan.SETTL_DATE <![CDATA[ >  ]]> #{endDate})
+                           and (loan.prd_id='100084' or loan.prd_id='100085')
                             <if test="productId != null and productId != '' ">
-                        and info.product_id = #{productId}
+                        and circle.product_id = #{productId}
                        </if>
                        <if test="userId != null and userId != '' ">
-                        and circle.user_id =#{userId}
+                        and circle.manager_id =#{userId}
                     </if>) t7,
  (select sum(cont.CONT_AMT) as newCreditMoney
           from o_clpm_ctr_loan_cont cont
-          left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-          			on cont.cus_id = circle.client_no
-          left join customer_application_info info on circle.customer_id =
-                                                      info.customer_id
+          left join circle on cont.cont_no = circle.ret_contno
          where cont.cont_start_date <![CDATA[ <=  ]]> #{endDate}
            and cont.cont_start_date <![CDATA[ >=  ]]> #{startDate}
+           and cont.CONT_END_DATE <![CDATA[ <=  ]]> #{endDate}
            and (cont.prd_id='100084' or cont.prd_id='100085')
             <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
             </if>
             <if test="userId != null and userId != '' ">
-                and circle.user_id =#{userId}
+                and circle.manager_id =#{userId}
             </if>) t8,
  (select sum(balance) / count(data_dt) as newUsedAge
           from (select sum(his.loan_balance) balance, data_dt
                   from o_clpm_acc_loan_history his
-                  left join o_clpm_ctr_loan_cont cont on his.cus_id=cont.cus_id
-                  left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                  		on his.cus_id = circle.client_no
-                  left join customer_application_info info on circle.customer_id =
-                                                              info.customer_id
+                  left join circle on his.cont_no = circle.ret_contno
                  where his.data_dt <![CDATA[ <=  ]]> #{endDate}
                    and his.data_dt <![CDATA[ >=  ]]> #{startDate}
-                   and (cont.prd_id='100084' or cont.prd_id='100085')
+                   and (his.SETTL_DATE is null or his.SETTL_DATE <![CDATA[ >  ]]> his.data_dt)
+                   and (his.prd_id='100084' or his.prd_id='100085')
                     <if test="productId != null and productId != '' ">
-                    and info.product_id = #{productId}
+                    and circle.product_id = #{productId}
                     </if>
                     <if test="userId != null and userId != '' ">
-                    and circle.user_id =#{userId}
+                    and circle.manager_id =#{userId}
                 </if>
                  group by data_dt)) t9,
  (select sum(loan.overdue_balance) as overdueBalance
           from o_clpm_acc_loan loan
-          inner join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-          inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-          			on loan.cus_id = circle.client_no
-          inner join customer_application_info info on circle.customer_id =
-                                                      info.customer_id
+          left join circle on loan.cont_no = circle.ret_contno
          where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
            and loan.OVERDUE_DATE <![CDATA[ >=  ]]> #{startDate}
-           and (cont.prd_id='100084' or cont.prd_id='100085')
-           
+           and (loan.prd_id='100084' or loan.prd_id='100085')
+           and loan.ACC_STATUS = '1'
             <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
             </if>
             <if test="userId != null and userId != '' ">
-                and circle.user_id =#{userId}
+                and circle.manager_id =#{userId}
             </if>) t10,
  (select sum(loan.overdue_balance) as overdueBalanceCount
           from o_clpm_acc_loan loan
-          left join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-          left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-          			on loan.cus_id = circle.client_no
-          left join customer_application_info info on circle.customer_id =
-                                                      info.customer_id
+          left join circle on loan.cont_no = circle.ret_contno
          where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-         and (cont.prd_id='100084' or cont.prd_id='100085')
+         and loan.ACC_STATUS = '1'
+         and (loan.prd_id='100084' or loan.prd_id='100085')
             <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
             </if>
             <if test="userId != null and userId != '' ">
-                and circle.user_id =#{userId}
+                and circle.manager_id =#{userId}
             </if>) t11,
  (select count(loans.cus_id) as newoverdue
           from (select loan.cus_id
                   from o_clpm_acc_loan loan
-                  left join o_clpm_ctr_loan_cont cont on loan.cus_id=cont.cus_id
-                  left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle
-                             on loan.cus_id = circle.client_no
-                  left join customer_application_info info on circle.customer_id =
-                                                              info.customer_id
+                  left join circle on loan.cont_no = circle.ret_contno
                  where loan.OVERDUE_DATE <![CDATA[ >=  ]]> #{startDate}
                    and loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-                   and (cont.prd_id='100084' or cont.prd_id='100085')
+                   and (loan.prd_id='100084' or loan.prd_id='100085')
                     <if test="productId != null and productId != '' ">
-                    and info.product_id = #{productId}
+                    and circle.product_id = #{productId}
                    </if>
                    and loan.overdue_balance > 0
                    <if test="userId != null and userId != '' ">
-                  and circle.user_id =#{userId}
+                  and circle.manager_id =#{userId}
                  </if>
-                 order by loan.cus_id) loans) t12,
+                 group by loan.cus_id) loans) t12,
  (select count(loans.cus_id) as alloverdue
           from (select loan.cus_id
                   from o_clpm_acc_loan loan
-                  left join o_clpm_ctr_loan_cont cont on loan.cus_id=cont.cus_id
-                  left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                  			on loan.cus_id = circle.client_no
-                  left join customer_application_info info on circle.customer_id =
-                                                              info.customer_id
+                  left join circle on loan.cont_no = circle.ret_contno
                  where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-                   and (cont.prd_id='100084' or cont.prd_id='100085')
+                   and (loan.prd_id='100084' or loan.prd_id='100085')
                     <if test="productId != null and productId != '' ">
-                    and info.product_id = #{productId}
+                    and circle.product_id = #{productId}
                    </if>
                    and loan.overdue_balance > 0
                    <if test="userId != null and userId != '' ">
-                  and circle.user_id =#{userId}
+                  and circle.manager_id =#{userId}
                  </if>
-                 order by loan.cus_id) loans) t13,
- (select sum(loan.recv_int_accum) as resvIntAccum
-          from o_clpm_acc_loan_history loan
-          inner join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-          inner join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-          			on loan.cus_id = circle.client_no
-          inner join customer_application_info info on circle.customer_id =
-                                                      info.customer_id
-         where loan.data_dt <![CDATA[ <=  ]]> #{endDate}
-           
-           and (cont.prd_id='100084' or cont.prd_id='100085')
+                 group by loan.cus_id) loans) t13,
+ (select sum(his.recv_int_accum) as resvIntAccum
+          from o_clpm_acc_loan_history his
+          left join circle on his.cont_no = circle.ret_contno
+         where his.data_dt <![CDATA[ =  ]]> #{endDate}
+           and (his.prd_id='100084' or his.prd_id='100085')
             <if test="productId != null and productId != '' ">
-                and info.product_id = #{productId}
+                and circle.product_id = #{productId}
             </if>
             <if test="userId != null and userId != '' ">
-                and circle.user_id =#{userId}
+                and circle.manager_id =#{userId}
             </if>) t14,
  (select count(*) as M0
           from (select a.cus_id
                   from (select loan.*
                           from o_clpm_acc_loan loan
-                          left join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-                          left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                          			on loan.cus_id = circle.client_no
-                          left join customer_application_info info on circle.customer_id =
-                                                                      info.customer_id
+                          left join circle on loan.cont_no = circle.ret_contno
                          where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-                          and (cont.prd_id='100084' or cont.prd_id='100085')
+                          and (loan.prd_id='100084' or loan.prd_id='100085')
                             <if test="productId != null and productId != '' ">
-                        and info.product_id = #{productId}
+                        and circle.product_id = #{productId}
                        </if>
                            and loan.overdue = 0
                            <if test="userId != null and userId != '' ">
-                      and circle.user_id =#{userId}
+                      and circle.manager_id =#{userId}
                      </if>) a
                  group by a.cus_id)) t15,
  (select count(*) as M1
           from (select a.cus_id
                   from (select loan.*
                           from o_clpm_acc_loan loan
-                          left join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-                          left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                          			on loan.cus_id = circle.client_no
-                          left join customer_application_info info on circle.customer_id =
-                                                                      info.customer_id
+                          left join circle on loan.cont_no = circle.ret_contno
                          where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-                         and (cont.prd_id='100084' or cont.prd_id='100085')
+                         and (loan.prd_id='100084' or loan.prd_id='100085')
                             <if test="productId != null and productId != '' ">
-                         and info.product_id = #{productId}
+                         and circle.product_id = #{productId}
                        </if>
                            and loan.overdue = 1
                            <if test="userId != null and userId != '' ">
-                      and circle.user_id =#{userId}
+                      and circle.manager_id =#{userId}
                      </if>) a
                  group by a.cus_id)) t16,                
  (select count(*) as M2
           from (select a.cus_id
                   from (select loan.*
                           from o_clpm_acc_loan loan
-                           left join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-                          left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                          			on loan.cus_id = circle.client_no
-                          left join customer_application_info info on circle.customer_id =
-                                                                      info.customer_id
+                          left join circle on loan.cont_no = circle.ret_contno
                          where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-                         and (cont.prd_id='100084' or cont.prd_id='100085')
+                         and (loan.prd_id='100084' or loan.prd_id='100085')
                            <if test="productId != null and productId != '' ">
-                        and info.product_id = #{productId}
+                        and circle.product_id = #{productId}
                        </if>
                            and loan.overdue = 2
                            <if test="userId != null and userId != '' ">
-                      and circle.user_id =#{userId}
+                      and circle.manager_id =#{userId}
                      </if>) a
                  group by a.cus_id)) t17,
  (select count(*) as M3
           from (select a.cus_id
                   from (select loan.*
                           from o_clpm_acc_loan loan
-                           left join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-                          left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                          			on loan.cus_id = circle.client_no
-                          left join customer_application_info info on circle.customer_id =
-                                                                      info.customer_id
+                          left join circle on loan.cont_no = circle.ret_contno
                          where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-                         and (cont.prd_id='100084' or cont.prd_id='100085')
+                         and (loan.prd_id='100084' or loan.prd_id='100085')
                             <if test="productId != null and productId != '' ">
-                        and info.product_id = #{productId}
+                        and circle.product_id = #{productId}
                        </if>
                            and loan.overdue = 3
                            <if test="userId != null and userId != '' ">
-                      and circle.user_id =#{userId}
+                      and circle.manager_id =#{userId}
                      </if>) a
                  group by a.cus_id)) t18,
  (select count(*) as M4
           from (select a.cus_id
                   from (select loan.*
                           from o_clpm_acc_loan loan
-                           left join o_clpm_ctr_loan_cont cont on loan.cont_no = cont.cont_no
-                          left join (select tmp1.*,tmp2.id as user_id from QZ_IESB_FOR_CIRCLE tmp1 left join sys_user tmp2 on tmp1.acct_exec = tmp2.external_id where ret_code is not null and ret_code='000000') circle 
-                          			on loan.cus_id = circle.client_no
-                          left join customer_application_info info on circle.customer_id =
-                                                                      info.customer_id
+                          left join circle on loan.cont_no = circle.ret_contno
                          where loan.OVERDUE_DATE <![CDATA[ <=  ]]> #{endDate}
-                         and (cont.prd_id='100084' or cont.prd_id='100085')
+                         and (loan.prd_id='100084' or loan.prd_id='100085')
                             <if test="productId != null and productId != '' ">
-                          and info.product_id = #{productId}
+                          and circle.product_id = #{productId}
                        </if>
                            and loan.overdue >= 4
                            <if test="userId != null and userId != '' ">
-                      and circle.user_id =#{userId}
+                      and circle.manager_id =#{userId}
                      </if>) a
                  group by a.cus_id)) t19
- 
-	    
  		</select>
  		<select id="getAfterAccLoanByCustomerId" resultMap="ResultMap">
  		    select    loan.bill_no as billNo,
@@ -567,6 +542,11 @@ select t1.*,
  		
  		<select id="getAfterAccLoanAll" resultMap="ResultMap"
 			parameterType="com.cardpay.pccredit.report.filter.OClpmAccLoanFilter">
+                           with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+where CAI.STATUS = 'approved')
+
 	    SELECT ROW_.*,ROWNUM row_index
 			FROM (
 	    select distinct su.display_name as managerId,
@@ -586,7 +566,7 @@ select t1.*,
        		loan.ACC_STATUS as accStatus,
        		circle.client_name as clientName
   		from O_CLPM_ACC_LOAN loan
-  		inner join (select * from QZ_IESB_FOR_CIRCLE where ret_code is not null and ret_code = '000000') circle on loan.cus_id = circle.client_no
+  		left join circle on loan.cont_no = circle.RET_CONTNO
   		inner join O_CLPM_IQP_CUS_ACCT acct on loan.cont_no = acct.cont_no
   		inner join O_CLPM_CTR_LOAN_CONT cont on loan.cont_no = cont.cont_no
   		inner join sys_user su on circle.registered_id = su.login
@@ -609,4 +589,90 @@ select t1.*,
  		</if>		
 				) ROW_
 	</select>
+	
+ 		<select id="getPsNormIntAmt" resultMap="PsNormIntAmtResultMap">
+ 		    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+				left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+				left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+				where CAI.STATUS = 'approved')
+
+			 SELECT * FROM
+				(SELECT ROW_.*,ROWNUM row_index
+				FROM (
+			
+ 		    select 
+ 		    	to_char(#{endDate},'yyyy-MM-dd') as pstime,sum(PS_NORM_INT_AMT) as PS_NORM_INT_AMT,sum(PS_OD_INT_AMT) as PS_OD_INT_AMT,
+ 		    	sum(SETL_NORM_INT) as SETL_NORM_INT,sum(SETL_OD_INT_AMT) as SETL_OD_INT_AMT,
+ 		    	to_number(sum(PS_NORM_INT_AMT))+to_number(sum(PS_OD_INT_AMT))-to_number(sum(SETL_NORM_INT))-to_number(sum(SETL_OD_INT_AMT)) as ps_amt,
+ 		    	loan.CUS_ID as cus_id,circle.client_name as client_name
+ 		    from O_CLPM_ACC_LOAN loan 
+ 		    	inner join O_CCH_LM_PM_SHD shd on loan.BILL_NO = shd.LOAN_NO
+ 		    	inner join circle on loan.CUS_ID = circle.client_no
+ 		    where 
+ 		    	loan.prd_id in ('100084','100085')
+ 		    	and loan.ACC_STATUS = '1'
+ 		    	and shd.SETL_IND = 'N'
+ 		    	and to_date(shd.PS_DUE_DT,'yyyy-mm-dd') <![CDATA[ <=  ]]> #{endDate}
+ 		    	and circle.manager_id = #{userId}
+ 		    group by loan.CUS_ID,circle.client_name
+ 		    <![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE row_index > #{limit}*#{page}
+		]]>
+ 		</select>
+ 		
+ 		<select id="getPsNormIntAmtCount" resultType="int">
+ 		    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+				left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+				left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+				where CAI.STATUS = 'approved')
+				
+			select count(*) from (
+	 		    select 
+	 		    	to_char(#{endDate},'yyyy-MM-dd') as pstime,sum(PS_NORM_INT_AMT) as PS_NORM_INT_AMT,sum(PS_OD_INT_AMT) as PS_OD_INT_AMT,
+	 		    	sum(SETL_NORM_INT) as SETL_NORM_INT,sum(SETL_OD_INT_AMT) as SETL_OD_INT_AMT,
+	 		    	to_number(sum(PS_NORM_INT_AMT))+to_number(sum(PS_OD_INT_AMT))-to_number(sum(SETL_NORM_INT))-to_number(sum(SETL_OD_INT_AMT)) as ps_amt,
+	 		    	loan.CUS_ID as cus_id,circle.client_name as client_name
+	 		    from O_CLPM_ACC_LOAN loan 
+	 		    	inner join O_CCH_LM_PM_SHD shd on loan.BILL_NO = shd.LOAN_NO
+	 		    	inner join circle on loan.CUS_ID = circle.client_no
+	 		    where 
+	 		    	loan.prd_id in ('100084','100085')
+	 		    	and loan.ACC_STATUS = '1'
+	 		    	and shd.SETL_IND = 'N'
+	 		    	and to_date(shd.PS_DUE_DT,'yyyy-mm-dd') <![CDATA[ <=  ]]> #{endDate}
+	 		    	and circle.manager_id = #{userId}
+	 		    group by loan.CUS_ID,circle.client_name
+			)
+ 		</select>
+ 		
+ 		<select id="getPsNormIntAmtList" resultMap="PsNormIntAmtResultMap">
+ 		    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+				left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+				left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+				where CAI.STATUS = 'approved')
+
+	    SELECT ROW_.*,ROWNUM row_index
+			FROM (
+			
+ 		    select 
+ 		    	to_char(#{endDate},'yyyy-MM-dd') as pstime,sum(PS_NORM_INT_AMT) as PS_NORM_INT_AMT,sum(PS_OD_INT_AMT) as PS_OD_INT_AMT,
+ 		    	sum(SETL_NORM_INT) as SETL_NORM_INT,sum(SETL_OD_INT_AMT) as SETL_OD_INT_AMT,
+ 		    	to_number(sum(PS_NORM_INT_AMT))+to_number(sum(PS_OD_INT_AMT))-to_number(sum(SETL_NORM_INT))-to_number(sum(SETL_OD_INT_AMT)) as ps_amt,
+ 		    	loan.CUS_ID as cus_id,circle.client_name as client_name
+ 		    from O_CLPM_ACC_LOAN loan 
+ 		    	inner join O_CCH_LM_PM_SHD shd on loan.BILL_NO = shd.LOAN_NO
+ 		    	inner join circle on loan.CUS_ID = circle.client_no
+ 		    where 
+ 		    	loan.prd_id in ('100084','100085')
+ 		    	and loan.ACC_STATUS = '1'
+ 		    	and shd.SETL_IND = 'N'
+ 		    	and to_date(shd.PS_DUE_DT,'yyyy-mm-dd') <![CDATA[ <=  ]]> #{endDate}
+ 		    	and circle.manager_id = #{userId}
+ 		    group by loan.CUS_ID,circle.client_name
+
+				) ROW_
+ 		</select>
+ 		
 	 </mapper>

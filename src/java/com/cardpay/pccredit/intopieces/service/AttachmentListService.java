@@ -1,6 +1,9 @@
 package com.cardpay.pccredit.intopieces.service;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.dom4j.DocumentException;
 import org.ietf.jgss.Oid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +34,6 @@ import com.cardpay.pccredit.customer.service.CustomerInforService;
 import com.cardpay.pccredit.divisional.constant.DivisionalProgressEnum;
 import com.cardpay.pccredit.divisional.constant.DivisionalTypeEnum;
 import com.cardpay.pccredit.divisional.service.DivisionalService;
-import com.cardpay.pccredit.intopieces.constant.ApplicationStatusEnum;
 import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.constant.IntoPiecesException;
 import com.cardpay.pccredit.intopieces.dao.AttachmentListDao;
@@ -53,8 +56,9 @@ import com.cardpay.pccredit.intopieces.model.CustomerApplicationRecom;
 import com.cardpay.pccredit.intopieces.model.CustomerCareersInformationS;
 import com.cardpay.pccredit.intopieces.model.IntoPieces;
 import com.cardpay.pccredit.intopieces.model.MakeCard;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentBatch;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentDetail;
 import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList;
-import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentListAdd;
 import com.cardpay.pccredit.intopieces.model.QzApplnDbrxx;
 import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxDkjl;
 import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxFc;
@@ -68,16 +72,20 @@ import com.cardpay.pccredit.intopieces.model.QzApplnYwsqbZygys;
 import com.cardpay.pccredit.intopieces.model.QzApplnYwsqbZykh;
 import com.cardpay.pccredit.intopieces.model.VideoAccessories;
 import com.cardpay.pccredit.intopieces.web.ApproveHistoryForm;
+import com.cardpay.pccredit.intopieces.web.Pic;
+import com.cardpay.pccredit.intopieces.web.PicPojo;
 import com.cardpay.pccredit.intopieces.web.QzApplnSxjcForm;
 import com.cardpay.pccredit.intopieces.web.QzDcnrUploadForm;
 import com.cardpay.pccredit.intopieces.web.QzSdhjydForm;
 import com.cardpay.pccredit.intopieces.web.QzShouxinForm;
+import com.cardpay.pccredit.ipad.util.SundsException;
 import com.cardpay.pccredit.product.model.AddressAccessories;
 import com.cardpay.pccredit.system.model.NodeAudit;
 import com.cardpay.pccredit.system.model.NodeControl;
 import com.cardpay.workflow.dao.WfStatusResultDao;
 import com.cardpay.workflow.models.WfProcessRecord;
 import com.cardpay.workflow.models.WfStatusQueueRecord;
+import com.sunyard.TransEngine.exception.SunTransEngineException;
 import com.wicresoft.jrad.base.auth.IUser;
 import com.wicresoft.jrad.base.database.dao.common.CommonDao;
 import com.wicresoft.jrad.base.database.id.IDGenerator;
@@ -99,6 +107,9 @@ public class AttachmentListService {
 	private IntoPiecesDao intoPiecesDao;
 
 	@Autowired
+	private SundsHelper sundsHelper;
+	
+	@Autowired
 	private IntoPiecesComdao intoPiecesComdao;
 	
 	@Autowired
@@ -106,6 +117,7 @@ public class AttachmentListService {
 	
 	@Autowired
 	private DivisionalService divisionalService;
+	
 	@Autowired
 	private CustomerApplicationProcessService customerApplicationProcessService;
 
@@ -139,518 +151,93 @@ public class AttachmentListService {
 		return attachmentListDao.findAttachmentListByAppId(applicationId);
 	}
 	
-	public TreeNode findAttachmentListJsonByAppId(String applicationId) {
-		QzApplnAttachmentList qzApplnAttachmentList = attachmentListDao.findAttachmentListByAppId(applicationId);
-		TreeNode rootNode = new TreeNode("root", null,"资料清单", "", "", "", "folderopen.gif",false, true, true, true, false);
-		TreeNode rootNodeGx = new TreeNode("gx", null,"工薪类", "", "", "", "folderopen.gif",false, true, true, true, false);
-		TreeNode rootNodeJy = new TreeNode("jy", null,"经营类", "", "", "", "folderopen.gif",false, true, true, true, false);
-		TreeNode rootNodeHt = new TreeNode("ht", null,"合同扫描件", "", "", "", "folderopen.gif",false, true, true, true, false);
-		TreeNode rootNodeYw = new TreeNode("yw", null,"业务信息", "", "", "", "folderopen.gif",false, true, true, true, false);
-		TreeNode rootNodeKh = new TreeNode("kh", null,"客户信息", "", "", "", "folderopen.gif",false, true, true, true, false);
-		TreeNode rootNodeQt = new TreeNode("qt", null,"其他", "", "", "", "folderopen.gif",false, true, true, true, false);
-		if(qzApplnAttachmentList != null && qzApplnAttachmentList.getChkValue() != null && !qzApplnAttachmentList.getChkValue().equals("0")){
-			String chkValue = qzApplnAttachmentList.getChkValue();
-			String uploadValue = qzApplnAttachmentList.getUploadValue();
-			if(qzApplnAttachmentList.getBussType().equals("1")){//工薪类
-				if((Integer.parseInt(chkValue)&1) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"1", null,Constant.ATTACH_LIST0, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"1",Constant.ATTACH_LIST0);
-					rootNodeHt.addChildren(tmp);
+	public List<QzApplnAttachmentBatch> findAttachmentBatchByAppId(String applicationId) {
+		return attachmentListDao.findAttachmentBatchByAppId(applicationId);
+	}
+	
+	public void addBatchInfo(String appId){
+		QzApplnAttachmentList att = this.findAttachmentListByAppId(appId);
+		if(att != null){
+			//插入batch表
+			for(int i=0 ; i<=30 ; i++){
+				if(att.getBussType().equals("1")){
+					if((Integer.parseInt(att.getChkValue()) & (int)Math.pow(2, i)) == (int)Math.pow(2, i)){
+						QzApplnAttachmentBatch batch = new QzApplnAttachmentBatch();
+						batch.setAttId(att.getId());
+						batch.setName(Constant.ATT_BATCH_1.get((int)Math.pow(2, i)));
+						batch.setType((int)Math.pow(2, i)+"");
+						commonDao.insertObject(batch);
+					}
 				}
-				if((Integer.parseInt(chkValue)&2) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"2", null,Constant.ATTACH_LIST1, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"2",Constant.ATTACH_LIST1);
-					rootNodeYw.addChildren(tmp);
+				else{
+					if((Integer.parseInt(att.getChkValue()) & (int)Math.pow(2, i)) == (int)Math.pow(2, i)){
+						QzApplnAttachmentBatch batch = new QzApplnAttachmentBatch();
+						batch.setAttId(att.getId());
+						batch.setName(Constant.ATT_BATCH_2.get((int)Math.pow(2, i)));
+						batch.setType((int)Math.pow(2, i)+"");
+						commonDao.insertObject(batch);
+					}
 				}
-				if((Integer.parseInt(chkValue)&4) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"4", null,Constant.ATTACH_LIST2, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"4",Constant.ATTACH_LIST2);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&8) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"8", null,Constant.ATTACH_LIST3, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"8",Constant.ATTACH_LIST3);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&16) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"16", null,Constant.ATTACH_LIST4, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"16",Constant.ATTACH_LIST4);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&32) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"32", null,Constant.ATTACH_LIST5, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"32",Constant.ATTACH_LIST5);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&64) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"64", null,Constant.ATTACH_LIST6, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"64",Constant.ATTACH_LIST6);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&128) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"128", null,Constant.ATTACH_LIST7, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"128",Constant.ATTACH_LIST7);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&256) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"256", null,Constant.ATTACH_LIST8, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"256",Constant.ATTACH_LIST8);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&512) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"512", null,Constant.ATTACH_LIST9, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"512",Constant.ATTACH_LIST9);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&1024) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"1024", null,Constant.ATTACH_LIST10, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"1024",Constant.ATTACH_LIST10);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&2048) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"2048", null,Constant.ATTACH_LIST11, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"2048",Constant.ATTACH_LIST11);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&4096) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"4096", null,Constant.ATTACH_LIST12, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"4096",Constant.ATTACH_LIST12);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&8192) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"8192", null,Constant.ATTACH_LIST13, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"1",Constant.ATTACH_LIST13);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&16384) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"16384", null,Constant.ATTACH_LIST14, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"8192",Constant.ATTACH_LIST14);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&1073741824) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"1073741824", null,Constant.ATTACH_LIST99, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"1073741824",Constant.ATTACH_LIST99);
-					rootNodeQt.addChildren(tmp);
-				}
-				rootNodeGx.addChildren(rootNodeHt);
-				rootNodeGx.addChildren(rootNodeYw);
-				rootNodeGx.addChildren(rootNodeKh);
-				rootNodeGx.addChildren(rootNodeQt);
-				rootNode.addChildren(rootNodeGx);
-			}
-			if(qzApplnAttachmentList.getBussType().equals("2")){
-				if((Integer.parseInt(chkValue)&1) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"1", null,Constant.ATTACH_LIST0, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"1",Constant.ATTACH_LIST0);
-					rootNodeHt.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&2) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"2", null,Constant.ATTACH_LIST15, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"2",Constant.ATTACH_LIST15);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&4) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"4", null,Constant.ATTACH_LIST2, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"4",Constant.ATTACH_LIST2);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&8) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"8", null,Constant.ATTACH_LIST3, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"8",Constant.ATTACH_LIST3);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&16) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"16", null,Constant.ATTACH_LIST4, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"16",Constant.ATTACH_LIST4);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&32) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"32", null,Constant.ATTACH_LIST5, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"32",Constant.ATTACH_LIST5);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&64) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"64", null,Constant.ATTACH_LIST6, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"64",Constant.ATTACH_LIST6);
-					rootNodeYw.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&128) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"128", null,Constant.ATTACH_LIST7, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"128",Constant.ATTACH_LIST7);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&256) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"256", null,Constant.ATTACH_LIST16, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"256",Constant.ATTACH_LIST16);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&512) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"512", null,Constant.ATTACH_LIST17, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"512",Constant.ATTACH_LIST17);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&1024) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"1024", null,Constant.ATTACH_LIST18, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"1024",Constant.ATTACH_LIST18);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&2048) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"2048", null,Constant.ATTACH_LIST19, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"2048",Constant.ATTACH_LIST19);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&4096) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"4096", null,Constant.ATTACH_LIST20, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"4096",Constant.ATTACH_LIST20);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&8192) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"8192", null,Constant.ATTACH_LIST21, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"8192",Constant.ATTACH_LIST21);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&16384) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"16384", null,Constant.ATTACH_LIST22, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"16384",Constant.ATTACH_LIST22);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&32768) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"32768", null,Constant.ATTACH_LIST23, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"32768",Constant.ATTACH_LIST23);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&65536) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"65536", null,Constant.ATTACH_LIST24, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"65536",Constant.ATTACH_LIST24);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&131072) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"131072", null,Constant.ATTACH_LIST25, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"131072",Constant.ATTACH_LIST25);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&262144) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"262144", null,Constant.ATTACH_LIST26, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"262144",Constant.ATTACH_LIST26);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&524288) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"524288", null,Constant.ATTACH_LIST27, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"524288",Constant.ATTACH_LIST27);
-					rootNodeKh.addChildren(tmp);
-				}
-				if((Integer.parseInt(chkValue)&1073741824) != 0){
-					TreeNode tmp = new TreeNode("id_"+qzApplnAttachmentList.getDocid()+"1073741824", null,Constant.ATTACH_LIST99, "", "", "", "page.gif",false, true, false, false, false);
-					addAttNode(tmp,qzApplnAttachmentList,"1073741824",Constant.ATTACH_LIST99);
-					rootNodeQt.addChildren(tmp);
-				}
-				rootNodeJy.addChildren(rootNodeHt);
-				rootNodeJy.addChildren(rootNodeYw);
-				rootNodeJy.addChildren(rootNodeKh);
-				rootNodeJy.addChildren(rootNodeQt);
-				rootNode.addChildren(rootNodeJy);
 			}
 		}
-		return rootNode;
 	}
 	
 	public void insert_page5(QzApplnAttachmentList qzApplnAttachmentList,HttpServletRequest request){
 		//保存清单至调查内容表
-		intoPiecesService.addAttachList(qzApplnAttachmentList);
 		commonDao.insertObject(qzApplnAttachmentList);
 		
-		//每一项都增加10个附加节点
-		String chkValue = qzApplnAttachmentList.getChkValue();
-		if(qzApplnAttachmentList.getBussType().equals("1")){
-			
-			if((Integer.parseInt(chkValue)&1) != 0){
-				addAttAdd(qzApplnAttachmentList,"1");
+		//插入batch表
+		for(int i=0 ; i<=30 ; i++){
+			if(qzApplnAttachmentList.getBussType().equals("1")){
+				if((Integer.parseInt(qzApplnAttachmentList.getChkValue()) & (int)Math.pow(2, i)) == (int)Math.pow(2, i)){
+					QzApplnAttachmentBatch batch = new QzApplnAttachmentBatch();
+					batch.setAttId(qzApplnAttachmentList.getId());
+					batch.setName(Constant.ATT_BATCH_1.get((int)Math.pow(2, i)));
+					batch.setType((int)Math.pow(2, i)+"");
+					commonDao.insertObject(batch);
+				}
 			}
-			if((Integer.parseInt(chkValue)&2) != 0){
-				addAttAdd(qzApplnAttachmentList,"2");
-			}
-			if((Integer.parseInt(chkValue)&4) != 0){
-				addAttAdd(qzApplnAttachmentList,"4");
-			}
-			if((Integer.parseInt(chkValue)&8) != 0){
-				addAttAdd(qzApplnAttachmentList,"8");
-			}
-			if((Integer.parseInt(chkValue)&16) != 0){
-				addAttAdd(qzApplnAttachmentList,"16");
-			}
-			if((Integer.parseInt(chkValue)&32) != 0){
-				addAttAdd(qzApplnAttachmentList,"32");
-			}
-			if((Integer.parseInt(chkValue)&64) != 0){
-				addAttAdd(qzApplnAttachmentList,"64");
-			}
-			if((Integer.parseInt(chkValue)&128) != 0){
-				addAttAdd(qzApplnAttachmentList,"128");
-			}
-			if((Integer.parseInt(chkValue)&256) != 0){
-				addAttAdd(qzApplnAttachmentList,"256");
-			}
-			if((Integer.parseInt(chkValue)&512) != 0){
-				addAttAdd(qzApplnAttachmentList,"512");
-			}
-			if((Integer.parseInt(chkValue)&1024) != 0){
-				addAttAdd(qzApplnAttachmentList,"1024");
-			}
-			if((Integer.parseInt(chkValue)&2048) != 0){
-				addAttAdd(qzApplnAttachmentList,"2048");
-			}
-			if((Integer.parseInt(chkValue)&4096) != 0){
-				addAttAdd(qzApplnAttachmentList,"4096");
-			}
-			if((Integer.parseInt(chkValue)&8192) != 0){
-				addAttAdd(qzApplnAttachmentList,"8192");
-			}
-			if((Integer.parseInt(chkValue)&16384) != 0){
-				addAttAdd(qzApplnAttachmentList,"16384");
-			}
-			if((Integer.parseInt(chkValue)&1073741824) != 0){
-				addAttAdd(qzApplnAttachmentList,"1073741824");
+			else{
+				if((Integer.parseInt(qzApplnAttachmentList.getChkValue()) & (int)Math.pow(2, i)) == (int)Math.pow(2, i)){
+					QzApplnAttachmentBatch batch = new QzApplnAttachmentBatch();
+					batch.setAttId(qzApplnAttachmentList.getId());
+					batch.setName(Constant.ATT_BATCH_2.get((int)Math.pow(2, i)));
+					batch.setType((int)Math.pow(2, i)+"");
+					commonDao.insertObject(batch);
+				}
 			}
 		}
-		else{
-			if((Integer.parseInt(chkValue)&1) != 0){
-				addAttAdd(qzApplnAttachmentList,"1");
-			}
-			if((Integer.parseInt(chkValue)&2) != 0){
-				addAttAdd(qzApplnAttachmentList,"2");
-			}
-			if((Integer.parseInt(chkValue)&4) != 0){
-				addAttAdd(qzApplnAttachmentList,"4");
-			}
-			if((Integer.parseInt(chkValue)&8) != 0){
-				addAttAdd(qzApplnAttachmentList,"8");
-			}
-			if((Integer.parseInt(chkValue)&16) != 0){
-				addAttAdd(qzApplnAttachmentList,"16");
-			}
-			if((Integer.parseInt(chkValue)&32) != 0){
-				addAttAdd(qzApplnAttachmentList,"32");
-			}
-			if((Integer.parseInt(chkValue)&64) != 0){
-				addAttAdd(qzApplnAttachmentList,"64");
-			}
-			if((Integer.parseInt(chkValue)&128) != 0){
-				addAttAdd(qzApplnAttachmentList,"128");
-			}
-			if((Integer.parseInt(chkValue)&256) != 0){
-				addAttAdd(qzApplnAttachmentList,"256");
-			}
-			if((Integer.parseInt(chkValue)&512) != 0){
-				addAttAdd(qzApplnAttachmentList,"512");
-			}
-			if((Integer.parseInt(chkValue)&1024) != 0){
-				addAttAdd(qzApplnAttachmentList,"1024");
-			}
-			if((Integer.parseInt(chkValue)&2048) != 0){
-				addAttAdd(qzApplnAttachmentList,"2048");
-			}
-			if((Integer.parseInt(chkValue)&4096) != 0){
-				addAttAdd(qzApplnAttachmentList,"4096");
-			}
-			if((Integer.parseInt(chkValue)&8192) != 0){
-				addAttAdd(qzApplnAttachmentList,"8192");
-			}
-			if((Integer.parseInt(chkValue)&16384) != 0){
-				addAttAdd(qzApplnAttachmentList,"16384");
-			}
-			if((Integer.parseInt(chkValue)&32768) != 0){
-				addAttAdd(qzApplnAttachmentList,"32768");
-			}
-			if((Integer.parseInt(chkValue)&65536) != 0){
-				addAttAdd(qzApplnAttachmentList,"65536");
-			}
-			if((Integer.parseInt(chkValue)&131072) != 0){
-				addAttAdd(qzApplnAttachmentList,"131072");
-			}
-			if((Integer.parseInt(chkValue)&262144) != 0){
-				addAttAdd(qzApplnAttachmentList,"262144");
-			}
-			if((Integer.parseInt(chkValue)&524288) != 0){
-				addAttAdd(qzApplnAttachmentList,"524288");
-			}
-			if((Integer.parseInt(chkValue)&1073741824) != 0){
-				addAttAdd(qzApplnAttachmentList,"1073741824");
-			}
-		}
-		
 	}
 
 	public void update_page5(QzApplnAttachmentList qzApplnAttachmentList,HttpServletRequest request){
 		//保存清单至调查内容表
-		intoPiecesService.addAttachList(qzApplnAttachmentList);
 		commonDao.updateObject(qzApplnAttachmentList);
 		
-		//每一项都增加10个附加节点
-		String chkValue = qzApplnAttachmentList.getChkValue();
-		if(qzApplnAttachmentList.getBussType().equals("1")){
-			
-			if((Integer.parseInt(chkValue)&1) != 0){
-				addAttAdd(qzApplnAttachmentList,"1");
+		String sql = "delete from QZ_APPLN_ATTACHMENT_BATCH where is_upload is null and att_id = '"+qzApplnAttachmentList.getId()+"'";
+		commonDao.queryBySql(sql, null);
+		
+		//插入batch表
+		for(int i=0 ; i<=30 ; i++){
+			if(qzApplnAttachmentList.getBussType().equals("1")){
+				if((Integer.parseInt(qzApplnAttachmentList.getChkValue()) & (int)Math.pow(2, i)) == (int)Math.pow(2, i)){
+					QzApplnAttachmentBatch batch = new QzApplnAttachmentBatch();
+					batch.setAttId(qzApplnAttachmentList.getId());
+					batch.setName(Constant.ATT_BATCH_1.get((int)Math.pow(2, i)));
+					batch.setType((int)Math.pow(2, i)+"");
+					commonDao.insertObject(batch);
+				}
 			}
-			
-			if((Integer.parseInt(chkValue)&2) != 0){
-				addAttAdd(qzApplnAttachmentList,"2");
-			}
-			
-			if((Integer.parseInt(chkValue)&4) != 0){
-				addAttAdd(qzApplnAttachmentList,"4");
-			}
-			
-			if((Integer.parseInt(chkValue)&8) != 0){
-				addAttAdd(qzApplnAttachmentList,"8");
-			}
-			
-			if((Integer.parseInt(chkValue)&16) != 0){
-				addAttAdd(qzApplnAttachmentList,"16");
-			}
-			
-			if((Integer.parseInt(chkValue)&32) != 0){
-				addAttAdd(qzApplnAttachmentList,"32");
-			}
-			
-			if((Integer.parseInt(chkValue)&64) != 0){
-				addAttAdd(qzApplnAttachmentList,"64");
-			}
-			
-			if((Integer.parseInt(chkValue)&128) != 0){
-				addAttAdd(qzApplnAttachmentList,"128");
-			}
-			
-			if((Integer.parseInt(chkValue)&256) != 0){
-				addAttAdd(qzApplnAttachmentList,"256");
-			}
-			
-			if((Integer.parseInt(chkValue)&512) != 0){
-				addAttAdd(qzApplnAttachmentList,"512");
-			}
-			
-			if((Integer.parseInt(chkValue)&1024) != 0){
-				addAttAdd(qzApplnAttachmentList,"1024");
-			}
-			
-			if((Integer.parseInt(chkValue)&2048) != 0){
-				addAttAdd(qzApplnAttachmentList,"2048");
-			}
-			
-			if((Integer.parseInt(chkValue)&4096) != 0){
-				addAttAdd(qzApplnAttachmentList,"4096");
-			}
-			
-			if((Integer.parseInt(chkValue)&8192) != 0){
-				addAttAdd(qzApplnAttachmentList,"8192");
-			}
-			
-			if((Integer.parseInt(chkValue)&16384) != 0){
-				addAttAdd(qzApplnAttachmentList,"16384");
-			}
-			
-			if((Integer.parseInt(chkValue)&1073741824) != 0){
-				addAttAdd(qzApplnAttachmentList,"1073741824");
+			else{
+				if((Integer.parseInt(qzApplnAttachmentList.getChkValue()) & (int)Math.pow(2, i)) == (int)Math.pow(2, i)){
+					QzApplnAttachmentBatch batch = new QzApplnAttachmentBatch();
+					batch.setAttId(qzApplnAttachmentList.getId());
+					batch.setName(Constant.ATT_BATCH_2.get((int)Math.pow(2, i)));
+					batch.setType((int)Math.pow(2, i)+"");
+					commonDao.insertObject(batch);
+				}
 			}
 		}
-		else{
-			if((Integer.parseInt(chkValue)&1) != 0){
-				addAttAdd(qzApplnAttachmentList,"1");
-			}
-			
-			if((Integer.parseInt(chkValue)&2) != 0){
-				addAttAdd(qzApplnAttachmentList,"2");
-			}
-			
-			if((Integer.parseInt(chkValue)&4) != 0){
-				addAttAdd(qzApplnAttachmentList,"4");
-			}
-			
-			if((Integer.parseInt(chkValue)&8) != 0){
-				addAttAdd(qzApplnAttachmentList,"8");
-			}
-			
-			if((Integer.parseInt(chkValue)&16) != 0){
-				addAttAdd(qzApplnAttachmentList,"16");
-			}
-			
-			if((Integer.parseInt(chkValue)&32) != 0){
-				addAttAdd(qzApplnAttachmentList,"32");
-			}
-			
-			if((Integer.parseInt(chkValue)&64) != 0){
-				addAttAdd(qzApplnAttachmentList,"64");
-			}
-			
-			if((Integer.parseInt(chkValue)&128) != 0){
-				addAttAdd(qzApplnAttachmentList,"128");
-			}
-			
-			if((Integer.parseInt(chkValue)&256) != 0){
-				addAttAdd(qzApplnAttachmentList,"256");
-			}
-			
-			if((Integer.parseInt(chkValue)&512) != 0){
-				addAttAdd(qzApplnAttachmentList,"512");
-			}
-			
-			if((Integer.parseInt(chkValue)&1024) != 0){
-				addAttAdd(qzApplnAttachmentList,"1024");
-			}
-			
-			if((Integer.parseInt(chkValue)&2048) != 0){
-				addAttAdd(qzApplnAttachmentList,"2048");
-			}
-			
-			if((Integer.parseInt(chkValue)&4096) != 0){
-				addAttAdd(qzApplnAttachmentList,"4096");
-			}
-			
-			if((Integer.parseInt(chkValue)&8192) != 0){
-				addAttAdd(qzApplnAttachmentList,"8192");
-			}
-			
-			if((Integer.parseInt(chkValue)&16384) != 0){
-				addAttAdd(qzApplnAttachmentList,"16384");
-			}
-			
-			if((Integer.parseInt(chkValue)&32768) != 0){
-				addAttAdd(qzApplnAttachmentList,"32768");
-			}
-			
-			if((Integer.parseInt(chkValue)&65536) != 0){
-				addAttAdd(qzApplnAttachmentList,"65536");
-			}
-			
-			if((Integer.parseInt(chkValue)&131072) != 0){
-				addAttAdd(qzApplnAttachmentList,"131072");
-			}
-			
-			if((Integer.parseInt(chkValue)&262144) != 0){
-				addAttAdd(qzApplnAttachmentList,"262144");
-			}
-			
-			if((Integer.parseInt(chkValue)&524288) != 0){
-				addAttAdd(qzApplnAttachmentList,"524288");
-			}
-			
-			if((Integer.parseInt(chkValue)&1073741824) != 0){
-				addAttAdd(qzApplnAttachmentList,"1073741824");
-			}
-		}
-	}
-	
-	public void addAttAdd(QzApplnAttachmentList qzApplnAttachmentList,String pValue){
-		QzApplnAttachmentListAdd qzApplnAttachmentListAdd = attachmentListDao.findAttachmentListAddByAttId(qzApplnAttachmentList.getId(), pValue);
-		if(qzApplnAttachmentListAdd == null){
-			qzApplnAttachmentListAdd = new QzApplnAttachmentListAdd();
-			qzApplnAttachmentListAdd.setAttId(qzApplnAttachmentList.getId());
-			qzApplnAttachmentListAdd.setParentValue(pValue);
-			int v = 1+2+4+8+16+32+64+128+256+512+1024+2048+4096+8192+16384;
-			qzApplnAttachmentListAdd.setChkValue(v+"");
-			qzApplnAttachmentListAdd.setUploadValue("0");
-			commonDao.insertObject(qzApplnAttachmentListAdd);
-		}
+				
 	}
 	
 	public void addAttNode(TreeNode rootNode,QzApplnAttachmentList qzApplnAttachmentList,String pValue,String name){
@@ -659,7 +246,192 @@ public class AttachmentListService {
 		}
 	}
 
-	public QzApplnAttachmentListAdd findAttachmentListAddByAttId(String attId,String parentValue) {
-		return attachmentListDao.findAttachmentListAddByAttId(attId,parentValue);
+	public QzApplnAttachmentBatch findAttachmentBatchById(String batch_id) {
+		// TODO Auto-generated method stub
+		String sql = "select * from QZ_APPLN_ATTACHMENT_BATCH where id = '"+batch_id+"'";
+		return commonDao.queryBySql(QzApplnAttachmentBatch.class, sql, null).get(0);
+	}
+	
+	public QzApplnAttachmentList findAttachmentListById(String id) {
+		// TODO Auto-generated method stub
+		String sql = "select * from QZ_APPLN_ATTACHMENT_LIST where id = '"+id+"'";
+		return commonDao.queryBySql(QzApplnAttachmentList.class, sql, null).get(0);
+	}
+
+	//浏览文件并缓存到服务器目录
+	public void browse_folder(MultipartFile file,String batch_id) throws Exception {
+		// TODO Auto-generated method stub
+		String newFileName = UploadFileTool.uploadYxzlFileBySpring_qz(file,batch_id);
+		QzApplnAttachmentDetail detail = new QzApplnAttachmentDetail();
+		detail.setBatchId(batch_id);
+		detail.setOriginalName(file.getOriginalFilename());
+		detail.setFileName(newFileName);
+		detail.setPicSize(file.getSize() + "");
+		commonDao.insertObject(detail);
+	}
+	
+	//浏览文件并缓存到服务器目录
+	public void browse_update_folder(MultipartFile file,String detail_id,String file_no,HttpServletRequest request) throws Exception {
+		// TODO Auto-generated method stub
+		String sql = "select * from QZ_APPLN_ATTACHMENT_DETAIL where id = '"+detail_id+"'";
+		QzApplnAttachmentDetail detail =  commonDao.queryBySql(QzApplnAttachmentDetail.class, sql, null).get(0);
+		
+		String newFileName = UploadFileTool.uploadYxzlFileBySpring_qz(file,detail.getBatchId());
+		detail.setOriginalName(file.getOriginalFilename());
+		detail.setFileName(newFileName);
+		detail.setPicSize(file.getSize() + "");
+		detail.setFileNo(file_no);
+		commonDao.updateObject(detail);
+	}
+
+	public void browse_folder_complete(String batch_id,HttpServletRequest request){
+		//将is_upload 置为0
+		String sql = "update QZ_APPLN_ATTACHMENT_BATCH set is_upload = '0' where id='"+batch_id+"'";
+		commonDao.queryBySql(sql, null);
+	}
+	
+	public void browse_folder_complete_pspcheck(String task_id,HttpServletRequest request){
+		//将upload_flag 置为0
+		String sql = "update PSP_CHECK_TASK set upload_flag = '0' where task_id='"+task_id+"'";
+		commonDao.queryBySql(sql, null);
+	}
+	
+	/**
+	//用不到了
+	public void browse_folder(String batch_id, String folder) throws Exception {
+		// TODO Auto-generated method stub
+		//上传文件夹内的文件到服务器缓存目录
+		QzApplnAttachmentBatch batch = this.findAttachmentBatchById(batch_id);
+		if(batch.getIsUpload() == null){//第一次缓存
+			this.readFile(folder,batch_id);
+		}
+		else if(batch.getIsUpload().equals("0")){//重新缓存
+			UploadFileTool.deleteFile(Constant.FILE_PATH + batch_id + "/");//先删除
+			this.readFile(folder,batch_id);
+		}
+	
+		batch.setFolder(folder);
+		batch.setIsUpload("0");//已缓存
+		commonDao.updateObject(batch);
+	}
+	
+	//循环读取目录--用不到了
+	public void readFile(String folder,String batch_id) throws Exception{
+		File file = new File(folder);
+		if(file.isDirectory()){
+			String[] fileList = file.list();
+			for(int i = 0;i<fileList.length;i++){
+				File readFile = new File(folder + "\\" + fileList[i]);
+				
+				if(!readFile.isDirectory()){//读取文件
+					UploadFileTool.uploadYxzlFileBySpring_qz(readFile,batch_id);
+				}
+				else if(readFile.isDirectory()){//循环
+					readFile(folder + "\\" + fileList[i],batch_id);
+				}
+			}
+		}
+		else{//读取文件
+			UploadFileTool.uploadYxzlFileBySpring_qz(file,batch_id);
+		}
+	}
+	
+	//public static void main(String[] args) {
+	//	readFile("E:\\截图\\","111222333");
+	//}
+	*/
+
+	public QueryResult<QzApplnAttachmentDetail> display_detail(IntoPiecesFilter filter) {
+		List<QzApplnAttachmentDetail> pList = attachmentListDao.findDetailByFilter(filter);
+		int size = attachmentListDao.findDetailCountByFilter(filter);
+		QueryResult<QzApplnAttachmentDetail> queryResult = new QueryResult<QzApplnAttachmentDetail>(size, pList);
+		return queryResult;
+	}
+
+	public QueryResult<PicPojo> display_server(IntoPiecesFilter filter,HttpServletRequest request) throws SunTransEngineException, DocumentException, SundsException {
+		// TODO Auto-generated mfilter.getBatchId()ethod stub
+		String sql = "select * from QZ_APPLN_ATTACHMENT_BATCH where id = '"+filter.getBatchId()+"'";
+		QzApplnAttachmentBatch batch = commonDao.queryBySql(QzApplnAttachmentBatch.class, sql, null).get(0);
+		sql = "select * from QZ_APPLN_ATTACHMENT_LIST where id = '"+batch.getAttId()+"'";
+		QzApplnAttachmentList att = commonDao.queryBySql(QzApplnAttachmentList.class, sql, null).get(0);
+		
+		String xmlStr = null;
+		if(filter.getFirst_flag().equals("1")){
+			request.getSession().setAttribute(filter.getBatchId(), null);
+		}
+		String sessionTmp = request.getSession().getAttribute(filter.getBatchId())==null?null:request.getSession().getAttribute(filter.getBatchId()).toString();
+		if(StringUtils.isEmpty(sessionTmp)){
+			xmlStr = sundsHelper.queryBatchFile(filter.getBatchId(),att.getDocid() + batch.getType());
+			request.getSession().setAttribute(filter.getBatchId(), xmlStr);
+		}
+		else{
+			xmlStr = sessionTmp;
+		}
+		Pic pic = sundsHelper.parseXml(xmlStr, filter.getPage(), filter.getLimit());
+		
+		List<PicPojo> pList = pic.getPics();
+		int size = pic.getTotalCount();
+		QueryResult<PicPojo> queryResult = new QueryResult<PicPojo>(size, pList);
+		
+		return queryResult;
+	}
+
+	public QueryResult<PicPojo> display_server_psp(IntoPiecesFilter filter,HttpServletRequest request) throws SunTransEngineException, DocumentException, SundsException {
+		// TODO Auto-generated mfilter.getBatchId()ethod stub
+		String xmlStr = null;
+		String docId = filter.getTaskId()+filter.getClientNo();
+		if(filter.getFirst_flag().equals("1")){
+			request.getSession().setAttribute(docId, null);
+		}
+		String sessionTmp = request.getSession().getAttribute(docId)==null?null:request.getSession().getAttribute(docId).toString();
+		if(StringUtils.isEmpty(sessionTmp)){
+			xmlStr = sundsHelper.queryBatchFile(filter.getTaskId(),docId);
+			request.getSession().setAttribute(docId, xmlStr);
+		}
+		else{
+			xmlStr = sessionTmp;
+		}
+		Pic pic = sundsHelper.parseXml(xmlStr, filter.getPage(), filter.getLimit());
+		
+		List<PicPojo> pList = pic.getPics();
+		int size = pic.getTotalCount();
+		QueryResult<PicPojo> queryResult = new QueryResult<PicPojo>(size, pList);
+		
+		return queryResult;
+	}
+	
+	public void delete_server_file(String detail_id, String file_no,String doc_id,HttpServletRequest request) throws SunTransEngineException {
+		// TODO Auto-generated method stub
+		String sql = "select * from QZ_APPLN_ATTACHMENT_DETAIL where id = '"+detail_id+"'";
+		QzApplnAttachmentDetail detail = commonDao.queryBySql(QzApplnAttachmentDetail.class, sql, null).get(0);
+		sundsHelper.del(file_no, doc_id,detail.getBatchId());
+		sql = "delete from QZ_APPLN_ATTACHMENT_DETAIL where id = '"+detail_id+"'";
+		commonDao.queryBySql(sql, null);
+		
+		request.getSession().setAttribute(detail.getBatchId(), null);
+	}
+	
+	public void delete_batch(String batchId,HttpServletRequest request) throws SunTransEngineException{
+		String sql = "select * from QZ_APPLN_ATTACHMENT_BATCH where id = '"+batchId+"'";
+		QzApplnAttachmentBatch batch = commonDao.queryBySql(QzApplnAttachmentBatch.class, sql, null).get(0);
+		sql = "select * from QZ_APPLN_ATTACHMENT_LIST where id = '"+batch.getAttId()+"'";
+		QzApplnAttachmentList att = commonDao.queryBySql(QzApplnAttachmentList.class, sql, null).get(0);
+		String docId = att.getDocid() + batch.getType();
+		
+		sundsHelper.delBatch(batchId, docId);
+		
+		//删除对应detail
+		sql = "delete from QZ_APPLN_ATTACHMENT_DETAIL where batch_id = '"+batchId+"'";
+		commonDao.queryBySql(sql, null);
+		//将att的upload_value减去对应的批次值
+		int tmp = Integer.parseInt(att.getUploadValue())-Integer.parseInt(batch.getType());
+		att.setUploadValue(tmp + "");
+		commonDao.updateObject(att);
+		//将对应batch的is_upload状态置为null
+		sql = "update QZ_APPLN_ATTACHMENT_BATCH set is_upload = null where ID = '"+batchId+"'";
+		commonDao.queryBySql(sql, null);
+		
+		
+		request.getSession().setAttribute(batchId, null);
 	}
 }

@@ -52,7 +52,6 @@ public class AfterLoanCollectController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "browse.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.BROWSE)
 	public AbstractModelAndView browse(@ModelAttribute AccLoanCollectFilter filter, HttpServletRequest request) {
 		filter.setRequest(request);
 		if(StringUtils.isEmpty(filter.getStartDate())){
@@ -79,10 +78,16 @@ public class AfterLoanCollectController extends BaseController{
 	 * @param filter
 	 * @param request
 	 * @return
+	 * 新增用信客户:首次提款时间在选定时间段内的客户		 |新增用信余额:提款时间在选定时间段内 且在结束时间前未还清的借据
+	 * 累计用信客户:结束时间前提过款的客户                                             |累计用信余额:结束时间前未还清的所有借据
+	 * 新增授信客户:授信时间在选定时间段内的客户                              |新增授信余额:授信时间在选定时间段内的合同,且结束日期前未结束的合同
+	 * 累计授信客户:结束时间前授信的客户                                                  |累计授信总额:结束时间前授信的合同,且结束日期前未结束的合同
+	 * 新增逾期客户数:逾期时间在选定时间段内的客户                         |新增逾期余额:逾期时间在选定时间段内的借据
+	 * 累计逾期客户数:逾期时间在结束时间前的客户                              |累计逾期余额:逾期时间在结束时间前的借据
+	 * 用信余额（日均):(选定时间段内每天的用信余额求和)/时间段的天数
 	 */
 	@ResponseBody
 	@RequestMapping(value = "browseAll.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.BROWSE)
 	public AbstractModelAndView browseAll(@ModelAttribute AccLoanCollectFilter filter, HttpServletRequest request) {
 		filter.setRequest(request);
 		if(StringUtils.isEmpty(filter.getStartDate())){

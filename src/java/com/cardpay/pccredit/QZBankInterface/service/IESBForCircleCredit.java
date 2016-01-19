@@ -20,6 +20,7 @@ import com.cardpay.pccredit.QZBankInterface.util.DateUtil;
 import com.cardpay.pccredit.common.Arith;
 import com.cardpay.pccredit.customer.model.CustomerInfor;
 import com.cardpay.pccredit.intopieces.constant.Constant;
+import com.cardpay.pccredit.ipad.constant.IpadConstant;
 import com.cardpay.pccredit.manager.constant.ManagerBelongMapConstants;
 import com.dc.eai.data.Array;
 import com.dc.eai.data.CompositeData;
@@ -719,9 +720,10 @@ public class IESBForCircleCredit {
         //更新贷款信息表
         circle.setRetCode(RET_CODE);
         circle.setRetMsg("000000".equals(RET_CODE) ? "放款成功" : RET_MSG);
+        circle.setLoanStatus("000000".equals(RET_CODE) ? "00" : null);
         circle.setRetContno("000000".equals(RET_CODE) ? RET_MSG : "");
         commonDao.updateObject(circle);
-        if(RET_CODE.equals( com.cardpay.pccredit.QZBankInterface.constant.Constant.RET_CODE_CIRCLE)){
+        if(RET_CODE.equals(IpadConstant.RET_CODE_SUCCESS)){
         	retMsg ="放款成功";
         	return retMsg;
         }

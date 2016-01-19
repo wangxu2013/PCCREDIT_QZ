@@ -51,13 +51,20 @@ public class SystemComDao {
 			SystemUserFilter filter) {
 		HashMap<String, Object> params = new HashMap<String, Object>();
 	String orgId = filter.getOrgId();
+	String displayName = filter.getDisplayName();
 		
 		String sql = "select o.name as oname ,d.name,t.* from sys_user t left join sys_dept_user sd on t.id = sd.user_id left join sys_department d on sd.dept_id = d.id  left join sys_organization o on d.org_id = o.id where 1=1 ";
 		if(StringUtils.trimToNull(orgId) !=null){
 			params.put("orgId", orgId);
-			String sqlorgId = "and d.org_id=#{orgId}";
+			String sqlorgId = "and d.org_id=#{orgId} ";
 			 sql = sql + sqlorgId;
-			}
+		}
+		
+		if(StringUtils.trimToNull(displayName) != null){
+			sql += "and t.DISPLAY_NAME like '%"+displayName+"%' ";
+		}
+		
+		sql += " order by t.EXTERNAL_ID";
 		return commonDao.queryBySqlInPagination(SystemUser.class, sql, params,
 				filter.getStart(), filter.getLimit());
 	}

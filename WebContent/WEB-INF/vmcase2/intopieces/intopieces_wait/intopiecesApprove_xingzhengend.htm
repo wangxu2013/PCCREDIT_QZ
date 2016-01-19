@@ -39,6 +39,7 @@
               <col width="10%"/>
               <col width="10%"/>
               <col width="13%"/>
+              <col width="5%" />
             </colgroup>
             <tr class="title">
               <th nowrap="nowrap"></th>
@@ -50,6 +51,7 @@
               <th nowrap="nowrap">审核状态</th>
               <th nowrap="nowrap">申请时间</th>
               <th nowrap="nowrap">节点名称</th>
+              <th nowrap="nowrap">续授信</th>
             </tr>
           </table>
         </div>
@@ -65,6 +67,7 @@
               <col width="10%"/>
               <col width="10%"/>
               <col width="13%"/>
+              <col width="5%" />
             </colgroup>
            #foreach ($wait in $result.items)
             <tr>
@@ -78,6 +81,13 @@
               <td nowrap="nowrap">#dictVal("applicationStatus",$!wait.status) </td>
               <td nowrap="nowrap">$!date.format("yyyy-MM-dd HH:mm:ss",$!wait.auditTime)</td>
               <td nowrap="nowrap">$!wait.nodeName</td>
+              <td nowrap="nowrap">
+               		#if($!wait.isContinue != $null)
+               			是
+               		#else
+               			否
+               		#end
+               </td>
             </tr>
             #end
 

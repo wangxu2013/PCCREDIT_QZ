@@ -23,6 +23,7 @@ public class QzApplnYwsqbJkjl extends BusinessModel {
 	private String rates;
 	private String repayType;
 	private String remainSum;
+	private String guaranteeMode;
 	
 	public String getYwsqbId() {
 		return ywsqbId;
@@ -83,5 +84,11 @@ public class QzApplnYwsqbJkjl extends BusinessModel {
 	}
 	public void setRemainSum(String remainSum) {
 		this.remainSum = remainSum;
+	}
+	public String getGuaranteeMode() {
+		return guaranteeMode;
+	}
+	public void setGuaranteeMode(String guaranteeMode) {
+		this.guaranteeMode = guaranteeMode;
 	}
 }

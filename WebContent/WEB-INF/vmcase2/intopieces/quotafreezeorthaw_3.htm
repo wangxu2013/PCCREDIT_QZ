@@ -1,0 +1,368 @@
+#parse ("common/iframe_page_header.htm")
+#parse ("common/customerInfor.htm")
+
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">	
+	<style type="text/css">
+		.dialog1{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;background:rgba(229,229,229,0.5);display:none;}
+		.dialog1 .dialog-box{width:400px;background:#ffffff;border:1px solid #e5e5e5;border-radius:10px;margin:0 auto;margin-top:100px;padding:3px;}
+		.dialog1 .dialog-box .top{height:35px;background:url(${contextPath}/images/box_head_bg.png) repeat-x;line-height:35px;font-size:14px;padding-left:15px;font-weight:bold;}
+		.dialog1 .dialog-box .top span{display:inline-block;width:35px;height:35px;background:url(${contextPath}/images/box_delete_nor.png);float:right;}
+		.dialog1 .dialog-box .top span:hover{background:url(${contextPath}/images/box_delete_hov.png);}
+		.dialog1 .dialog-box .content{font-size:12px;color:#323232;padding-left:20px;}
+		.dialog1 .dialog-box .bottom{border-top:1px solid #dddddd;height:45px;text-align:center;line-height:45px;}
+		.dialog1 .dialog-box .bottom .btn{width:70px;height:26px;margin:0 5px;background:url(${contextPath}/images/icon_button_qx_normal.png) repeat-x;border:1px solid #818181;border-radius:5px;}
+		.dialog1 .dialog-box .bottom .btn:hover{background:url(${contextPath}/images/icon_button_qx_hover.png) repeat-x;}
+		.dialog1 .dialog-box .bottom .btn-submit{background:url("${contextPath}/images/icon_button_normal.png") repeat-x;border:1px solid #2e84bb;}
+		.dialog1 .dialog-box .bottom .btn-submit:hover{background:url("${contextPath}/images/icon_button_hover.png") repeat-x;}
+		.dialog2{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;background:rgba(229,229,229,0.5);display:none;}
+		.dialog2 .dialog-box{width:400px;background:#ffffff;border:1px solid #e5e5e5;border-radius:10px;margin:0 auto;margin-top:100px;padding:3px;}
+		.dialog2 .dialog-box .top{height:35px;background:url(${contextPath}/images/box_head_bg.png) repeat-x;line-height:35px;font-size:14px;padding-left:15px;font-weight:bold;}
+		.dialog2 .dialog-box .top span{display:inline-block;width:35px;height:35px;background:url(${contextPath}/images/box_delete_nor.png);float:right;}
+		.dialog2 .dialog-box .top span:hover{background:url(${contextPath}/images/box_delete_hov.png);}
+		.dialog2 .dialog-box .content{font-size:12px;color:#323232;padding-left:20px;}
+		.dialog2 .dialog-box .bottom{border-top:1px solid #dddddd;height:45px;text-align:center;line-height:45px;}
+		.dialog2 .dialog-box .bottom .btn{width:70px;height:26px;margin:0 5px;background:url(${contextPath}/images/icon_button_qx_normal.png) repeat-x;border:1px solid #818181;border-radius:5px;}
+		.dialog2 .dialog-box .bottom .btn:hover{background:url(${contextPath}/images/icon_button_qx_hover.png) repeat-x;}
+		.dialog2 .dialog-box .bottom .btn-submit{background:url("${contextPath}/images/icon_button_normal.png") repeat-x;border:1px solid #2e84bb;}
+		.dialog2 .dialog-box .bottom .btn-submit:hover{background:url("${contextPath}/images/icon_button_hover.png") repeat-x;}
+	</style>
+</head>
+<body>
+  <div class="content_main">
+    <div class="contentinner">
+      <div class="place">
+        <div class="title">额度冻结/解冻(评审)</div>
+      </div>
+ <div class="inquiry">
+        <div class="search_tag"></div>
+        <div class="search">
+          <form id="submitForm" action="${contextPath}/intopieces/quotafreezeorthaw3/browse.page">
+            <ul>
+              <li>
+                <span>客户名称：<input type="text" id="customerName" name="customerName" value="$!result.filter.customerName" /></span>
+              </li>
+               <li>
+                <span>证件号码：<input type="text" id="certNo" name="certNo" value="$!result.filter.certNo" /></span>
+              </li>
+              <li>
+                <span>客户号：<input type="text" id="clientNo" name="clientNo" value="$!result.filter.clientNo" /></span>
+              </li>
+              <li>
+                <span>贷款状态：
+                <select id="loanStatus" name="loanStatus">
+                       <option value="">请选择...</option>
+	                   #dict("loanStatus", $!result.filter.loanStatus)
+	                </select></span>
+              </li>
+              <li class="search_button">
+                <input type="button" value="#i18n('button.browse')" class="search_button_inquiry"
+                  title="#i18n('button.browse.hint')" style="height: 26px; line-height: 24px;" onclick="javascript:this.form.submit();"/>
+              </li>
+            </ul>
+          </form>
+        </div>
+               <div id="topDiv" class="inquiry_list inquiry_top">
+          <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="8%" />
+              <col width="13%"/>
+              <col width="12%"/>
+              <col width="8%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col width="7%"/>
+              <col width="7%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col />
+            </colgroup>
+            <tr class="title">
+              <th nowrap="nowrap"></th>
+              <th nowrap="nowrap">客户名称</th>
+              <th nowrap="nowrap">证件号码</th>
+              <th nowrap="nowrap">客户号</th>
+              <th nowrap="nowrap">贷款额度</th>
+              <th nowrap="nowrap">授信开始时间</th>
+              <th nowrap="nowrap">授信结束时间</th>
+              <th nowrap="nowrap">贷款状态</th>
+              <th nowrap="nowrap">申请</th>
+              <th nowrap="nowrap">审批状态</th>
+              <th nowrap="nowrap">进度</th>
+            </tr>
+          </table>
+        </div>
+        <div id="downDiv" class="inquiry_list inquiry_down">
+          <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="8%" />
+              <col width="13%"/>
+              <col width="12%"/>
+              <col width="8%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col width="7%"/>
+              <col width="7%"/>
+              <col width="10%"/>
+              <col width="10%"/>
+              <col />
+            </colgroup>
+            #foreach ($intoPieces in $result.items)
+            <tr>
+              <td class="checkbox"><input type="radio" name="checkbox" value="$!{intoPieces.clientNo}_$!{intoPieces.retContno}_$!{intoPieces.loanStatus}_$!{intoPieces.cardNo}_$!{intoPieces.circleId}_$!{intoPieces.processId}"/></td>
+              <td nowrap="nowrap">$!intoPieces.clientName</td>
+              <td nowrap="nowrap">$!intoPieces.globalId</td>
+              <td nowrap="nowrap">$!intoPieces.clientNo</td>
+              <td nowrap="nowrap">$!intoPieces.contractAmt</td>
+              <td nowrap="nowrap">$!date.format("yyyy-MM-dd",$!intoPieces.startDate)</td>
+              <td nowrap="nowrap">$!date.format("yyyy-MM-dd",$!intoPieces.endDate)</td>
+              <td nowrap="nowrap">#dictVal("loanStatus",$!intoPieces.loanStatus)</td>
+              <td nowrap="nowrap">#dictVal("loanStatus2",$!intoPieces.operateType)</td>
+              <td nowrap="nowrap">
+	              #if($!intoPieces.processStatus=='audit')已申请
+	              #elseif($!intoPieces.processStatus=='RETURNAPPROVE')退回
+	              #elseif($!intoPieces.processStatus=='refuse')被拒绝
+	              #elseif($!intoPieces.processStatus=='approved')审批结束 
+	              #elseif($!intoPieces.processStatus=='returnedToFirst')退回客户经理
+	              #end
+              </td>
+              <td nowrap="nowrap">$!intoPieces.nodeName</td>
+            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+      <div class="dialog1">
+		<form id="checkForm1" class="dialog-box" style="height:200px;">
+			<div class="top">
+				退回<span onclick="$('.dialog1').hide();"></span>
+			</div>
+			<div class="content" style="height:100px;padding-top:15px;">
+				<p>
+					退回原因:<font color="red">*</font>
+					<textarea id="reason1" name="reason1" rows="2" style="width: 300px;"></textarea>
+				</p>
+			</div>
+			<div class="bottom">
+				<input id="id_return_button" type="button" class="btn btn-submit" value="确定" /> 
+				<input type="button" class="btn" value="关闭" onclick="$('.dialog1').hide();" />
+			</div>
+		</form>
+	</div>
+	<div class="dialog2">
+		<form id="checkForm2" class="dialog-box" style="height:200px;">
+			<div class="top">
+				拒绝<span onclick="$('.dialog2').hide();"></span>
+			</div>
+			<div class="content" style="height:100px;padding-top:15px;">
+				<p>
+					拒绝原因:<font color="red">*</font>
+					<textarea id="reason2" name="reason2" rows="2" style="width: 300px;"></textarea>
+				</p>
+			</div>
+			<div class="bottom">
+				<input id="id_refuse_button" type="button" class="btn btn-submit" value="确定" /> 
+				<input type="button" class="btn" value="关闭" onclick="$('.dialog2').hide();" />
+			</div>
+		</form>
+	</div>
+      <div class="pagebar">
+        <div class="controlbtn">
+            <a class="btn_g" href="javascript:void(0);" title="通过" onclick="pass();">通过</a>
+        	<a class="btn_g" href="javascript:void(0);" title="退回" onclick="return_()">退回</a>
+        	<a class="btn_g" href="javascript:void(0);" title="拒绝" onclick="refuse_()">拒绝</a>
+        </div>
+        #parse ("common/pagination.htm")
+        <div class="clear"></div>
+      </div>
+    </div>
+  </div>
+</body>
+<script language="javascript" type="text/javascript">
+	var layout = new TableLayout(2);
+	window.top.currentWindow.setLayout(layout);
+
+	$(document).ready(function() {
+		var opsObj = new Object();
+		opsObj.formObj = $("#submitForm");
+		opsObj.browseUrl = "${modulePath}/browse.page";
+		prepareOperations(opsObj);
+	});
+	//通过
+	function pass(){
+		var clientNo = null;
+		var contNo = null;
+		var loanStatus = null;
+		var cardNo = null;
+		var circleId = null;
+		var processId = null;
+		$("input[name='checkbox']:checked").each(function() {
+			clientNo = $(this).val().split("_")[0];
+			contNo = $(this).val().split("_")[1];
+			loanStatus = $(this).val().split("_")[2];
+			cardNo = $(this).val().split("_")[3];
+			circleId = $(this).val().split("_")[4];
+			processId = $(this).val().split("_")[5];
+		});
+		if(clientNo!=null && cardNo!=null && contNo != null && loanStatus!=null ){
+			Dialog.confirm("确定要执行该操作吗？", "提示",
+					function(){
+				    $.ajax({
+				    	url:"${contextPath}/intopieces/quotafreezeorthaw3/quot_operate.json?clientNo="+clientNo+"&contNo="+contNo+"&cardNo="+cardNo+
+				    			"&loanStatus="+loanStatus+"&circleId="+circleId+"&processId="+processId+"&applicationStatus=APPROVE",
+				    	type : "get",
+						success : function(data) {
+							if (data.success) {
+								topWin.Dialog.message(data.retMsg);
+								window.location.href="${contextPath}/intopieces/quotafreezeorthaw3/browse.page"
+							}else{
+								topWin.Dialog.message(data.retMsg);
+							}
+						}
+				    });
+			});
+		}else{
+			Dialog.message("请选择一条记录!");
+		}
+	}
+	
+	//退回dialog
+	function return_(){
+		var clientNo = null;
+		var contNo = null;
+		var loanStatus = null;
+		var cardNo = null;
+		var circleId = null;
+		var processId = null;
+		$("input[name='checkbox']:checked").each(function() {
+			clientNo = $(this).val().split("_")[0];
+			contNo = $(this).val().split("_")[1];
+			loanStatus = $(this).val().split("_")[2];
+			cardNo = $(this).val().split("_")[3];
+			circleId = $(this).val().split("_")[4];
+			processId = $(this).val().split("_")[5];
+		});
+		if(clientNo!=null && cardNo!=null && contNo != null && loanStatus!=null ){
+			$('.dialog1').show();
+		}else{
+			Dialog.message("请选择一条记录!");
+		}
+	}
+	//退回 提交（第一岗 是退回到客户经理）
+	$("#id_return_button").click(function() {
+		Dialog.confirm("确定提交吗？", "提示",
+               function() {
+				var clientNo = null;
+				var contNo = null;
+				var loanStatus = null;
+				var cardNo = null;
+				var circleId = null;
+				var processId = null;
+				$("input[name='checkbox']:checked").each(function() {
+					clientNo = $(this).val().split("_")[0];
+					contNo = $(this).val().split("_")[1];
+					loanStatus = $(this).val().split("_")[2];
+					cardNo = $(this).val().split("_")[3];
+					circleId = $(this).val().split("_")[4];
+					processId = $(this).val().split("_")[5];
+				});
+				if(clientNo!=null && cardNo!=null && contNo != null && loanStatus!=null ){
+					$('.dialog1').show();
+				}else{
+					Dialog.message("请选择一条记录!");
+				}
+				if($("#reason1").val() == ""){
+					 Dialog.message("请填写退回原因！");
+					 return;
+				 }
+				$('.dialog1').hide();
+				 
+				 $.ajax({
+					 	url:"${contextPath}/intopieces/quotafreezeorthaw3/quot_operate.json?clientNo="+clientNo+"&contNo="+contNo+"&cardNo="+cardNo+
+		    				"&loanStatus="+loanStatus+"&circleId="+circleId+"&processId="+processId+"&applicationStatus=RETURNAPPROVE"+"&reason="+$("#reason1").val(),
+						type : "get",
+						success : function(data) {
+							if (data.success) {
+								topWin.Dialog.message(data.retMsg);
+								window.location.href="${contextPath}/intopieces/quotafreezeorthaw3/browse.page"
+							}else{
+								topWin.Dialog.message(data.retMsg);
+							}
+						}
+				}); 
+		});
+	});
+	
+	//拒绝dialog
+	function refuse_(){
+		var clientNo = null;
+		var contNo = null;
+		var loanStatus = null;
+		var cardNo = null;
+		var circleId = null;
+		var processId = null;
+		$("input[name='checkbox']:checked").each(function() {
+			clientNo = $(this).val().split("_")[0];
+			contNo = $(this).val().split("_")[1];
+			loanStatus = $(this).val().split("_")[2];
+			cardNo = $(this).val().split("_")[3];
+			circleId = $(this).val().split("_")[4];
+			processId = $(this).val().split("_")[5];
+		});
+		if(clientNo!=null && cardNo!=null && contNo != null && loanStatus!=null ){
+			$('.dialog2').show();
+		}else{
+			Dialog.message("请选择一条记录!");
+		}
+	}
+	//拒绝 提交
+	$("#id_refuse_button").click(function() {
+		Dialog.confirm("确定提交吗？", "提示",
+               function() {
+				var clientNo = null;
+				var contNo = null;
+				var loanStatus = null;
+				var cardNo = null;
+				var circleId = null;
+				var processId = null;
+				$("input[name='checkbox']:checked").each(function() {
+					clientNo = $(this).val().split("_")[0];
+					contNo = $(this).val().split("_")[1];
+					loanStatus = $(this).val().split("_")[2];
+					cardNo = $(this).val().split("_")[3];
+					circleId = $(this).val().split("_")[4];
+					processId = $(this).val().split("_")[5];
+				});
+				if(clientNo!=null && cardNo!=null && contNo != null && loanStatus!=null ){
+					$('.dialog2').show();
+				}else{
+					Dialog.message("请选择一条记录!");
+				}
+				if($("#reason2").val() == ""){
+					 Dialog.message("请填写拒绝原因！");
+					 return;
+				 }
+				$('.dialog2').hide();
+				
+				$.ajax({
+				 	url:"${contextPath}/intopieces/quotafreezeorthaw3/quot_operate.json?clientNo="+clientNo+"&contNo="+contNo+"&cardNo="+cardNo+
+			 					"&loanStatus="+loanStatus+"&circleId="+circleId+"&processId="+processId+"&applicationStatus=REJECTAPPROVE"+"&reason="+$("#reason2").val(),
+					type : "get",
+					success : function(data) {
+						if (data.success) {
+							topWin.Dialog.message(data.retMsg);
+							window.location.href="${contextPath}/intopieces/quotafreezeorthaw3/browse.page"
+						}else{
+							topWin.Dialog.message(data.retMsg);
+						}
+					}
+				}); 
+		});
+	});
+</script>
+   <script src="${contextPath}/js/customerInfor/customer_infor.js"></script>
+#parse ("common/iframe_page_footer.htm")
+

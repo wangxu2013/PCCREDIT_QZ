@@ -70,6 +70,7 @@ public class CustomerApplicationIntopieceWaitForm extends BaseForm {
 	private String rejectRemark;//拒件原因
 	
 	private String displayName;
+	private String isContinue;
 	
 	public String getNodeName() {
 		return nodeName;
@@ -454,5 +455,14 @@ public class CustomerApplicationIntopieceWaitForm extends BaseForm {
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
+
+	public String getIsContinue() {
+		return isContinue;
+	}
+
+	public void setIsContinue(String isContinue) {
+		this.isContinue = isContinue;
+	}
+	
 	
 }

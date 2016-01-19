@@ -63,7 +63,8 @@
             #foreach ($customer in $result.items)
             <tr>
               <td class="checkbox"><input type="radio" name="checkbox" value="$!customer.id@$!customer.processId@$!customer.status"
-                  /></td>
+                  />
+                  <input type="hidden" value="$!customer.divisionalStatus"/></td>
               <td nowrap="nowrap">$!customer.chineseName</td>
               <td nowrap="nowrap">#dictVal("CERT_TYPE",$!customer.cardType)</td>
               <td nowrap="nowrap">$!customer.cardId</td>
@@ -79,6 +80,7 @@
         	<a class="btn_g" id="id_kaihu_button" href="javascript:void(0);" title="新增客户">新增客户</a>
             <a class="btn_g" id="id_displaykaihu_button" href="javascript:void(0);" title="查看客户信息">查看客户信息</a>
             <a class="btn_g" id="id_updatekaihu_button" href="javascript:void(0);" title="修改客户信息">修改客户信息</a>
+            <a class="btn_g" id="id_transfer_button" href="javascript:void(0);" title="移交">移交</a>
         </div>
         #parse ("common/pagination.htm")
         <div class="clear"></div>
@@ -119,6 +121,35 @@
 				}
 			}else{
 				Dialog.message("请选择一条记录!");
+			}
+	    });
+		
+		//客户移交
+		$("#id_transfer_button").click(function() {
+			if ($(".checkbox :checked").length == 1) {
+				var status = $(".checkbox :checked").next("input:hidden").val();
+				if(status === 'turn'){
+					Dialog.message("移交申请已提交...请勿重复提交");
+					return;
+				}
+		        var rowid = $($(".checkbox :checked")[0]).attr("value").split("@")[0];
+		        Dialog.load();
+		    	$.ajax({
+		    		type:'GET',
+		    		url:"${contextPath}/divisional/customeraltransfer/transfer_qz.json",
+		    		data:'id='+rowid,
+		    		success:function(msg){
+		    			Dialog.closeLoad();
+		    			if(msg.success == true){
+		    				topWin.Dialog.message("发起移交申请成功");
+		    			}else{
+		    				topWin.Dialog.message(msg.message);
+		    			}
+		    			window.location.href="${contextPath}/customer/ecif/browse.page";
+		    		}
+		    	});
+			}else{
+				Dialog.message("请选择一行");
 			}
 	    });
 	});

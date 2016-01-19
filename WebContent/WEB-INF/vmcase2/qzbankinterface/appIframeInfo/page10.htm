@@ -47,15 +47,15 @@
 					<td class="table-label">借款人名称</td>
 					<td><input type="text" name="jkrxm" value="$!result.jkrxm" readonly/></td>
 					<td class="table-label">申请金额</td>
-					<td><input type="text" name="sqje" value="$!result.sqje" readonly/></td>
+					<td><input type="text" name="sqje" value="$!result.sqje"/></td>
 					<td class="table-label">申请期限</td>
-					<td><input type="text" name="sqqx" value="$!result.sqqx" readonly/></td>
+					<td><input type="text" name="sqqx" value="$!result.sqqx"/></td>
 				</tr>	
 				<tr>
 					<td class="table-label">申请日期</td>
 					<td><input type="text" name="sqrq" value="$!date.format("yyyy-MM-dd", $!result.sqrq)" readonly/></td>
 					<td class="table-label">申请利率</td>
-					<td><input type="text" name="sqll" value="$!result.sqll" readonly/></td>
+					<td><input type="text" name="sqll" value="$!result.sqll"/></td>
 					<td class="table-label">担保方式</td>
 					<td>
 						<input type="text" value="#dictVal('ASSURE_MAIN',$!result.dbfs)" readonly/>
@@ -99,7 +99,7 @@
 					<td class="table-label">贷审成员<font color="#ff0000">*</font></td>
 					<td><input type="text" name="dscyqz" value="$!result.dscyqz" /></td>
 					<td class="table-label">日期<font color="#ff0000">*</font></td>
-					<td colspan="3"><input type="text" name="rq" onmouseover="_calendar()" value="$!date.format("yyyy-MM-dd", $!result.rq)"/></td>	
+					<td colspan="3"><input type="text" name="rq" onmouseover="_calendar()" value="$!date.format("yyyy-MM-dd", $!result.rq)" readonly/></td>	
 				</tr>		
 				<tr>
 					<td class="table-label">主办客户经理<font color="#ff0000">*</font></td>
@@ -107,7 +107,7 @@
 					<td class="table-label">协助调查人员<font color="#ff0000">*</font></td>
 					<td><input type="text" name="xzdcryqz" value="$!result.xzdcryqz" /></td>
 					<td class="table-label">日期<font color="#ff0000">*</font></td>
-					<td><input type="text" name="rq1" onmouseover="_calendar()" value="$!date.format("yyyy-MM-dd", $!result.rq1)" /></td>	
+					<td><input type="text" name="rq1" onmouseover="_calendar()" value="$!date.format("yyyy-MM-dd", $!result.rq1)" readonly/></td>	
 				</tr>	
 			</table>			
 		</div>
@@ -175,7 +175,7 @@
 		
 		$("#id_save_button").click(function() {
 			if(submitFlag == 1){
-				alert("请勿重复提交!")
+				alert("等待后台响应,请勿重复提交!")
 				return;
 			}
 			submitFlag = 1;

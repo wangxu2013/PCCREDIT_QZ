@@ -10,7 +10,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 	<div class="box">
 		<div name="content">
 			<table class="myTable">
-				<caption>"贷生活"业务申请表</caption>
+				<caption>业务申请表</caption>
 				<colgroup>
 					<col width="10%">
 					<col width="40%">
@@ -151,7 +151,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				#if($!{productType}=="2")
 				<tr>
 					<td class="table-label">所属的商圈地址：<font color="#ff0000">*</font></td>
-					<td colspan="3"><input type="text" style="width:250px name="bussdistrictAddress" value="$!qzApplnZa.address"/>
+					<td colspan="3"><input type="text" style="width:250px" name="bussdistrictAddress" value="$!qzApplnZa.address"/>
 					<input type="text" name="bussdisAddDetail" style="width:250px;"/></td>	
 				</tr>
 				#end
@@ -362,6 +362,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				</tr>
 				<tr>
 					<td><b>银行或其他方式</b></td>	
+					<td><b>担保方式</b></td>	
 					<td><b>目的</b></td>					
 					<td><b>贷款总额</b></td>	
 					<td><b>发放日期</b></td>					
@@ -372,6 +373,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				</tr>
 				<tr>
 					<td><input type="text" class="input" name="bankOrOtherType_jkjl_1" disabled/></td>	
+					<td><input type="text" class="input" name="guaranteeMode_jkjl_1" disabled/></td>
 					<td><input type="text" class="input" name="purpose_jkjl_1" disabled/></td>					
 					<td><input type="text" class="input" name="totalAmount_jkjl_1" disabled/></td>	
 					<script>
@@ -552,7 +554,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 	#if($!type=="readonly")
 		<a class="btn_gr"  onclick="parent.location.href = '${contextPath}${returnUrl}'" title="返回">返回</a>
 	#else
-		<a id="id_save_button" class="btn_g" href="javascript:void(0);" title="提交">提交</a>
+		<a id="id_save_button" class="btn_g" href="javascript:void(0);" title="保存">保存</a>
 		<a id="id_back_button" class="btn_gr" href="javascript:void(0);" title="返回">返回</a>
 	#end
 	</div>
@@ -599,7 +601,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 			//保存
 			$("#id_save_button").click(function() {
 				if(submitFlag == 1){
-					alert("请勿重复提交!")
+					alert("等待后台响应,请勿重复提交!")
 					return;
 				}
 				submitFlag = 1;

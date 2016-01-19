@@ -14,6 +14,8 @@
 	    <result property="statusName" column="status_name" />
 	    <result property="createTime" column="Created_Time" />
 	    <result property="nodeName" column="node_name" />
+	    <result property="loanStatus" column="loan_status" />
+	    <result property="isContinue" column="is_continue" />
 	</resultMap>
 	
   <select id="checkValue" resultType="int">
@@ -25,10 +27,10 @@
 			(SELECT ROW_.*,ROWNUM ROWNUM_
 			FROM (
 			
-		SELECT cai. ID,cai.customer_id,cai.chinese_name,cai.product_id,cai.card_id,cai.apply_quota,cai.status,cai.Created_Time 
+		SELECT cai. ID,cai.customer_id,cai.chinese_name,cai.product_id,cai.card_id,cai.apply_quota,cai.status,cai.Created_Time,cai.LOAN_STATUS,cai.is_continue
 		FROM 
 		(SELECT * FROM WF_STATUS_QUEUE_RECORD WHERE EXAMINE_USER = #{userId}) wsqr 
-		LEFT JOIN ( SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.SERIAL_NUMBER ,T.Created_Time 
+		LEFT JOIN ( SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.SERIAL_NUMBER ,T.Created_Time,circle.LOAN_STATUS,T.is_continue 
 		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
 
 		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
@@ -51,7 +53,7 @@
 		</if>
 		
 		union 
-		SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.Created_Time 
+		SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.Created_Time ,circle.LOAN_STATUS,T.is_continue
 		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
 		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
 		where (b.user_id = #{userId} 
@@ -88,10 +90,10 @@
   <select id="findCountintoPiecesByFilterWF" resultType="int">
 		 select count(*) 
 		FROM 
-		(select cai. ID,cai.customer_id,cai.chinese_name,cai.product_id,cai.card_id,cai.apply_quota,cai.status,cai.Created_Time
+		(select cai. ID,cai.customer_id,cai.chinese_name,cai.product_id,cai.card_id,cai.apply_quota,cai.status,cai.Created_Time,cai.is_continue
 		from 
 		(SELECT * FROM WF_STATUS_QUEUE_RECORD WHERE EXAMINE_USER = #{userId}) wsqr 
-		LEFT JOIN ( SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.SERIAL_NUMBER ,T.Created_Time 
+		LEFT JOIN ( SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.SERIAL_NUMBER ,T.Created_Time,T.is_continue
 		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
 
 		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
@@ -113,7 +115,7 @@
 			</if>
 		</if>
 		union 
-		SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.Created_Time 
+		SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status, T.Created_Time,T.is_continue
 		FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
 		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
 		where (b.user_id = #{userId} 
@@ -142,4 +144,59 @@
 		</if>
 		)
 	</select>
+	
+ 	 <select id="findintoPiecesAllByFilter" resultMap="ResultMap">
+ 	     
+      SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			
+      	SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status,T.is_continue
+      	FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
+      	<if test="chineseName != null and chineseName != '' ">
+		    and b.chinese_name like '%'||#{chineseName}||'%' 
+		</if>
+		<if test="cardId != null and cardId != '' ">
+		    and b.card_id like '%'||#{cardId}||'%' 
+		</if>
+		
+		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
+		<if test="productId != null and productId != '' ">
+		    where T.product_id = #{productId} 
+		</if>
+		
+		<if test='productId == null or productId == "" '>
+		    where T.product_id in (select id from PRODUCT_ATTRIBUTE where PRODUCT_NAME  = '贷成长' or PRODUCT_NAME  = '贷生活')
+		</if>
+		
+		order by T.created_time desc
+		
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+      </select>
+      
+ 	 <select id="findintoPiecesAllCountByFilter" resultType="int">
+      	SELECT count(*)
+      	FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID 
+      	<if test="chineseName != null and chineseName != '' ">
+		    and b.chinese_name like '%'||#{chineseName}||'%' 
+		</if>
+		<if test="cardId != null and cardId != '' ">
+		    and b.card_id like '%'||#{cardId}||'%' 
+		</if>
+		
+		LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id 
+		<if test="productId != null and productId != '' ">
+		    where T.product_id = #{productId} 
+		</if>
+		
+		<if test='productId == null or productId == "" '>
+		    where T.product_id in (select id from PRODUCT_ATTRIBUTE where PRODUCT_NAME  = '贷成长' or PRODUCT_NAME  = '贷生活')
+		</if>
+		
+		order by T.created_time desc
+      </select>
 </mapper>

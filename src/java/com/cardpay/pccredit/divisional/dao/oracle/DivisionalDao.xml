@@ -2,17 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.cardpay.pccredit.divisional.dao.DivisionalDao">
 
+<resultMap id="ResultMap" type="com.cardpay.pccredit.divisional.model.DivisionalWeb" >
+    <result property="id" column="ID" />
+	<result property="customerId" column="CUSTOMER_ID" />
+	<result property="chineseName" column="CHINESE_NAME" />
+	<result property="cardType" column="CARD_TYPE" />
+	<result property="cardId" column="CARD_ID" />
+	<result property="divisionalResult" column="DIVISIONAL_RESULT" />
+	<result property="remark" column="REMARK" />
+  </resultMap>
+  
+<resultMap id="ResultMap2" type="com.cardpay.pccredit.divisional.model.DivisionalTransfer" >
+    <result property="id" column="ID" />
+	<result property="chineseName" column="CHINESE_NAME" />
+	<result property="cardType" column="CARD_TYPE" />
+	<result property="cardId" column="CARD_ID" />
+	<result property="divisionalResult" column="DIVISIONAL_RESULT" />
+	<result property="divisionalStatus" column="DIVISIONAL_STATUS" />
+  </resultMap>
+  
 <select id="findCustomerManagers" parameterType="String" resultType="com.cardpay.pccredit.system.model.Dict">
 	select su.id as TypeCode, su.display_name as TypeName
-    from sys_user su,
-    (select tt.id from 
-    (select u.user_id as id
-    from sys_dept_user u
-    where u.dept_id in (select d.id
-    from sys_department d
-    where 1 = 1
-    and d.org_id =#{id})) tt,account_manager_parameter p where tt.id=p.user_id) t
-    where su.id = t.id
+    from sys_user su
+    where id in (select user_id from ACCOUNT_MANAGER_PARAMETER)
 </select>
 <select id="findCustomerIdById" parameterType="String" resultType="String">
 	select customer_id from divisional_application 
@@ -82,5 +94,176 @@
 	where customer_manager_id=#{customerManagerId}
 	and divisional_result=#{result}
 	and divisional_progress=#{process}
+</select>
+
+<select id="findDivisionalTransfer" resultMap="ResultMap2">
+    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+    SELECT
+			D . ID,
+			chinese_name,
+			ecif.global_type AS card_type,
+			ecif.global_id AS card_id,
+			b.divisional_status,
+			d.divisional_result
+		FROM
+			
+			divisional_application D
+			left join basic_customer_information b on b. ID = D .customer_id
+			left join qz_iesb_for_ecif ecif on D. customer_id = ecif.customer_id
+			<if test="cardId != null and cardId != '' ">
+			    and ecif.global_id like '%'||#{cardId}||'%' 
+			</if>
+			<if test="chineseName != null and chineseName != '' ">
+			    and ecif.client_name like '%'||#{chineseName}||'%' 
+			</if>
+			left join sys_user from_su on from_su. ID = D .ORIGINAL_MANAGER_OLD
+			left join sys_user to_su on to_su. ID = D .CUSTOMER_MANAGER_ID
+			where d.original_manager_old=#{originalManagerOld}
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+</select>
+<select id="findDivisionalTransferCount" resultType="int">
+    select count(*) from (
+    SELECT
+			D . ID,
+			chinese_name,
+			ecif.global_type AS card_type,
+			ecif.global_id AS card_id,
+			b.divisional_status,
+			d.divisional_result
+		FROM
+			divisional_application D
+			left join basic_customer_information b on b. ID = D .customer_id
+			left join qz_iesb_for_ecif ecif on D. customer_id = ecif.customer_id
+			<if test="cardId != null and cardId != '' ">
+			    and ecif.global_id like '%'||#{cardId}||'%' 
+			</if>
+			<if test="chineseName != null and chineseName != '' ">
+			    and ecif.client_name like '%'||#{chineseName}||'%' 
+			</if>
+			left join sys_user from_su on from_su. ID = D .ORIGINAL_MANAGER_OLD
+			left join sys_user to_su on to_su. ID = D .CUSTOMER_MANAGER_ID
+			where d.original_manager_old=#{originalManagerOld}
+		)
+</select>
+
+<select id="findDivisional_qz" resultMap="ResultMap">
+    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+    SELECT
+			D . ID,
+			chinese_name,
+			ecif.global_type AS card_type,
+			ecif.global_id AS card_id,
+			divisional_result,
+			<![CDATA[ from_su.display_name || '->' || to_su.display_name AS remark ]]>
+		FROM
+			
+			divisional_application D
+			left join basic_customer_information b on b. ID = D .customer_id
+			left join qz_iesb_for_ecif ecif on D. customer_id = ecif.customer_id
+			<if test="cardId != null and cardId != '' ">
+			    and ecif.global_id like '%'||#{cardId}||'%' 
+			</if>
+			<if test="chineseName != null and chineseName != '' ">
+			    and ecif.client_name like '%'||#{chineseName}||'%' 
+			</if>
+			left join sys_user from_su on from_su. ID = D .ORIGINAL_MANAGER_OLD
+			left join sys_user to_su on to_su. ID = D .CUSTOMER_MANAGER_ID
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+</select>
+<select id="findDivisional_qz_count" resultType="int">
+    select count(*) from (
+    SELECT
+			D . ID,
+			chinese_name,
+			ecif.global_type AS card_type,
+			ecif.global_id AS card_id,
+			divisional_result,
+			<![CDATA[ from_su.display_name || '->' || to_su.display_name AS remark ]]>
+		FROM
+			divisional_application D
+			left join basic_customer_information b on b. ID = D .customer_id
+			left join qz_iesb_for_ecif ecif on D. customer_id = ecif.customer_id
+			<if test="cardId != null and cardId != '' ">
+			    and ecif.global_id like '%'||#{cardId}||'%' 
+			</if>
+			<if test="chineseName != null and chineseName != '' ">
+			    and ecif.client_name like '%'||#{chineseName}||'%' 
+			</if>
+			left join sys_user from_su on from_su. ID = D .ORIGINAL_MANAGER_OLD
+			left join sys_user to_su on to_su. ID = D .CUSTOMER_MANAGER_ID
+		)
+</select>
+
+<select id="findDivisionalByCustomerManager" resultMap="ResultMap">
+    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+    SELECT
+			D . ID,
+			chinese_name,
+			ecif.global_type AS card_type,
+			ecif.global_id AS card_id,
+			divisional_result,
+			D .customer_id
+		FROM
+			
+			divisional_application D
+			left join basic_customer_information b on b. ID = D .customer_id
+			left join qz_iesb_for_ecif ecif on D. customer_id = ecif.customer_id
+			<if test="cardId != null and cardId != '' ">
+			    and ecif.global_id like '%'||#{cardId}||'%' 
+			</if>
+			<if test="chineseName != null and chineseName != '' ">
+			    and ecif.client_name like '%'||#{chineseName}||'%' 
+			</if>
+			left join sys_user from_su on from_su. ID = D .ORIGINAL_MANAGER_OLD
+			left join sys_user to_su on to_su. ID = D .CUSTOMER_MANAGER_ID
+			
+		where d.divisional_progress!=#{divisionalProgress}
+			and d.customer_manager_id=#{customerManagerId}
+			order by d.divisional_result
+		<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+</select>
+<select id="findDivisionalByCustomerManagerCount" resultType="int">
+    select count(*) from (
+    SELECT
+			D . ID,
+			chinese_name,
+			ecif.global_type AS card_type,
+			ecif.global_id AS card_id,
+			divisional_result,
+			D .customer_id
+		FROM
+			divisional_application D
+			left join basic_customer_information b on b. ID = D .customer_id
+			left join qz_iesb_for_ecif ecif on D. customer_id = ecif.customer_id
+			<if test="cardId != null and cardId != '' ">
+			    and ecif.global_id like '%'||#{cardId}||'%' 
+			</if>
+			<if test="chineseName != null and chineseName != '' ">
+			    and ecif.client_name like '%'||#{chineseName}||'%' 
+			</if>
+			left join sys_user from_su on from_su. ID = D .ORIGINAL_MANAGER_OLD
+			left join sys_user to_su on to_su. ID = D .CUSTOMER_MANAGER_ID
+		where d.divisional_progress!=#{divisionalProgress}
+			and d.customer_manager_id=#{customerManagerId}
+			order by d.divisional_result
+		)
 </select>
 </mapper> 

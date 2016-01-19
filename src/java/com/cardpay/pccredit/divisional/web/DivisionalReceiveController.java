@@ -72,7 +72,6 @@ public class DivisionalReceiveController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "browse.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.BROWSE)
 	public AbstractModelAndView browse(@ModelAttribute DivisionalFilter filter, HttpServletRequest request) {
 		filter.setRequest(request);
 		IUser user = (User)Beans.get(LoginManager.class).getLoggedInUser(request);
@@ -84,6 +83,7 @@ public class DivisionalReceiveController extends BaseController{
 		mv.addObject(PAGED_RESULT, pagedResult);
 		return mv;
 	}
+	
 	/**
 	 * 接受客户
 	 * 
@@ -93,7 +93,6 @@ public class DivisionalReceiveController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "receive.json", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.CHANGE)
 	public Map<String,Object> receive(HttpServletRequest request) {
 		Map<String,Object> returnMap = new HashMap<String,Object>();
 		String id = RequestHelper.getStringValue(request, ID);
@@ -101,25 +100,21 @@ public class DivisionalReceiveController extends BaseController{
 		User user = (User)Beans.get(LoginManager.class).getLoggedInUser(request);
 		String userId = user.getId();
 		try {
-			boolean flag = divisionalreceiveService.updateCustomerInforAndDivisional(customerId, userId, CustomerInforDStatusEnum.complete,id,DivisionalConstant.RECEIVED,DivisionalConstant.MANAGER);
-			if(flag){
-				Divisional divisional = divisionalService.findDivisinalById(id);
-				String oldManagerName = divisionalreceiveService.findUserNameByUserId(divisional.getOriginalManagerOld());
-			    String ManagerName = divisionalreceiveService.findUserNameByUserId(divisional.getCustomerManagerId());
-				notificationService.insertNotification(NotificationEnum.qita, divisional.getOriginalManagerOld(), DivisionalConstant.RECEIVESUCCESS, oldManagerName+"向"+ManagerName+DivisionalConstant.RECEIVESUCCESS, user.getId());
-				returnMap.put(JRadConstants.SUCCESS, true);
-				returnMap.put(JRadConstants.MESSAGE,DivisionalConstant.RECEIVESUCCESS);
-			}else{
-				returnMap.put(JRadConstants.SUCCESS, false);
-				returnMap.put(JRadConstants.MESSAGE,DivisionalConstant.RECEIVEERROR);
-			}
+			
+			divisionalreceiveService.reveive(customerId, userId, id);
+			
+			returnMap.put(JRadConstants.SUCCESS, true);
+			returnMap.put(JRadConstants.MESSAGE,DivisionalConstant.RECEIVESUCCESS);
+			
 		} catch (Exception e) {
 			returnMap.put(JRadConstants.MESSAGE, DataPriConstants.SYS_EXCEPTION_MSG);
 			returnMap.put(JRadConstants.SUCCESS, false);
+			e.printStackTrace();
 			return WebRequestHelper.processException(e);
 		}
 		return returnMap;
 	}
+	
 	/**
 	 * 显示页面
 	 * 
@@ -128,7 +123,6 @@ public class DivisionalReceiveController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "display.page")
-	@JRadOperation(JRadOperation.DISPLAY)
 	public AbstractModelAndView display(HttpServletRequest request) {
 		JRadModelAndView mv = new JRadModelAndView("/divisional/customerreceive/customer_receive_display", request);
 
@@ -149,7 +143,6 @@ public class DivisionalReceiveController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "reject.json", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.CHANGE)
 	public Map<String,Object> reject(HttpServletRequest request) {
 		Map<String,Object> returnMap = new HashMap<String,Object>();
 		try {

@@ -24,9 +24,9 @@
                 <option  value="" >ALL</option>
                 <option #if($!result.filter.status=='save') selected="selected" #end value="save">暂存 </option>
                 <option #if($!result.filter.status=='audit' || $!result.filter.status=='RETURNAPPROVE') selected="selected" #end value="audit">已申请 </option>
-                <option #if($!result.filter.status=='refuse') selected="selected" #end value="refuse">被拒绝</option>
+                <option #if($!result.filter.status=='refuse') selected="selected" #end value="refuse">拒绝</option>
                 <option #if($!result.filter.status=='approved') selected="selected" #end value="approved">审批结束  </option>
-                 <option #if($!result.filter.status=='returnedToFirst') selected="selected" #end value="returnedToFirst">退回至客户经理</option>
+                 <option #if($!result.filter.status=='returnedToFirst') selected="selected" #end value="returnedToFirst">退回客户经理</option>
                 </select>
                 </span>
               </li>
@@ -43,9 +43,11 @@
               <col width="5%" />
               <col width="15%" />
               <col width="15%"/>
-              <col width="20%"/>
+              <col width="10%"/>
               <col width="15%"/>
               <col width="15%"/>
+              <col width="5%"/>
+              <col width="5%"/>
               <col />
             </colgroup>
             <tr class="title">
@@ -56,6 +58,8 @@
               <th nowrap="nowrap">申请额度</th>
               <th nowrap="nowrap">状态</th>
               <th nowrap="nowrap">进度</th>
+              <th nowrap="nowrap">贷款状态</th>
+              <th nowrap="nowrap">续授信</th>
             </tr>
           </table>
         </div>
@@ -65,14 +69,16 @@
               <col width="5%" />
               <col width="15%" />
               <col width="15%"/>
-              <col width="20%"/>
+              <col width="10%"/>
               <col width="15%"/>
               <col width="15%"/>
+              <col width="5%"/>
+              <col width="5%"/>
               <col />
             </colgroup>
             #foreach ($intoPieces in $result.items)
             <tr>
-              <td class="checkbox"><input type="radio" name="checkbox" value="$!{intoPieces.id}_$!{intoPieces.customerId}"/></td>
+              <td class="checkbox"><input type="radio" name="checkbox" value='$!{intoPieces.id}_$!{intoPieces.customerId}_#dictVal("ProductName",$!intoPieces.productId)'/></td>
               <td nowrap="nowrap">$!intoPieces.chineseName</td>
               <td nowrap="nowrap">$!intoPieces.cardId</td>
               <td nowrap="nowrap">#dictVal("ProductName",$!intoPieces.productId)</td>
@@ -88,6 +94,14 @@
 	              #end
               </td>
                <td nowrap="nowrap">$!intoPieces.nodeName</td>
+               <td nowrap="nowrap">#dictVal("loanStatus",$!intoPieces.loanStatus)</td>
+               <td nowrap="nowrap">
+               		#if($!intoPieces.isContinue != $null)
+               			是
+               		#else
+               			否
+               		#end
+               </td>
             </tr>
             #end
           </table>
@@ -103,7 +117,6 @@
           #btnpriv("approveloguser")<a class="btn_g" href="javascript:void(0);" title="查看审批记录(显示用户)" onclick="viewIntoPicesApproveHistory('YES')">查看审批记录(显示用户)</a>#end
            -->
           #btnpriv("approvelog")<a class="btn_g" href="javascript:void(0);" title="查看审批记录" onclick="viewIntoPicesApproveHistory('YES')">查看审批记录</a>#end
-          #btnpriv("scan")<a class="btn_g" href="javascript:void(0);" title="影像补扫" onclick="scan('NO')">影像补扫</a>#end
           #btnpriv("approvelog")<a class="btn_g" href="javascript:void(0);" title="查看申请信息" onclick="viewIntoPicesApproveDisplay('YES')">查看申请信息</a>#end
         </div>
         #parse ("common/pagination.htm")
@@ -141,31 +154,21 @@
 			Dialog.message("请选择要被查看的进件!");
 		}
 	}
-	//flag: 1:为影像补扫入口。null：内部审核
-	function scan(flag){
-		var id = null;
-		var appId = null;
-		$("input[name='checkbox']:checked").each(function() {
-			appId = $(this).val().split("_")[0];
-			id = $(this).val().split("_")[1];
-		});
-		if(id!=null){
-			var url="${contextPath}/intopieces/intopiecesapprove/sunds_ocx.page?appId=" + appId;
-			window.location.href = url;
-		
-		}else{
-			Dialog.message("请选择一条记录!");
-		}
-	}
+	
 	function viewIntoPicesApproveDisplay(ifHideUser){
 		var rowId = null;
 		var appId = null;
+		var productName = null;
 		$("input[name='checkbox']:checked").each(function() {
 			appId = $(this).val().split("_")[0];
 			rowId = $(this).val().split("_")[1];
+			productName = $(this).val().split("_")[2];
 		});
 		if(rowId!=null){
 			var url="${contextPath}/intopieces/intopiecesxingzheng2/iframe_cardapprove.page?id="+rowId+"&appId="+appId+"&ifHideUser="+ifHideUser;
+			if(productName == "安居贷"){
+				url="${contextPath}/intopieces/intopiecesxingzheng2/iframe_approve_query_anjudai.page?id="+rowId+"&appId="+appId+"&ifHideUser="+ifHideUser;
+			}
 			window.location.href = url;
 		
 		}else{

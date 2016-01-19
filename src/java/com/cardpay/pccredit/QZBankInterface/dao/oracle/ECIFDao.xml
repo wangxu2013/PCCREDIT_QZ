@@ -185,6 +185,7 @@
 			    circle.CONTRACT_AMT as applyQuota,
 			    info.product_id as productId,
 			    info.status as status,
+			    info.is_continue as isContinue,
 			    n.node_name as nodeName
 			 from customer_application_info info 
 			 left join QZ_IESB_FOR_ECIF ecif
@@ -222,7 +223,8 @@
 			    bci.CHINESE_NAME as chineseName,
 			    ecif.CLIENT_NO as clientNo,
 			    ecif.GLOBAL_ID as cardId,
-			    ecif.GLOBAL_TYPE as cardType
+			    ecif.GLOBAL_TYPE as cardType,
+			    bci.DIVISIONAL_STATUS as divisionalStatus
 			 from BASIC_CUSTOMER_INFORMATION bci
 			 left join QZ_IESB_FOR_ECIF ecif
 			 on bci.ID = ecif.CUSTOMER_ID
@@ -294,12 +296,22 @@
               and loan.acc_status='1'
               group by cont.cus_id) con on ecif.client_no = con.cus_id
               where 1=1
+              and ecif.customer_id not in
+	       		(select distinct ecif.customer_id
+	          		from qz_iesb_for_ecif ecif
+	         		inner join customer_application_info info 
+	         		on ecif.customer_id =info.customer_id
+	         		where (info.status='save' or info.status='audit' or info.status='RETURNAPPROVE'))	
                and ecif.USER_ID = #{userId}
               <if test="chineseName != null and chineseName != '' ">
 				AND ecif.client_name=#{chineseName}
 			</if>
 			<if test="cardId != null and cardId != '' ">
 				AND ecif.global_id=#{cardId}
+			</if>
+			
+			<if test="isContinue != null and isContinue != '' ">
+				AND ecif.customer_id in (select customer_id from qz_iesb_for_circle where ret_code = '000000')
 			</if>
 			
 			<![CDATA[		
@@ -320,12 +332,21 @@
               and loan.acc_status='1'
               group by cont.cus_id) con on ecif.client_no = con.cus_id
               where 1=1
+              and ecif.customer_id not in
+	       		(select distinct ecif.customer_id
+	          		from qz_iesb_for_ecif ecif
+	         		inner join customer_application_info info 
+	         		on ecif.customer_id =info.customer_id
+	         		where (info.status='save' or info.status='audit' or info.status='RETURNAPPROVE'))	
                and ecif.USER_ID = #{userId}
               <if test="chineseName != null and chineseName != '' ">
 				AND ecif.client_name=#{chineseName}
 			</if>
 			<if test="cardId != null and cardId != '' ">
 				AND ecif.global_id=#{cardId}
+			</if>
+			<if test="isContinue != null and isContinue != '' ">
+				AND ecif.customer_id in (select customer_id from qz_iesb_for_circle where ret_code = '000000')
 			</if>
     </select>
     
@@ -346,13 +367,16 @@
           		from qz_iesb_for_ecif ecif
          		inner join customer_application_info info 
          		on ecif.customer_id =info.customer_id
-         		where (info.status='audit' or info.status='RETURNAPPROVE'))
+         		where (info.status='save' or info.status='audit' or info.status='RETURNAPPROVE'))
    			and ecif.customer_id not in
        		(select ecif.customer_id
           		from qz_iesb_for_ecif ecif
          		inner join (select cont.cus_id
                       from O_CLPM_CTR_LOAN_CONT cont
-                     where prd_id = '100028'
+                      left join o_clpm_acc_loan loan 
+               			on cont.cus_id=loan.cus_id
+                     where cont.prd_id = '100028'
+                     and loan.acc_status='1'
                      group by cont.cus_id) 
                      con on ecif.client_no =con.cus_id)
                and ecif.USER_ID = #{userId}
@@ -361,6 +385,9 @@
 			</if>
 			<if test="cardId != null and cardId != '' ">
 				AND ecif.global_id=#{cardId}
+			</if>
+			<if test="isContinue != null and isContinue != '' ">
+				AND ecif.customer_id in (select customer_id from qz_iesb_for_circle where ret_code = '000000')
 			</if>
 			<![CDATA[		
 				) ROW_
@@ -378,13 +405,16 @@
           		from qz_iesb_for_ecif ecif
          		inner join customer_application_info info 
          		on ecif.customer_id =info.customer_id
-         		where (info.status='audit' or info.status='RETURNAPPROVE'))
+         		where (info.status='save' or info.status='audit' or info.status='RETURNAPPROVE'))
    			and ecif.customer_id not in
        		(select ecif.customer_id
           		from qz_iesb_for_ecif ecif
          		inner join (select cont.cus_id
                       from O_CLPM_CTR_LOAN_CONT cont
-                     where prd_id = '100028'
+                     left join o_clpm_acc_loan loan 
+               			on cont.cus_id=loan.cus_id
+                     where cont.prd_id = '100028'
+                     and loan.acc_status='1'
                      group by cont.cus_id) 
                      con on ecif.client_no =con.cus_id)
                and ecif.USER_ID = #{userId}
@@ -393,6 +423,9 @@
 			</if>
 			<if test="cardId != null and cardId != '' ">
 				AND ecif.global_id=#{cardId}
+			</if>
+			<if test="isContinue != null and isContinue != '' ">
+				AND ecif.customer_id in (select customer_id from qz_iesb_for_circle where ret_code = '000000')
 			</if>
     </select>
 </mapper> 

@@ -13,4 +13,7 @@ public interface IntoPiecesDao {
 	public int checkValue(@Param("userId")String userId,@Param("valueType")String valueType);
 	public List<IntoPieces> findintoPiecesByFilterWF(IntoPiecesFilter filter);
 	public int findCountintoPiecesByFilterWF(IntoPiecesFilter filter);
+	
+	public List<IntoPieces> findintoPiecesAllByFilter(IntoPiecesFilter filter);
+	public int findintoPiecesAllCountByFilter(IntoPiecesFilter filter);
 }

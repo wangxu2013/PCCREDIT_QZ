@@ -146,6 +146,10 @@ public class Circle extends BusinessModel{
 	private String shenHeRen1;
 	private String shenHeRen2;
 	
+	private String serialnumberQuota;//冻结解冻 流程序列号 
+	private String serialnumberHetong;//续授信 流程序列号 
+	private String processStatus;//审批状态
+	
 	public String getContractNo() {
 		return contractNo;
 	}
@@ -789,5 +793,22 @@ public class Circle extends BusinessModel{
 	public void setShenHeRen2(String shenHeRen2) {
 		this.shenHeRen2 = shenHeRen2;
 	}
-	
+	public String getSerialnumberQuota() {
+		return serialnumberQuota;
+	}
+	public void setSerialnumberQuota(String serialnumberQuota) {
+		this.serialnumberQuota = serialnumberQuota;
+	}
+	public String getSerialnumberHetong() {
+		return serialnumberHetong;
+	}
+	public void setSerialnumberHetong(String serialnumberHetong) {
+		this.serialnumberHetong = serialnumberHetong;
+	}
+	public String getProcessStatus() {
+		return processStatus;
+	}
+	public void setProcessStatus(String processStatus) {
+		this.processStatus = processStatus;
+	}
 }

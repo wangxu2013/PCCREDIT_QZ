@@ -94,7 +94,7 @@
 		//保存
 		$("#id_save_button").click(function() {
 			if(submitFlag == 1){
-				alert("请勿重复提交!")
+				alert("等待后台响应,请勿重复提交!")
 				return;
 			}
 			submitFlag = 1;
@@ -125,7 +125,14 @@
 					submitFlag = 0;
 				}
 			});*/
-			var url="${contextPath}/intopieces/intopiecesapprove/queryCustomerInfo.page?productType="+productType+"&zaId="+zaId;
+			var url="${contextPath}/intopieces/intopiecesapprove/queryCustomerInfo.page?productType="+productType;
+			if(zaId != null && zaId!=""){
+				url = url + "&zaId="+zaId;
+			}
+			var isContinue = "$!isContinue";
+			if(isContinue != null && isContinue != ""){
+				url = url + "&isContinue="+isContinue;
+			}
 			window.location.href = url;
 		});
 		

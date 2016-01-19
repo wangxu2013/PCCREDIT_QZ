@@ -1,6 +1,8 @@
 package com.cardpay.pccredit.intopieces.web;
 
 import java.util.ArrayList;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,18 +10,22 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cardpay.pccredit.QZBankInterface.model.Circle;
 import com.cardpay.pccredit.QZBankInterface.model.ECIF;
@@ -27,6 +33,7 @@ import com.cardpay.pccredit.QZBankInterface.service.CircleService;
 import com.cardpay.pccredit.QZBankInterface.service.ECIFService;
 import com.cardpay.pccredit.QZBankInterface.web.IESBForCircleForm;
 import com.cardpay.pccredit.QZBankInterface.web.IESBForECIFReturnMap;
+import com.cardpay.pccredit.common.UploadFileTool;
 import com.cardpay.pccredit.customer.constant.CustomerInforConstant;
 import com.cardpay.pccredit.customer.constant.WfProcessInfoType;
 import com.cardpay.pccredit.customer.dao.CustomerInforDao;
@@ -39,11 +46,13 @@ import com.cardpay.pccredit.datapri.service.DataAccessSqlService;
 import com.cardpay.pccredit.intopieces.constant.Constant;
 import com.cardpay.pccredit.intopieces.dao.comdao.IntoPiecesComdao;
 import com.cardpay.pccredit.intopieces.filter.CustomerApplicationProcessFilter;
+import com.cardpay.pccredit.intopieces.filter.IntoPiecesFilter;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationProcess;
 import com.cardpay.pccredit.intopieces.model.IntoPieces;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentBatch;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentDetail;
 import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList;
-import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentListAdd;
 import com.cardpay.pccredit.intopieces.model.QzApplnDbrxx;
 import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxDkjl;
 import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxFc;
@@ -67,9 +76,11 @@ import com.cardpay.pccredit.intopieces.service.DbrxxService;
 import com.cardpay.pccredit.intopieces.service.IntoPiecesService;
 import com.cardpay.pccredit.intopieces.service.JyxxService;
 import com.cardpay.pccredit.intopieces.service.NbscyjbService;
+import com.cardpay.pccredit.intopieces.service.SundsHelper;
 import com.cardpay.pccredit.intopieces.service.YwsqbService;
 import com.cardpay.pccredit.intopieces.service.ZAService;
 import com.cardpay.pccredit.intopieces.service.ZA_YWSQB_R_Service;
+import com.cardpay.pccredit.ipad.util.SundsException;
 import com.cardpay.pccredit.product.filter.ProductFilter;
 import com.cardpay.pccredit.product.model.ProductAttribute;
 import com.cardpay.pccredit.product.service.ProductService;
@@ -84,6 +95,7 @@ import com.cardpay.workflow.models.WfProcessInfo;
 import com.cardpay.workflow.models.WfStatusInfo;
 import com.cardpay.workflow.models.WfStatusResult;
 import com.cardpay.workflow.service.ProcessService;
+import com.sunyard.TransEngine.exception.SunTransEngineException;
 import com.wicresoft.jrad.base.auth.IUser;
 import com.wicresoft.jrad.base.auth.JRadModule;
 import com.wicresoft.jrad.base.auth.JRadOperation;
@@ -116,7 +128,6 @@ public class IntoPiecesApproveControl extends BaseController {
 
 	@Autowired
 	private ProductService productService;
-	
 	
 	@Autowired
 	private DataAccessSqlService dataAccessSqlService;
@@ -260,7 +271,7 @@ public class IntoPiecesApproveControl extends BaseController {
 				//添加业务申请表appId
 				QzApplnYwsqb qzApplnYwsqb = ywsqbService.findYwsqbByAppId(appId);
 				if(qzApplnYwsqb==null){
-					returnMap.put(JRadConstants.MESSAGE, "请先填写\"业务申请表\"");
+					returnMap.put(JRadConstants.MESSAGE, "请先填写\"贷款申请表\"");
 					returnMap.put(JRadConstants.SUCCESS, false);
 					return returnMap;
 				}
@@ -1025,7 +1036,7 @@ public class IntoPiecesApproveControl extends BaseController {
 				User user = (User) Beans.get(LoginManager.class).getLoggedInUser(request);
 				qzApplnAttachmentList.setCreatedBy(user.getId());
 				qzApplnAttachmentList.setCreatedTime(new Date());
-				qzApplnAttachmentList.setDocid(DateHelper.getDateFormat(qzApplnAttachmentList.getCreatedTime(), "yyyyMMddHHmmss"));
+				qzApplnAttachmentList.setDocid(DateHelper.getDateFormat(qzApplnAttachmentList.getCreatedTime(), "yyyyMMddHHmmssSSS"));
 				qzApplnAttachmentList.setUploadValue("0");
 				//未填申请时 关联客户id
 				qzApplnAttachmentList.setCustomerId(customerId);
@@ -1342,9 +1353,17 @@ public class IntoPiecesApproveControl extends BaseController {
 		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/sunds_ocx", request);
 		String appId = RequestHelper.getStringValue(request, "appId");
 		mv.addObject("appId", appId);
-		//查找page5信息
-		JSONObject jsonStr = JSONObject.fromObject(attachmentListService.findAttachmentListJsonByAppId(appId));
-		mv.addObject("children", jsonStr);
+		//查找sunds_ocx信息
+		List<QzApplnAttachmentBatch> batch_ls = attachmentListService.findAttachmentBatchByAppId(appId);
+		//如果batch_ls为空 说明这是以前录得件 根据chk_value增加batch记录
+		if(batch_ls == null || batch_ls.size() == 0){
+			attachmentListService.addBatchInfo(appId);
+			batch_ls = attachmentListService.findAttachmentBatchByAppId(appId);
+		}
+		Circle circle = circleService.findCircleByAppId(appId);
+		ECIF ecif = eCIFService.findEcifByCustomerId(circle.getCustomerId());
+		mv.addObject("batch_ls", batch_ls);
+		mv.addObject("ecif", ecif);
 		return mv;
 	}
 	
@@ -1354,154 +1373,183 @@ public class IntoPiecesApproveControl extends BaseController {
 		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/sunds_ocx_display", request);
 		String appId = RequestHelper.getStringValue(request, "appId");
 		mv.addObject("appId", appId);
-		//查找page5信息
-		JSONObject jsonStr = JSONObject.fromObject(attachmentListService.findAttachmentListJsonByAppId(appId));
-		mv.addObject("children", jsonStr);
-		return mv;
-	}
-	
-	//新增/修改影像
-	@ResponseBody
-	@RequestMapping(value = "getPage5UploadValue.json")
-	public JRadReturnMap getPage5UploadValue(HttpServletRequest request) throws SQLException {
-		JRadReturnMap returnMap = new JRadReturnMap();
-		try {
-			String appId = request.getParameter("appId");
-			String docID = request.getParameter("docID");
-			
-			//更新客户信息状态
-			QzApplnAttachmentList attachmentList = attachmentListService.findAttachmentListByAppId(appId);
-			String uploadValue = attachmentList.getUploadValue();
-			//attachmentList.setUploadValue(Integer.parseInt(uploadValue)+Integer.parseInt(docID.substring(14, docID.length()))+"");
-			// TODO 逻辑设计思路？现在不满足要求？？？
-			returnMap.put("uploadFlag", Integer.parseInt(uploadValue)&Integer.parseInt(docID.substring(14, docID.length())));
-			returnMap.addGlobalMessage(CHANGE_SUCCESS);
-			returnMap.put(JRadConstants.SUCCESS, true);
-		} catch (Exception e) {
-			returnMap.addGlobalMessage("保存失败");
-			returnMap.put(JRadConstants.SUCCESS, false);
-			e.printStackTrace();
+		//查找sunds_ocx信息
+		List<QzApplnAttachmentBatch> batch_ls = attachmentListService.findAttachmentBatchByAppId(appId);
+		//如果batch_ls为空 说明这是以前录得件 根据chk_value增加batch记录
+		if(batch_ls == null || batch_ls.size() == 0){
+			attachmentListService.addBatchInfo(appId);
+			batch_ls = attachmentListService.findAttachmentBatchByAppId(appId);
 		}
-		return returnMap;
+		Circle circle = circleService.findCircleByAppId(appId);
+		ECIF ecif = eCIFService.findEcifByCustomerId(circle.getCustomerId());
+		mv.addObject("batch_ls", batch_ls);
+		mv.addObject("ecif", ecif);
+		return mv;
+	}		
+		
+	//跳转到选择图片页面
+	@ResponseBody
+	@RequestMapping(value = "browse_folder.page")
+	public AbstractModelAndView browse_folder_page(HttpServletRequest request) {
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/sunds_browse_folder", request);
+		String batch_id = RequestHelper.getStringValue(request, "batch_id");
+		mv.addObject("batch_id", batch_id);
+		
+		String sql = "select * from QZ_APPLN_ATTACHMENT_LIST where id in (select att_id from QZ_APPLN_ATTACHMENT_BATCH where id ='"+batch_id+"')";
+		String appId = commonDao.queryBySql(QzApplnAttachmentList.class, sql, null).get(0).getApplicationId();
+		mv.addObject("appId", appId);
+		
+		return mv;
+	}	
+		
+	//浏览图片
+	@ResponseBody
+	@RequestMapping(value = "browse_folder.json")
+	public void browse_folder_json(@RequestParam(value = "file", required = false) MultipartFile file,HttpServletRequest request,HttpServletResponse response) throws Exception{
+		String batch_id = RequestHelper.getStringValue(request, "batch_id");
+		//更新batch
+		attachmentListService.browse_folder(file,batch_id);
+		response.getWriter().write("true");
 	}
 		
-	//新增/修改影像
+	//跳转到选择更新图片页面
 	@ResponseBody
-	@RequestMapping(value = "getPage5UploadValueAdd.json")
-	public JRadReturnMap getPage5UploadValueAdd(HttpServletRequest request) throws SQLException {
-		JRadReturnMap returnMap = new JRadReturnMap();
-		try {
-			String appId = request.getParameter("appId");
-			String docID = request.getParameter("docID");
-			
-			//更新客户信息状态
-			QzApplnAttachmentList attachmentList = attachmentListService.findAttachmentListByAppId(appId);
-			QzApplnAttachmentListAdd qzApplnAttachmentListAdd = attachmentListService.findAttachmentListAddByAttId(attachmentList.getId(),docID.split("_")[1]);
-			//attachmentList.setUploadValue(Integer.parseInt(uploadValue)+Integer.parseInt(docID.substring(14, docID.length()))+"");
-			// TODO 逻辑设计思路？现在不满足要求？？？
-			returnMap.put("uploadFlag", Integer.parseInt(qzApplnAttachmentListAdd.getUploadValue())&Integer.parseInt(docID.split("_")[2]));
-			returnMap.addGlobalMessage(CHANGE_SUCCESS);
-			returnMap.put(JRadConstants.SUCCESS, true);
-		} catch (Exception e) {
-			returnMap.addGlobalMessage("保存失败");
-			returnMap.put(JRadConstants.SUCCESS, false);
-			e.printStackTrace();
-		}
-		return returnMap;
-	}
-			
+	@RequestMapping(value = "browse_update_folder.page")
+	public AbstractModelAndView browse_update_folder_page(HttpServletRequest request) {
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/sunds_browse_update_folder", request);
+		String detail_id = RequestHelper.getStringValue(request, "detail_id");
+		String file_no = RequestHelper.getStringValue(request, "file_no");
 		
-	//新增/修改影像
-	@ResponseBody
-	@RequestMapping(value = "WDScan.page")
-	public AbstractModelAndView WDScan(HttpServletRequest request) {
-		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/WDScan", request);
-		String appId = RequestHelper.getStringValue(request, "appId");
-		mv.addObject("appId", appId);
-		mv.addObject("level", request.getParameter("level"));
-		//查找page5信息
-		JSONObject jsonStr = JSONObject.fromObject(attachmentListService.findAttachmentListJsonByAppId(appId));
-		mv.addObject("children", jsonStr);
+		String sql = "select * from QZ_APPLN_ATTACHMENT_DETAIL where id = '"+detail_id+"'";
+		QzApplnAttachmentDetail detail = commonDao.queryBySql(QzApplnAttachmentDetail.class, sql, null).get(0);
+		mv.addObject("detail_id", detail_id);
+		mv.addObject("file_no", file_no);
+		mv.addObject("batch_id", detail.getBatchId());
+		
 		return mv;
-	}
-	
-	//新增/修改影像
+	}	
+		
+	//浏览图片
 	@ResponseBody
-	@RequestMapping(value = "WDView.page")
-	public AbstractModelAndView WDView(HttpServletRequest request) {
-		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/WDView", request);
-		String appId = RequestHelper.getStringValue(request, "appId");
-		mv.addObject("appId", appId);
-		mv.addObject("level", request.getParameter("level"));
-		//查找page5信息
-		JSONObject jsonStr = JSONObject.fromObject(attachmentListService.findAttachmentListJsonByAppId(appId));
-		mv.addObject("children", jsonStr);
-		return mv;
+	@RequestMapping(value = "browse_update_folder.json")
+	public void browse_update_folder_json(@RequestParam(value = "file", required = false) MultipartFile file,HttpServletRequest request,HttpServletResponse response) throws Exception{
+		String detail_id = RequestHelper.getStringValue(request, "detail_id");
+		String file_no = RequestHelper.getStringValue(request, "file_no");
+		//更新batch
+		attachmentListService.browse_update_folder(file,detail_id,file_no,request);
+		response.getWriter().write("true");
 	}
-	
-	//新增/修改影像
-		@ResponseBody
-		@RequestMapping(value = "WDModify.page")
-		public AbstractModelAndView WDModify(HttpServletRequest request) {
-			JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/WDModify", request);
-			String appId = RequestHelper.getStringValue(request, "appId");
-			mv.addObject("appId", appId);
-			//查找page5信息
-			JSONObject jsonStr = JSONObject.fromObject(attachmentListService.findAttachmentListJsonByAppId(appId));
-			mv.addObject("children", jsonStr);
-			return mv;
-		}
-	
-	//新增/修改影像
+		
+	//浏览图片完毕  开始通知后台上传影像平台
 	@ResponseBody
-	@RequestMapping(value = "insert_sunds.json")
-	public JRadReturnMap insert_sunds(HttpServletRequest request) throws SQLException {
+	@RequestMapping(value = "browse_folder_complete.json")
+	public JRadReturnMap browse_folder_complete(HttpServletRequest request) {
 		JRadReturnMap returnMap = new JRadReturnMap();
 		try {
-			String appId = request.getParameter("appId");
-			String docID = request.getParameter("docID");
+			String batch_id = RequestHelper.getStringValue(request, "batch_id");
 			
-			//更新客户信息状态
-			QzApplnAttachmentList attachmentList = attachmentListService.findAttachmentListByAppId(appId);
-			String uploadValue = attachmentList.getUploadValue();
-			attachmentList.setUploadValue(Integer.parseInt(uploadValue)+Integer.parseInt(docID.substring(14, docID.length()))+"");
-			commonDao.updateObject(attachmentList);
-			returnMap.addGlobalMessage(CHANGE_SUCCESS);
+			attachmentListService.browse_folder_complete(batch_id,request);
+			
 			returnMap.put(JRadConstants.SUCCESS, true);
+			returnMap.addGlobalMessage(CHANGE_SUCCESS);
 		} catch (Exception e) {
 			returnMap.addGlobalMessage("保存失败");
 			returnMap.put(JRadConstants.SUCCESS, false);
 			e.printStackTrace();
 		}
 		return returnMap;
-	}
+		
+	}	
 	
-	//新增/修改影像
+	//查看缓存的图片列表
 	@ResponseBody
-	@RequestMapping(value = "insert_sunds_add.json")
-	public JRadReturnMap insert_sunds_add(HttpServletRequest request) throws SQLException {
+	@RequestMapping(value = "display_detail.page")
+	public AbstractModelAndView diaplsy_detail(@ModelAttribute IntoPiecesFilter filter,HttpServletRequest request) {
+		filter.setRequest(request);
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/sunds_display_detail", request);
+		QueryResult<QzApplnAttachmentDetail> result = attachmentListService.display_detail(filter);
+		JRadPagedQueryResult<QzApplnAttachmentDetail> pagedResult = new JRadPagedQueryResult<QzApplnAttachmentDetail>(filter, result);
+		mv.addObject(PAGED_RESULT, pagedResult);
+		
+		return mv;
+	}	
+		
+	//查看已上传的图片列表
+	@ResponseBody
+	@RequestMapping(value = "display_server.page")
+	public AbstractModelAndView display_server(@ModelAttribute IntoPiecesFilter filter,HttpServletRequest request) {
+		filter.setRequest(request);
+		filter.setIsUpload("1");
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/sunds_display_server", request);
+		
+		QueryResult<PicPojo> result = new QueryResult<PicPojo>(0, null);;
+		try {
+			result = attachmentListService.display_server(filter,request);
+			List<PicPojo> pic_ls = result.getItems();
+			for(PicPojo pojo : pic_ls){
+				String sql = "select * from QZ_APPLN_ATTACHMENT_DETAIL where id = '"+pojo.getFile_name().split("\\.")[0]+"'";
+				QzApplnAttachmentDetail details = commonDao.queryBySql(QzApplnAttachmentDetail.class, sql, null).get(0);
+				pojo.setDetail_id(pojo.getFile_name().split("\\.")[0]);
+				pojo.setFile_name(details.getOriginalName().split("\\.")[0] + "." + pojo.getFile_name().split("\\.")[1]);
+				pojo.setFile_no_local(details.getFileNo());
+			}
+		} catch (SunTransEngineException e) {
+			logger.info("批次["+filter.getBatchId()+"]查询文件异常:" ,e);
+		} catch (DocumentException e) {
+			logger.info("批次["+filter.getBatchId()+"]解析影像平台xml异常:" ,e);
+		} catch (SundsException e) {
+			logger.info("批次["+filter.getBatchId()+"]解析影像平台xml异常:" ,e);
+		}
+		filter.setFirst_flag("0");
+		JRadPagedQueryResult<PicPojo> pagedResult = new JRadPagedQueryResult<PicPojo>(filter, result);
+		mv.addObject(PAGED_RESULT, pagedResult);
+		mv.addObject("type",filter.getType());
+		return mv;
+	}	
+		
+	//删除影像平台上的文件
+	@ResponseBody
+	@RequestMapping(value = "delete_server_file.json")
+	public JRadReturnMap delete_server_file(HttpServletRequest request) {
 		JRadReturnMap returnMap = new JRadReturnMap();
 		try {
-			String appId = request.getParameter("appId");
-			String docID = request.getParameter("docID");
-			String level2_chk_value = request.getParameter("level2_chk_value");
-			String parentValue = request.getParameter("parentValue");
+			String detail_id = RequestHelper.getStringValue(request, "detail_id");
+			String file_no = RequestHelper.getStringValue(request, "file_no");
+			String doc_id = RequestHelper.getStringValue(request, "doc_id");
 			
-			//更新客户信息状态
-			QzApplnAttachmentList attachmentList = attachmentListService.findAttachmentListByAppId(appId);
-			QzApplnAttachmentListAdd qzApplnAttachmentListAdd = attachmentListService.findAttachmentListAddByAttId(attachmentList.getId(), parentValue);
-			String uploadValue = qzApplnAttachmentListAdd.getUploadValue();
-			qzApplnAttachmentListAdd.setUploadValue(Integer.parseInt(uploadValue)+Integer.parseInt(level2_chk_value)+"");
-			commonDao.updateObject(qzApplnAttachmentListAdd);
-			returnMap.addGlobalMessage(CHANGE_SUCCESS);
+			attachmentListService.delete_server_file(detail_id,file_no,doc_id,request);
+			
 			returnMap.put(JRadConstants.SUCCESS, true);
+			returnMap.addGlobalMessage(CHANGE_SUCCESS);
 		} catch (Exception e) {
-			returnMap.addGlobalMessage("保存失败");
+			returnMap.addGlobalMessage("删除失败");
 			returnMap.put(JRadConstants.SUCCESS, false);
 			e.printStackTrace();
 		}
 		return returnMap;
-	}
+		
+	}	
+	
+	//删除影像平台上的文件
+	@ResponseBody
+	@RequestMapping(value = "delete_batch.json")
+	public JRadReturnMap delete_batch(HttpServletRequest request) {
+		JRadReturnMap returnMap = new JRadReturnMap();
+		try {
+			String batchId = RequestHelper.getStringValue(request, "batchId");
+			
+			attachmentListService.delete_batch(batchId,request);
+			
+			returnMap.put(JRadConstants.SUCCESS, true);
+			returnMap.addGlobalMessage(CHANGE_SUCCESS);
+		} catch (Exception e) {
+			returnMap.addGlobalMessage("删除失败");
+			returnMap.put(JRadConstants.SUCCESS, false);
+			e.printStackTrace();
+		}
+		return returnMap;
+		
+	}	
 		
 	//客户号检测
 	@ResponseBody
@@ -1561,199 +1609,164 @@ public class IntoPiecesApproveControl extends BaseController {
 	}
 	
 	//查找该客户经理下的所有客户
-		@ResponseBody
-		@RequestMapping(value = "queryCustomerInfo.page")
-		@JRadOperation(JRadOperation.BROWSE)
-		public AbstractModelAndView queryCustomerInfo(@ModelAttribute CustomerInforFilter filter, HttpServletRequest request) {
-			JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/customerinfoByManager", request);
-			filter.setRequest(request);
-			IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
-			filter.setUserId(user.getId());
-			//获取新生成的appid
-			//String appId = request.getParameter("appId");
-			//String productId = request.getParameter("productId");
-			//String zaId = request.getParameter("zaId");
-			String productType = request.getParameter("productType");
-			String zaId = request.getParameter("zaId");
-			//根据appid查找产品信息
-			//QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = za_ywsqb_r_service.findByAppId(appId);
+	@ResponseBody
+	@RequestMapping(value = "queryCustomerInfo.page")
+	@JRadOperation(JRadOperation.BROWSE)
+	public AbstractModelAndView queryCustomerInfo(@ModelAttribute CustomerInforFilter filter, HttpServletRequest request) {
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/customerinfoByManager", request);
+		filter.setRequest(request);
+		IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
+		filter.setUserId(user.getId());
+		//获取新生成的appid
+		//String appId = request.getParameter("appId");
+		//String productId = request.getParameter("productId");
+		//String zaId = request.getParameter("zaId");
+		String productType = request.getParameter("productType");
+		String zaId = request.getParameter("zaId");
+		//String isContinue = request.getParameter("isContinue");//是否续授信，记录到app表中
+		//filter.setIsContinue(isContinue);
+		
+		//根据appid查找产品信息
+		//QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = za_ywsqb_r_service.findByAppId(appId);
 //			
-			//判断产品类型获取满足该产品进件的客户
-			//String productType = qzappln_za_ywsqb_r.getProductType();
-			if("3".equals(productType)){
-				QueryResult<CustomerInfor> result = customerInforService.findCustomerInfoWithLoanByFilter(filter);
-				JRadPagedQueryResult<CustomerInfor> pagedResult = new JRadPagedQueryResult<CustomerInfor>(filter, result);
-				mv.addObject(PAGED_RESULT, pagedResult);
-			}else{
-				QueryResult<CustomerInfor> result = customerInforService.findCustomerInfoWithNotByFilter(filter);
-				JRadPagedQueryResult<CustomerInfor> pagedResult = new JRadPagedQueryResult<CustomerInfor>(filter, result);
-				mv.addObject(PAGED_RESULT, pagedResult);
-			}
+		//判断产品类型获取满足该产品进件的客户
+		//String productType = qzappln_za_ywsqb_r.getProductType();
+		if("3".equals(productType)){
+			QueryResult<CustomerInfor> result = customerInforService.findCustomerInfoWithLoanByFilter(filter);
+			JRadPagedQueryResult<CustomerInfor> pagedResult = new JRadPagedQueryResult<CustomerInfor>(filter, result);
+			mv.addObject(PAGED_RESULT, pagedResult);
+		}else{
+			QueryResult<CustomerInfor> result = customerInforService.findCustomerInfoWithNotByFilter(filter);
+			JRadPagedQueryResult<CustomerInfor> pagedResult = new JRadPagedQueryResult<CustomerInfor>(filter, result);
+			mv.addObject(PAGED_RESULT, pagedResult);
+		}
 //			mv.addObject("qzappln_za_ywsqb_r", qzappln_za_ywsqb_r);
 ////			//查找专案信息
 //			List<QzApplnZaReturnMap> za_ls = zaService.findZas();
 //			mv.addObject("za_ls", za_ls);
 //			mv.addObject("za_ls_json", JSONArray.fromObject(za_ls).toString());
 //			CustomerInforFilter filter = new CustomerInforFilter();
-			
-			
-			//mv.addObject("customerId", customerInfor.getId());
-			//mv.addObject("appId", appId);
-			mv.addObject("productType", productType);
-			mv.addObject("zaId", zaId);
-			mv.addObject("filter",filter);
-			return mv;
-		}
-		//客户经理选择产品
-		@ResponseBody
-		@RequestMapping(value = "selectProduct.page")
-		public AbstractModelAndView selectProduct(HttpServletRequest request) {
-			JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/page0_for_create", request);
-			//String customerId = request.getParameter("id");
-			//查找专案信息
-			List<QzApplnZaReturnMap> za_ls = zaService.findZas();
-			mv.addObject("za_ls", za_ls);
-			mv.addObject("za_ls_json", JSONArray.fromObject(za_ls).toString());
-			//mv.addObject("customerId",customerId);
-			return mv;
-		}
 		
-		//显示创建的iframe_create
-		@ResponseBody
-		@RequestMapping(value = "iframe_create.page")
-		public AbstractModelAndView iframeCreate(HttpServletRequest request) {
-			JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/iframe", request);
-			String customerId= request.getParameter("id");//客户id
-			//String appId = request.getParameter("appId");//进件申请id
-			String productType = request.getParameter("productType");//选择类型
-			String zaId = request.getParameter("zaId");//专案id
-			
-			//修改为新增一跳客户申请记录，产品表关联到该记录
-			//查找默认产品
-			ProductFilter filter = new ProductFilter();
-			filter.setDefault_type(productType);
-			ProductAttribute productAttribute = productService.findProductsByFilter(filter).getItems().get(0);
-			//设置申请
-			CustomerApplicationInfo customerApplicationInfo = new CustomerApplicationInfo();
-			//customerApplicationInfo.setStatus(status);
-			customerApplicationInfo.setId(IDGenerator.generateID());
-			customerApplicationInfo.setApplyQuota("0");//设置额度
-			customerApplicationInfo.setCustomerId(customerId);
-			if(customerApplicationInfo.getApplyQuota()!=null){
-				customerApplicationInfo.setApplyQuota((Integer.valueOf(customerApplicationInfo.getApplyQuota())*100)+"");
-			}
-			customerApplicationInfo.setCreatedTime(new Date());
-			customerApplicationInfo.setStatus(Constant.SAVE_INTOPICES);
-			customerApplicationInfo.setProductId(productAttribute.getId());
-			
-			commonDao.insertObject(customerApplicationInfo);
-			//新增产品专案
-			User user = (User) Beans.get(LoginManager.class).getLoggedInUser(request);
-			//QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = za_ywsqb_r_service.findByCustomerId(customerId);
-			//if(qzappln_za_ywsqb_r == null){
-			QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = new QzAppln_Za_Ywsqb_R();
-			//未填申请时 关联客户id
-			qzappln_za_ywsqb_r.setCustomerId(customerId);
-			qzappln_za_ywsqb_r.setProductType(productType);
-			qzappln_za_ywsqb_r.setZaId(zaId);
-			qzappln_za_ywsqb_r.setApplicationId(customerApplicationInfo.getId());
-			ywsqbService.insert_page0(qzappln_za_ywsqb_r);
-				
-			//选择产品记录表关联客户，
-			//QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = za_ywsqb_r_service.findByAppId(appId);
-			//根据产品类型调整不同的的页签（产品类型3表示安居贷）
-			//ProductAttribute productAttribute = commonDao.findObjectById(ProductAttribute.class, productId);
-			if("3".equals(productAttribute.getDefaultType())){
-				mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/iframe_create", request);
-			}
-			String appId = customerApplicationInfo.getId();
-		    mv.addObject("customerId",customerId);
-			mv.addObject("appId",appId);
-			return mv;
+		
+		//mv.addObject("customerId", customerInfor.getId());
+		//mv.addObject("appId", appId);
+		mv.addObject("productType", productType);
+		mv.addObject("zaId", zaId);
+		//mv.addObject("isContinue", isContinue);
+		mv.addObject("filter",filter);
+		return mv;
+	}
+	//客户经理选择产品
+	@ResponseBody
+	@RequestMapping(value = "selectProduct.page")
+	public AbstractModelAndView selectProduct(HttpServletRequest request) {
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/page0_for_create", request);
+		String isContinue = request.getParameter("isContinue");//是否续授信
+		//查找专案信息
+		List<QzApplnZaReturnMap> za_ls = zaService.findZas();
+		mv.addObject("za_ls", za_ls);
+		mv.addObject("za_ls_json", JSONArray.fromObject(za_ls).toString());
+		if(StringUtils.isNotEmpty("isContinue")){
+			mv.addObject("isContinue", isContinue);
 		}
-		/**
-		 * 安居贷客户获取住房按揭贷款台账信息
-		 * delete_apply.json
-		 */
-		@ResponseBody
-		@RequestMapping(value = "accLoan_info.page")
-		public AbstractModelAndView accLoanInformation(HttpServletRequest request) {
-			JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/accloan_information", request);
+		//mv.addObject("customerId",customerId);
+		return mv;
+	}
+	
+	//显示创建的iframe_create
+	@ResponseBody
+	@RequestMapping(value = "iframe_create.page")
+	public AbstractModelAndView iframeCreate(HttpServletRequest request) {
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/iframe", request);
+		String customerId= request.getParameter("id");//客户id
+		//String appId = request.getParameter("appId");//进件申请id
+		String productType = request.getParameter("productType");//选择类型
+		String zaId = request.getParameter("zaId");//专案id
+		String isContinue = request.getParameter("isContinue");//续授信
+		
+		//修改为新增一跳客户申请记录，产品表关联到该记录
+		//查找默认产品
+		ProductFilter filter = new ProductFilter();
+		filter.setDefault_type(productType);
+		ProductAttribute productAttribute = productService.findProductsByFilter(filter).getItems().get(0);
+		//设置申请
+		CustomerApplicationInfo customerApplicationInfo = new CustomerApplicationInfo();
+		//customerApplicationInfo.setStatus(status);
+		customerApplicationInfo.setId(IDGenerator.generateID());
+		customerApplicationInfo.setApplyQuota("0");//设置额度
+		customerApplicationInfo.setCustomerId(customerId);
+		if(customerApplicationInfo.getApplyQuota()!=null){
+			customerApplicationInfo.setApplyQuota((Integer.valueOf(customerApplicationInfo.getApplyQuota())*100)+"");
+		}
+		customerApplicationInfo.setCreatedTime(new Date());
+		customerApplicationInfo.setStatus(Constant.SAVE_INTOPICES);
+		customerApplicationInfo.setProductId(productAttribute.getId());
+		customerApplicationInfo.setIsContinue(isContinue);
+		
+		commonDao.insertObject(customerApplicationInfo);
+		//新增产品专案
+		User user = (User) Beans.get(LoginManager.class).getLoggedInUser(request);
+		//QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = za_ywsqb_r_service.findByCustomerId(customerId);
+		//if(qzappln_za_ywsqb_r == null){
+		QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = new QzAppln_Za_Ywsqb_R();
+		//未填申请时 关联客户id
+		qzappln_za_ywsqb_r.setCustomerId(customerId);
+		qzappln_za_ywsqb_r.setProductType(productType);
+		qzappln_za_ywsqb_r.setZaId(zaId);
+		qzappln_za_ywsqb_r.setApplicationId(customerApplicationInfo.getId());
+		ywsqbService.insert_page0(qzappln_za_ywsqb_r);
+			
+		//选择产品记录表关联客户，
+		//QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = za_ywsqb_r_service.findByAppId(appId);
+		//根据产品类型调整不同的的页签（产品类型3表示安居贷）
+		//ProductAttribute productAttribute = commonDao.findObjectById(ProductAttribute.class, productId);
+		if("3".equals(productAttribute.getDefaultType())){
+			mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/iframe_create", request);
+		}
+		String appId = customerApplicationInfo.getId();
+	    mv.addObject("customerId",customerId);
+		mv.addObject("appId",appId);
+		return mv;
+	}
+	/**
+	 * 安居贷客户获取住房按揭贷款台账信息
+	 * delete_apply.json
+	 */
+	@ResponseBody
+	@RequestMapping(value = "accLoan_info.page")
+	public AbstractModelAndView accLoanInformation(HttpServletRequest request) {
+		JRadModelAndView mv = new JRadModelAndView("/qzbankinterface/appIframeInfo/accloan_information", request);
+		String customerId = request.getParameter("id");
+		String appId = request.getParameter("appId");
+		String operate = request.getParameter("operate");
+		//查询台账信息
+		List<AccLoanInfo> loan = aferAccLoanService.getAfterAccLoanByCustomerId(customerId);
+		mv.addObject("loan",loan);
+		return mv;
+	}
+	/**
+	 * 删除进件信息
+	 * delete_apply.json
+	 */
+	@ResponseBody
+	@RequestMapping(value = "delete_apply.json")
+	public JRadReturnMap deleteApply(@ModelAttribute IESBForCircleForm iesbForCircleForm, HttpServletRequest request){
+		JRadReturnMap returnMap = new JRadReturnMap();
+		try{
 			String customerId = request.getParameter("id");
 			String appId = request.getParameter("appId");
-			String operate = request.getParameter("operate");
-			//查询台账信息
-			List<AccLoanInfo> loan = aferAccLoanService.getAfterAccLoanByCustomerId(customerId);
-			mv.addObject("loan",loan);
-			return mv;
+			
+			intoPiecesService.deleteApply(appId);
+			
+			returnMap.put(RECORD_ID, customerId);
+			returnMap.put(JRadConstants.MESSAGE, "删除成功");
+			returnMap.put(JRadConstants.SUCCESS, true);
+		}catch(Exception e){
+			e.printStackTrace();
+			returnMap.put(JRadConstants.MESSAGE, "删除失败");
+			returnMap.put(JRadConstants.SUCCESS, false);
 		}
-		/**
-		 * 删除进件信息
-		 * delete_apply.json
-		 */
-		@ResponseBody
-		@RequestMapping(value = "delete_apply.json")
-		public JRadReturnMap deleteApply(@ModelAttribute IESBForCircleForm iesbForCircleForm, HttpServletRequest request){
-			JRadReturnMap returnMap = new JRadReturnMap();
-			try{
-				String customerId = request.getParameter("id");
-				String appId = request.getParameter("appId");
-				//获取进件页签（产品信息）
-				QzAppln_Za_Ywsqb_R qzappln_za_ywsqb_r = za_ywsqb_r_service.findByAppId(appId);
-				if(qzappln_za_ywsqb_r != null){
-					commonDao.deleteObject(QzAppln_Za_Ywsqb_R.class, qzappln_za_ywsqb_r.getId());
-				}
-				//业务申请表
-				QzApplnYwsqb qzApplnYwsqb = ywsqbService.findYwsqbByAppId(appId);
-				if(qzApplnYwsqb != null){
-					commonDao.deleteObject(QzApplnYwsqb.class, qzApplnYwsqb.getId());
-				}
-				//担保人appId
-				List<QzApplnDbrxx> dbrxx_ls = dbrxxService.findDbrxxByAppId(appId);
-				for(int i= 0; i < dbrxx_ls.size(); i++){
-					QzApplnDbrxx qzApplnDbrxx = dbrxx_ls.get(i);
-					commonDao.deleteObject(QzApplnDbrxx.class, qzApplnDbrxx.getId());
-				}
-				//附件appId
-				QzApplnAttachmentList qzApplnAttachmentList = attachmentListService.findAttachmentListByAppId(appId);
-				if(qzApplnAttachmentList != null){
-					commonDao.deleteObject(QzApplnAttachmentList.class,qzApplnAttachmentList.getId());
-				}
-				//内部审查appId
-				QzApplnNbscyjb qzApplnNbscyjb = nbscyjbService.findNbscyjbByAppId(appId);
-				if(qzApplnNbscyjb != null){
-					commonDao.deleteObject(QzApplnNbscyjb.class,qzApplnNbscyjb.getId());
-				}
-				//审贷会决议表
-				QzApplnJyd jyd = intoPiecesService.getSdhjydFormAfter(appId);
-				if(jyd != null){
-					commonDao.deleteObject(QzApplnJyd.class, jyd.getId());
-				}
-				//贷款信息
-				Circle circle = circleService.findCircleByAppId(appId);
-				if(circle != null){
-					commonDao.deleteObject(Circle.class, circle.getId());
-				}
-				//进件流程表
-				CustomerApplicationProcess process = processService.findProcessByAppId(appId);
-				if(process != null){
-					commonDao.deleteObject(CustomerApplicationProcess.class, process.getId());
-				}
-				//流程申请表
-				CustomerApplicationInfo cusAppInfo = intoPiecesService.findCusAppInforByAppId(appId);
-				if(cusAppInfo != null){
-					commonDao.deleteObject(CustomerApplicationInfo.class, cusAppInfo.getId());
-				}
-				
-				returnMap.setSuccess(true);
-				returnMap.put(RECORD_ID, customerId);
-				returnMap.addGlobalMessage(CREATE_SUCCESS);
-			}catch(Exception e){
-				return WebRequestHelper.processException(e);
-			}
-			returnMap.setSuccess(false);
-			returnMap.addGlobalError(CustomerInforConstant.CREATEERROR);
-			return returnMap;
-		}
+		return returnMap;
+	}
 		
 }

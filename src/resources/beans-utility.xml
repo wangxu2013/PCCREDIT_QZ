@@ -327,13 +327,100 @@
         </property>
     </bean>
     
+    <!-- 定时执行上传线程  start -->
+    <bean id="uploadJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 调用的类 -->
+        <property name="targetObject">
+            <ref bean="uploadDeamonService"/>
+        </property>
+        <!-- 调用类中的方法 -->
+        <property name="targetMethod">
+            <value>doUpload</value>
+        </property>
+    </bean>
+    <!-- 定义触发时间 -->
+    <bean id="uploadJobTigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail">
+            <ref bean="uploadJob"/>
+        </property>
+        <!-- cron表达式 每分钟执行一次 -->
+        <property name="cronExpression">
+            <value>0 * * * * ?</value>
+        </property>
+    </bean>
+    
+    <!-- 定时执行更新线程  start -->
+    <bean id="updateJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 调用的类 -->
+        <property name="targetObject">
+            <ref bean="updateDeamonService"/>
+        </property>
+        <!-- 调用类中的方法 -->
+        <property name="targetMethod">
+            <value>doUpdate</value>
+        </property>
+    </bean>
+    <!-- 定义触发时间 -->
+    <bean id="updateJobTigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail">
+            <ref bean="updateJob"/>
+        </property>
+        <!-- cron表达式 每分钟执行一次 -->
+        <property name="cronExpression">
+            <value>0 * * * * ?</value>
+        </property>
+    </bean>
+    
+    <!-- 定时执行上传线程  start -->
+    <bean id="uploadPspCheckJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 调用的类 -->
+        <property name="targetObject">
+            <ref bean="uploadPspCheckDeamonService"/>
+        </property>
+        <!-- 调用类中的方法 -->
+        <property name="targetMethod">
+            <value>doUpload</value>
+        </property>
+    </bean>
+    <!-- 定义触发时间 -->
+    <bean id="uploadPspCheckJobTigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail">
+            <ref bean="uploadPspCheckJob"/>
+        </property>
+        <!-- cron表达式 每分钟执行一次 -->
+        <property name="cronExpression">
+            <value>0 * * * * ?</value>
+        </property>
+    </bean>
+    
+    <!-- 定时执行更新线程  start -->
+    <bean id="updatePspCheckJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!-- 调用的类 -->
+        <property name="targetObject">
+            <ref bean="updatePspCheckDeamonService"/>
+        </property>
+        <!-- 调用类中的方法 -->
+        <property name="targetMethod">
+            <value>doUpdate</value>
+        </property>
+    </bean>
+    <!-- 定义触发时间 -->
+    <bean id="updatePspCheckJobTigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail">
+            <ref bean="updatePspCheckJob"/>
+        </property>
+        <!-- cron表达式 每分钟执行一次 -->
+        <property name="cronExpression">
+            <value>0 * * * * ?</value>
+        </property>
+    </bean>
     
     <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
    
     <bean id="scheduler" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-            	<ref bean="statisticsYearScheduleServicerTrigger"/>
+            	<!-- <ref bean="statisticsYearScheduleServicerTrigger"/>
             	<ref bean="statisticsMonthScheduleServicerTrigger"/>
             	<ref bean="statisticsWeekScheduleServicerTrigger"/>
             	
@@ -346,9 +433,38 @@
                 <ref bean="addNplsInfomationTigger"/>
                 <ref bean="addManagerAssessmentScoreTigger"/>
 				<ref bean="addDownLevelAdjustmentTigger"/>
+				
+				<ref bean="uploadJobTigger"/>
+				<ref bean="updateJobTigger"/>
+				<ref bean="uploadPspCheckJobTigger"/>
+				<ref bean="updatePspCheckJobTigger"/>-->
             </list>
         </property>
     </bean>
     
-   
+	<!-- spring 后台线程管理 -->
+	<bean id="taskExecutorUpload" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+	    <property name="corePoolSize" value="5"></property>
+	    <property name="keepAliveSeconds" value="300"></property>
+	    <property name="maxPoolSize" value="50"></property>
+	    <property name="queueCapacity" value="25"></property>
+	</bean>
+	<bean id="taskExecutorUpdate" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+	    <property name="corePoolSize" value="5"></property>
+	    <property name="keepAliveSeconds" value="300"></property>
+	    <property name="maxPoolSize" value="50"></property>
+	    <property name="queueCapacity" value="25"></property>
+	</bean>
+	<bean id="taskExecutorUploadPspCheck" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+	    <property name="corePoolSize" value="5"></property>
+	    <property name="keepAliveSeconds" value="300"></property>
+	    <property name="maxPoolSize" value="50"></property>
+	    <property name="queueCapacity" value="25"></property>
+	</bean>
+	<bean id="taskExecutorUpdatePspCheck" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+	    <property name="corePoolSize" value="5"></property>
+	    <property name="keepAliveSeconds" value="300"></property>
+	    <property name="maxPoolSize" value="50"></property>
+	    <property name="queueCapacity" value="25"></property>
+	</bean>
 </beans>

@@ -8,26 +8,41 @@
       </div>
       
       <div class="inquiry">
+      <div class="search_tag">#i18n("label.browse.filter")</div>
+        <div class="search">
+          <form id="submitForm" action="${contextPath}/divisional/customerallot/browse.page">
+            <ul>
+              <li>
+                <span>客户名称：<input type="text" name="chineseName" value="$!result.filter.chineseName" /></span>
+              </li>
+              <li>
+                <span>证件号码：<input type="text" name="cardId" value="$!result.filter.cardId" /></span>
+              </li>
+              <li class="search_button">
+                <input id="id_browse_button" type="button" value="#i18n('button.browse')" class="search_button_inquiry"
+                  title="#i18n('button.browse.hint')" style="height: 26px; line-height: 24px;" onclick="javascript:this.form.submit();"/>
+              </li>
+            </ul>
+          </form>
+        </div>
 <!-------------- 信息显示 ------------------------------------->        
         <div id="topDiv" class="inquiry_list inquiry_top">
           <table>
             <colgroup>
               <col width="5%" />
               <col width="8%" />
-              <col width="18%" />
+              <col width="12%" />
               <col width="12%"/>
-              <col width="40%" />
-              <col width="10%"/>
               <col width="7%">
+              <col width="12%" />
             </colgroup>
             <tr class="title">
               <th nowrap="nowrap"></th>
               <th nowrap="nowrap">中文姓名</th>
               <th nowrap="nowrap">证件类型</th>
               <th nowrap="nowrap">证件号码</th>
-              <th nowrap="nowrap">住宅地址</th>
-              <th nowrap="nowrap">手机</th>
               <th nowrap="nowrap">状态</th>
+              <th nowrap="nowrap">备注</th>
             </tr>
           </table>
         </div>
@@ -36,25 +51,20 @@
             <colgroup>
               <col width="5%" />
               <col width="8%" />
-              <col width="18%" />
+              <col width="12%" />
               <col width="12%"/>
-              <col width="40%" />
-              <col width="10%"/>
               <col width="7%">
+              <col width="12%" />
             </colgroup>
             #foreach ($!{divisional} in $result.items)
             <tr>
-              <td class="checkbox"><input type="radio" name="checkbox" value="$!divisional.id"
+              <td class="checkbox"><input type="radio" name="checkbox" value="$!{divisional.id}_$!{divisional.divisionalResult}"
                   #if ($!request.getParameter("recordId") == $!divisional.id) checked="checked" #end /></td>
               <td nowrap="nowrap">$!divisional.chineseName</td>
-              <td nowrap="nowrap">#customerInfor($request.getAttribute("cardTypeList"),$!divisional.cardType)</td>
+              <td nowrap="nowrap">#dictVal("CERT_TYPE",$!divisional.cardType)</td>
               <td nowrap="nowrap">$!divisional.cardId</td>
-              <td nowrap="nowrap">$!divisional.residentialAddress</td>
-              <td nowrap="nowrap">$!divisional.telephone</td>  
-              <td nowrap="nowrap">#if($!divisional.divisionalResult=='distribution')<span style="">分配成功</span>
-                                  #else
-                                  <span style=""> 未分配</span>
-                                  #end
+              <td nowrap="nowrap">#dictVal("DivisionalResult", $!divisional.divisionalResult)
+              <td nowrap="nowrap">$!divisional.remark</td>
               </td>            
             </tr>
             #end
@@ -63,7 +73,7 @@
       </div>
       <div class="pagebar">
         <div class="controlbtn">
-          #btnpriv("distribution")<a id="id_display_button" class="btn_gr" href="javascript:void(0);" title="#i18n('button.divisional.hint')">#i18n("button.divisional")</a>#end
+          <a id="id_display_button" class="btn_gr" href="javascript:void(0);" title="分配">分配</a>
         </div>
         #parse ("common/pagination.htm")
         <div class="clear"></div>
@@ -78,7 +88,22 @@
 	$(document).ready(function() {
 		var opsObj = new Object();
 		opsObj.formObj = $("#submitForm");
-		opsObj.displayUrl = "${modulePath}/divisional.page";
+		
+		$("#id_display_button").click(function() {
+            if ($(".checkbox :checked").length == 1) {
+                var rowid = $($(".checkbox :checked")[0]).attr("value").split("_")[0];
+                var status = $($(".checkbox :checked")[0]).attr("value").split("_")[1];
+                if(status != "reject" && status != ""){
+                	Dialog.message("不能重复分配已接受或已分配的客户");
+                	return;
+                }
+                var url = "${modulePath}/divisional.page?id="+rowid;
+                window.location.href = url;
+            } else {
+                Dialog.message("请选择一行");
+            }
+        });
+		
 		prepareOperations(opsObj);
 	});
 </script>

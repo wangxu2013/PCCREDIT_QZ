@@ -8,6 +8,23 @@
       </div>
       
       <div class="inquiry">
+      <div class="search_tag">#i18n("label.browse.filter")</div>
+        <div class="search">
+          <form id="submitForm" action="${contextPath}/divisional/customeralreceive/browse.page">
+            <ul>
+              <li>
+                <span>客户名称：<input type="text" name="chineseName" value="$!result.filter.chineseName" /></span>
+              </li>
+              <li>
+                <span>证件号码：<input type="text" name="cardId" value="$!result.filter.cardId" /></span>
+              </li>
+              <li class="search_button">
+                <input id="id_browse_button" type="button" value="#i18n('button.browse')" class="search_button_inquiry"
+                  title="#i18n('button.browse.hint')" style="height: 26px; line-height: 24px;" onclick="javascript:this.form.submit();"/>
+              </li>
+            </ul>
+          </form>
+        </div>
 <!-------------- 信息显示 ------------------------------------->        
         <div id="topDiv" class="inquiry_list inquiry_top">
           <table>
@@ -16,8 +33,6 @@
               <col width="8%" />
               <col width="18%" />
               <col width="12%"/>
-              <col width="40%" />
-              <col width="10%"/>
               <col width="7%">
             </colgroup>
             <tr class="title">
@@ -25,9 +40,7 @@
               <th nowrap="nowrap">中文姓名</th>
               <th nowrap="nowrap">证件类型</th>
               <th nowrap="nowrap">证件号码</th>
-              <th nowrap="nowrap">住宅地址</th>
-              <th nowrap="nowrap">手机</th>
-              <th nowrap="nowrap"></th>
+              <th nowrap="nowrap">操作</th>
             </tr>
           </table>
         </div>
@@ -38,8 +51,6 @@
               <col width="8%" />
               <col width="18%" />
               <col width="12%"/>
-              <col width="40%" />
-              <col width="10%"/>
               <col width="7%">
             </colgroup>
             #foreach ($!{divisional} in $result.items)
@@ -47,10 +58,8 @@
               <td class="checkbox"><input type="radio" name="checkbox" value="$!divisional.customerId"
                   #if ($!request.getParameter("recordId") == $!divisional.customerId) checked="checked" #end /></td>
               <td nowrap="nowrap">$!divisional.chineseName</td>
-              <td nowrap="nowrap">#customerInfor($request.getAttribute("cardTypeList"),$!divisional.cardType)</td>
+              <td nowrap="nowrap">#dictVal("CERT_TYPE",$!divisional.cardType)</td>
               <td nowrap="nowrap">$!divisional.cardId</td>
-              <td nowrap="nowrap">$!divisional.residentialAddress</td>
-              <td nowrap="nowrap">$!divisional.telephone</td>  
               <td nowrap="nowrap">#if($!divisional.divisionalResult=='distribution')<a href="javascript:void(0)" style="color:green" onclick="receive('$!divisional.id','$!divisional.customerId')">接受</a>&nbsp;
                                   <a href="javascript:void(0)" style="color:red" onclick="reject('$!divisional.id')">拒绝</a></td>
                                   #else
@@ -63,7 +72,7 @@
       </div>
       <div class="pagebar">
         <div class="controlbtn">
-          #btnpriv("display")<a id="id_display_button" class="btn_gr" href="javascript:void(0);" title="#i18n('button.display.hint')">#i18n("button.display")</a>#end
+        	<a id="id_display_button" class="btn_gr" href="javascript:void(0);" title="显示">显示</a>
         </div>
         #parse ("common/pagination.htm")
         <div class="clear"></div>
@@ -90,9 +99,9 @@
 			success:function(msg){
 				Dialog.closeLoad();
 				if(msg.success == true){
-					Dialog.message(msg.message);
+					topWin.Dialog.message(msg.message);
 				}else{
-					Dialog.message(msg.message);
+					topWin.Dialog.message(msg.message);
 				}
 				window.location.href="${modulePath}/browse.page";
 			}
@@ -107,9 +116,9 @@
 			success:function(msg){
 				Dialog.closeLoad();
 				if(msg.success == true){
-					Dialog.message(msg.message);
+					topWin.Dialog.message(msg.message);
 				}else{
-					Dialog.message(msg.message);
+					topWin.Dialog.message(msg.message);
 				}
 				window.location.href="${modulePath}/browse.page";
 			}

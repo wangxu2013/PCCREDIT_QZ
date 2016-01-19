@@ -129,6 +129,7 @@
 	    <result property="rates" column="RATES" />
 	    <result property="repayType" column="REPAY_TYPE" />
 	    <result property="remainSum" column="REMAIN_SUM" />
+	    <result property="guaranteeMode" column="GUARANTEE_MODE" />
 	</resultMap>
 	<select id="findYwsqb" resultMap="ResultMapYwsqb">
 		 select * 

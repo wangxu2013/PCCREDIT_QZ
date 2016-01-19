@@ -32,13 +32,13 @@
               <td><label>发证机关:</label></td>
               <td><input type="text" name="certOrg" /></td>
 			  <td><label>签发日期:</label><font color="#ff0000">*</font></td>
-              <td><input type="text" name="issDate" onmouseover="_calendar()" /></td>
+              <td><input type="text" name="issDate" onmouseover="_calendar()" readonly/></td>
             </tr>
 			<tr>
               <td><label>生效日期:</label><font color="#ff0000">*</font></td>
-              <td><input type="text" name="effectDate" onmouseover="_calendar()"/></td>
+              <td><input type="text" name="effectDate" onmouseover="_calendar()" readonly/></td>
 			  <td><label>到期日期:</label><font color="#ff0000">*</font></td>
-              <td><input type="text" name="expiryDate" onmouseover="_calendar()"/></td>
+              <td><input type="text" name="expiryDate" onmouseover="_calendar()" readonly/></td>
             </tr>
 		</table>
 		<table class="rule" bordercolor="#CCCCCC" border="1">
@@ -81,7 +81,7 @@
             </colgroup>
 			<tr>
               <td><label>出生日期:</label><font color="#ff0000">*</font></td>
-              <td><input type="text" name="birthDate" onmouseover="_calendar()"/></td>
+              <td><input type="text" name="birthDate" onmouseover="_calendar()" readonly/></td>
 			  <td><label>性别:</label></td>
               <td><select name="sex">#dict("INDIV_SEX", "")</select></td>
             </tr>
@@ -107,7 +107,7 @@
             </tr>
 			<tr>
               <td><label>登记日期:</label><font color="#ff0000">*</font></td>
-              <td colspan="3"><input type="text" name="registeredDate" onmouseover="_calendar()"/></td>
+              <td colspan="3"><input type="text" name="registeredDate" onmouseover="_calendar()" readonly/></td>
             </tr>
 		</table>
 		<table class="rule" bordercolor="#CCCCCC" border="1">
@@ -128,7 +128,7 @@
               <td><label>登记机构:</label><font color="#ff0000">*</font></td>
               <td><input type="text" name="registOrgNo"  value="$!orgId" /></td>
               <td><label>登记日期:</label><font color="#ff0000">*</font></td>
-              <td><input type="text" name="orgRegisteredDate" onmouseover="_calendar()"/></td>
+              <td><input type="text" name="orgRegisteredDate" onmouseover="_calendar()" readonly/></td>
             </tr>
 		</table>
 		<table class="rule" bordercolor="#CCCCCC" border="1">
@@ -159,7 +159,7 @@
               <td><label>开户柜员:</label><font color="#ff0000">*</font></td>
               <td><input type="text" name="openTellerNo" value="$!externalId"/></td>
               <td><label>开户日期:</label><font color="#ff0000">*</font></td>
-              <td><input type="text" name="openAcctDate" onmouseover="_calendar()"/></td>
+              <td><input type="text" name="openAcctDate" onmouseover="_calendar()" readonly/></td>
             </tr>
 			<tr>
               <td><label>婚姻状况:</label><font color="#ff0000">*</font></td>
@@ -261,7 +261,7 @@
 		
 		$("#id_save_button").click(function() {
 			if(submitFlag == 1){
-				alert("请勿重复提交!")
+				alert("等待后台响应,请勿重复提交!")
 				return;
 			}
 			submitFlag = 1;

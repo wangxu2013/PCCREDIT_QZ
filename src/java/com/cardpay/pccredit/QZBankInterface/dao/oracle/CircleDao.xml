@@ -147,6 +147,17 @@
 		AND APPLICATION_ID is null
 	</select>
 	
+	<select id="findCircleApproved" resultMap="ResultMap">
+		select *
+		from 
+			QZ_IESB_FOR_CIRCLE
+			where 1=1
+	 	<if test="customerId != null and customerId != '' ">
+			AND CUSTOMER_ID=#{customerId}
+		</if>
+		AND ret_code = '000000'
+	</select>
+	
 	<select id="findCircleByAppId" resultMap="ResultMap">
 		select *
 		from 
@@ -211,6 +222,14 @@
 		*
 		from QZ_IESB_FOR_CIRCLE
 		where client_no  = #{clientNo}
+		order by credit_time
+	</select>
+	
+	<select id="findCircleByCONTRACT_NO" resultMap="ResultMap">
+		select 
+		*
+		from QZ_IESB_FOR_CIRCLE
+		where RET_CONTNO  = #{CONTRACT_NO}
 	</select>
 	
 	<select id="findCircleByCustomerId" resultMap="ResultMap">

@@ -5,6 +5,7 @@ import java.util.List;
 import com.cardpay.pccredit.intopieces.filter.CustomerApplicationProcessFilter;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationInfo;
 import com.cardpay.pccredit.intopieces.model.CustomerApplicationProcess;
+import com.cardpay.pccredit.intopieces.model.QuotaProcess;
 import com.cardpay.pccredit.intopieces.web.CustomerApplicationIntopieceWaitForm;
 import com.wicresoft.util.annotation.Mapper;
 
@@ -66,4 +67,7 @@ public interface CustomerApplicationIntopieceWaitDao {
 	public List<CustomerApplicationIntopieceWaitForm> intopieceWaitFormByUsered(CustomerApplicationProcessFilter filter);
 	//安居贷相应状态进件显示count-针对审核人不同
 	public int CountIntopieceWaitFormByUsered(CustomerApplicationProcessFilter filter);
+	
+	//更新冻结进度表
+	public int updateQuotaProcessBySerialNumber(QuotaProcess process);
 }

@@ -124,6 +124,8 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 	</div>
 </form>	
 <div class="controlbtn">
+<!-- <a id="id_server_button" class="btn_g" href="javascript:void(0);" onclick="displayServer()" title="查看影像">查看影像</a> -->
+		
 	#if($!{type}=="readonly")
 		<a id="id_apply_button" class="btn_g" href="javascript:void(0);" title="审核">审核</a>
 		<a id="id_return_button" class="btn_g" href="javascript:void(0);" title="退回">退回</a>
@@ -145,7 +147,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 			//保存
 			$("#id_save_button").click(function() {
 				if(submitFlag == 1){
-					alert("请勿重复提交!")
+					alert("等待后台响应,请勿重复提交!")
 					return;
 				}
 				submitFlag = 1;
@@ -180,7 +182,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 			//审核
 			$("#id_apply_button").click(function() {
 				if(submitFlag == 1){
-					alert("请勿重复提交!")
+					alert("等待后台响应,请勿重复提交!")
 					return;
 				}
 				submitFlag = 1;
@@ -211,7 +213,7 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 		//退回
 		$("#id_return_button").click(function() {
 			if(submitFlag == 1){
-				alert("请勿重复提交!")
+				alert("等待后台响应,请勿重复提交!")
 				return;
 			}
 			submitFlag = 1;
@@ -248,6 +250,11 @@ var timestr = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth
 				$("#"+id).val('');
 				$("#"+id).attr('disabled','disabled');
 			}
+		}
+		
+		//查看影像
+		function displayServer(){
+			window.location.href = "${contextPath}/afterloan/afterloancheck/display_server.page?taskId=${taskId}&clientNo=${clientNo}&type=$!{type}&first_flag=1";
 		}
 	</script>	
 </body>

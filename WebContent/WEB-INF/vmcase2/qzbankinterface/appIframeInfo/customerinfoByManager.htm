@@ -21,6 +21,7 @@
               <!--<input type="hidden" name="appId" value="$!{appId}">  -->
               <input type="hidden" name="productType" value="$!{productType}">
               <input type="hidden" name="zaId" value="$!{zaId}"></li>
+              <input type="hidden" name="isContinue" value="$!filter.isContinue"></li>
               <li class="search_button">
                 <input id="id_browse_button" type="button" value="#i18n('button.browse')" class="search_button_inquiry"
                   title="#i18n('button.browse.hint')" style="height: 26px; line-height: 24px;" onclick="javascript:this.form.submit();"/>
@@ -102,7 +103,13 @@
 			if ($(".checkbox :checked").length == 1) {
 				var rowId = getCurrentRowId().split("@")[0];
 				if(rowId!=null){
-					var url="${contextPath}/intopieces/intopiecesapprove/iframe_create.page?id="+rowId+"&productType=$!{productType}&zaId=$!{zaId}";
+					var url="${contextPath}/intopieces/intopiecesapprove/iframe_create.page?id="+rowId+"&productType=$!{productType}";
+					if("$!{zaId}" != ""){
+						url = url + "&zaId=$!{zaId}";
+					}
+					if("$!filter.isContinue" != ""){
+						url = url + "&isContinue=$!{filter.isContinue}";
+					}
 					window.location.href = url;
 				}
 			}else{

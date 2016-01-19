@@ -205,6 +205,19 @@
 		<url-pattern>/Kaptcha.jpg</url-pattern>
 	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>ESBprvdServlet</servlet-name>
+		<servlet-class>com.dcfs.esb.server.ESBServer</servlet-class>
+		<init-param>
+			<param-name>EAI_HOME</param-name>
+			<param-value>E:\workspace_qkjr\PCCREDIT_QZ\src\java\</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ESBprvdServlet</servlet-name>
+		<url-pattern>/ESBprvdServlet</url-pattern>
+	</servlet-mapping>
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

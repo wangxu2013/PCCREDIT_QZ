@@ -39,6 +39,9 @@ public class ProductAttribute extends BusinessModel{
 	private String modifiedBy;
 	private String pictureUrl;
 	private String pictureName;
+	
+	private String productType;
+	
 	public String getId() {
 		return id;
 	}
@@ -164,5 +167,11 @@ public class ProductAttribute extends BusinessModel{
 	}
 	public void setPictureName(String pictureName) {
 		this.pictureName = pictureName;
+	}
+	public String getProductType() {
+		return productType;
+	}
+	public void setProductType(String productType) {
+		this.productType = productType;
 	}
 }

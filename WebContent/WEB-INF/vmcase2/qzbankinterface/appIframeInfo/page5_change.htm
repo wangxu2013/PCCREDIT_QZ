@@ -75,7 +75,7 @@
 				<tr>
 					<td>1</td>	
 					<td>合同扫描件</td>	
-					<td><input type="checkbox" name="checkbox1" onclick="return false" value="1" checked/></td>						
+					<td><input type="checkbox" class="mustCheck" name="checkbox1" onclick="return false" value="1" checked/></td>						
 					<td></td>	
 					<td></td>	
 					<td></td>			
@@ -329,13 +329,13 @@
 						#if($!qzApplnAttachmentList.bussType=='1')
 							<script>
 								if(parseInt(chkValue&1073741824) != 0){
-									document.write('<input type="checkbox" name="checkbox1" onclick="return false" value="1073741824" checked/>');
+									document.write('<input type="checkbox" class="mustCheck" name="checkbox1" onclick="return false" value="1073741824" checked/>');
 								}else{
-									document.write('<input type="checkbox" name="checkbox1" onclick="return false" value="1073741824"/>');
+									document.write('<input type="checkbox" class="mustCheck" name="checkbox1" onclick="return false" value="1073741824"/>');
 								}
 							</script>
 						#else
-							<input type="checkbox" name="checkbox1" onclick="return false" value="1073741824"/>
+							<input type="checkbox" class="mustCheck" name="checkbox1" onclick="return false" value="1073741824"/>
 						#end
 					</td>						
 					<td></td>	
@@ -390,7 +390,7 @@
 				<tr>
 					<td>1</td>	
 					<td>合同扫描件</td>	
-					<td><input type="checkbox" name="checkbox2" onclick="return false" value="1" checked/></td>						
+					<td><input type="checkbox" class="mustCheck" name="checkbox2" onclick="return false" value="1" checked/></td>						
 					<td></td>	
 					<td></td>	
 					<td></td>			
@@ -715,13 +715,13 @@
 						#if($!qzApplnAttachmentList.bussType=='2')
 							<script>
 								if(parseInt(chkValue&1073741824) != 0){
-									document.write('<input type="checkbox" name="checkbox2" onclick="return false" value="1073741824" checked/>');
+									document.write('<input type="checkbox" class="mustCheck" name="checkbox2" onclick="return false" value="1073741824" checked/>');
 								}else{
-									document.write('<input type="checkbox" name="checkbox2" onclick="return false" value="1073741824"/>');
+									document.write('<input type="checkbox" class="mustCheck" name="checkbox2" onclick="return false" value="1073741824"/>');
 								}
 							</script>
 						#else
-							<input type="checkbox" name="checkbox2" onclick="return false" value="1073741824"/>
+							<input type="checkbox" class="mustCheck" name="checkbox2" onclick="return false" value="1073741824"/>
 						#end
 					</td>						
 					<td></td>	
@@ -771,13 +771,13 @@
 			if($("#jdlx option:selected").text()=="工薪类"){
 				$("#gxl").show();
 				$("#jyl").hide();
-				$("input[type=checkbox][name=checkbox2]:checked").attr("checked",false);
+				$("input[type=checkbox][name=checkbox2][class!=mustCheck]:checked").attr("checked",false);
 				getSum(1);
 			}
 			if($("#jdlx option:selected").text()=="经营类"){
 				$("#gxl").hide();
 				$("#jyl").show();
-				$("input[type=checkbox][name=checkbox1]:checked").attr("checked",false);
+				$("input[type=checkbox][name=checkbox1][class!=mustCheck]:checked").attr("checked",false);
 				getSum(2);
 			}
 		}
@@ -798,15 +798,15 @@
 		
 		$(document).ready(function() {	
 			if("${type}"=="readonly"){
-				$("input[type='text']").attr("readonly",true);
-				$("input[type='radio']").attr("readonly",true);
-				$("input[type='checkbox']").attr("readonly",true);
-				$("select").attr("readonly",true);
+				$("input[type='text']").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
+				$("input[type='radio']").attr("disabled",true);
+				$("input[type='checkbox']").attr("disabled",true);
+				$("select").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
 			}
 			//保存
 			$("#id_save_button").click(function() {
 				if(submitFlag == 1){
-					alert("请勿重复提交!")
+					alert("等待后台响应,请勿重复提交!")
 					return;
 				}
 				submitFlag = 1;

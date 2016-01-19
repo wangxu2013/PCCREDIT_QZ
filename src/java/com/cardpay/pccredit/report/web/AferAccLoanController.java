@@ -64,7 +64,6 @@ public class AferAccLoanController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "browse.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.BROWSE)
 	public AbstractModelAndView browse(@ModelAttribute OClpmAccLoanFilter filter, HttpServletRequest request) {
 		filter.setRequest(request);
 		if(filter.getStartDate() ==null){
@@ -95,7 +94,6 @@ public class AferAccLoanController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "browseAll.page", method = { RequestMethod.GET })
-	@JRadOperation(JRadOperation.BROWSE)
 	public AbstractModelAndView browseAll(@ModelAttribute OClpmAccLoanFilter filter, HttpServletRequest request) {
 		filter.setRequest(request);
 		if(filter.getStartDate() ==null){

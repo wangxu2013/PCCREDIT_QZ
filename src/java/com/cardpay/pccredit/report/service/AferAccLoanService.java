@@ -12,6 +12,7 @@ import com.cardpay.pccredit.report.filter.OClpmAccLoanFilter;
 import com.cardpay.pccredit.report.model.AccLoanCollectInfo;
 import com.cardpay.pccredit.report.model.AccLoanInfo;
 import com.cardpay.pccredit.report.model.AccLoanOverdueInfo;
+import com.cardpay.pccredit.report.model.PsNormIntAmt;
 import com.wicresoft.jrad.base.database.model.QueryResult;
 
 /**
@@ -65,6 +66,21 @@ public class AferAccLoanService {
 	 */
 	public List<AccLoanInfo> getAfterAccLoanByCustomerId(String customerId){
 		return afterAccLoanDao.getAfterAccLoanByCustomerId(customerId);
+	}
+
+	//查询借据对应当前日期的还款计划表
+	public QueryResult<PsNormIntAmt> getPsNormIntAmt(OClpmAccLoanFilter filter) {
+		// TODO Auto-generated method stub
+		List<PsNormIntAmt> pList = afterAccLoanDao.getPsNormIntAmt(filter);
+		int size = afterAccLoanDao.getPsNormIntAmtCount(filter);
+		QueryResult<PsNormIntAmt> qs = new QueryResult<PsNormIntAmt>(size, pList);
+		return qs;
+		
+	}
+
+	public List<PsNormIntAmt> getPsNormIntAmtList(OClpmAccLoanFilter filter) {
+		// TODO Auto-generated method stub
+		return afterAccLoanDao.getPsNormIntAmtList(filter);
 	}
 	
 }

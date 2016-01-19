@@ -23,6 +23,7 @@ import com.cardpay.pccredit.divisional.filter.DivisionalFilter;
 import com.cardpay.pccredit.divisional.model.Divisional;
 import com.cardpay.pccredit.divisional.model.DivisionalTransfer;
 import com.cardpay.pccredit.divisional.model.DivisionalWeb;
+import com.cardpay.pccredit.intopieces.model.IntoPieces;
 import com.cardpay.pccredit.riskControl.constant.RiskType;
 import com.cardpay.pccredit.riskControl.service.AccountabilityService;
 import com.cardpay.pccredit.system.model.Dict;
@@ -123,6 +124,25 @@ public class DivisionalService {
 		}
 	}
 
+	//申请移交客户-泉州
+	public void insertDivisionalCustomer_qz(String customerId,
+			DivisionalTypeEnum divisionalEnum,
+			DivisionalProgressEnum divisionalProgressEnum) {
+		String userId = customerInforDao.findCustomerManagerIdById(customerId);
+		Divisional divisional = new Divisional();
+		divisional.setOriginalManagerOld(userId);
+		divisional.setOriginalOrganizationOld(null);//泉州移交跟机构无关
+		divisional.setCurrentOrganizationId(null);
+		divisional.setDivisionalProgress(divisionalProgressEnum.toString());
+		divisional.setDivisionalType(divisionalEnum.toString());
+		divisional.setCustomerId(customerId);
+		divisional.setCreatedTime(new Date());
+		divisional.setCreatedBy(userId);
+		commonDao.insertObject(divisional);
+		
+		customerInforService.updateCustomerInforDivisionalStatus(customerId, CustomerInforDStatusEnum.turn);
+	}
+	
 	/**
 	 * 获得分案申请表信息
 	 * 
@@ -132,13 +152,26 @@ public class DivisionalService {
 	public QueryResult<DivisionalWeb> findDivisional(DivisionalFilter filter) {
 		return divisionalcommDao.findDivisional(filter);
 	}
+	
+	//团队长分案-泉州（不做任何限制  所有的分案  经由团队长处理 因为有的存量客户所属客户经理不是微贷中心的成员）
+	public QueryResult<DivisionalWeb> findDivisional_qz(DivisionalFilter filter) {
+		List<DivisionalWeb> pList = divisionaldao.findDivisional_qz(filter);
+		int size = divisionaldao.findDivisional_qz_count(filter);
+		QueryResult<DivisionalWeb> queryResult = new QueryResult<DivisionalWeb>(size, pList);
+		
+		return queryResult;
+	}
 	/**
 	 * 获得移交客户页面所需信息
 	 * @param filter
 	 * @return
 	 */
 	public QueryResult<DivisionalTransfer> findDivisionalTransfer(DivisionalFilter filter) {
-		return divisionalcommDao.findDivisionalTransfer(filter);
+		List<DivisionalTransfer> pList = divisionaldao.findDivisionalTransfer(filter);
+		int size = divisionaldao.findDivisionalTransferCount(filter);
+		QueryResult<DivisionalTransfer> queryResult = new QueryResult<DivisionalTransfer>(size, pList);
+		
+		return queryResult;
 	}
 	/**
 	 * 获得客户经理信息

@@ -54,7 +54,8 @@
 		<result column="PRODUCT_NAME" property="productName"/>
 		<result column="CONTRACT_AMT" property="contractAmt"/>
 		<result column="DISPLAY_NAME" property="displayName"/>
-
+		<result column="IS_CONTINUE" property="isContinue"/>
+		
 	</resultMap>
 
 	<select id="findCustomerApplicationIntopieceWaitForm" resultMap="BaseResultMap">
@@ -66,6 +67,7 @@
 		b.APPLY_QUOTA AS applyQuota,
 		A.SERIAL_NUMBER as SERIALNUMBER,
    		N.NODE_NAME as nodeName,
+   		b.is_continue,
 		A.AUDIT_TIME as auditTime
 		FROM
 		CUSTOMER_APPLICATION_INFO b,
@@ -431,7 +433,6 @@
 		BASIC_CUSTOMER_INFORMATION U,
 		CUSTOMER_APPLICATION_PROCESS A,
    		NODE_AUDIT N,NODE_AUDIT_USER p,
-   		sys_user_organization so,
 		QZ_IESB_FOR_CIRCLE circle,
 		sys_user su
 		WHERE
@@ -440,22 +441,27 @@
 		and a.APPLICATION_ID=b.ID
 		AND N.ID=A.NEXT_NODE_ID
 		and A.NEXT_NODE_ID=p.NODE_ID and p.USER_ID=#{loginId}
-		and (b.status='audit' or b.status='RETURNAPPROVE') 
-		and so.user_id =
-       (select s.login
-          from sys_user s
-         where s.id = #{loginId})
-   		and so.orgno = circle.regist_org_no
+		and (b.status='audit' or b.status='RETURNAPPROVE')
 		and circle.application_id = a.APPLICATION_ID
 		and u.user_id = su.id
+		and u.user_id in (select manager_parameter.user_id
+		                      from (select mbm.parent_id,
+		                                   mbm.child_id,
+		                                   level lev,
+		                                   decode(connect_by_isleaf, 1, 'Y', 'N') isLeaf
+		                              from manager_belong_map mbm
+		                             start with parent_id in
+		                                        (select t.id
+		                                           from account_manager_parameter t
+		                                          where t.user_id=#{loginId})
+		                            connect by prior child_id = parent_id) tree
+		                     inner join account_manager_parameter manager_parameter
+		                        on tree.child_id = manager_parameter.id)
 		<if test="cardId!=null and cardId!=''">
 			and U.card_id=#{cardId}
 		</if>
 		<if test="chineseName!=null and chineseName!=''">
 			<![CDATA[ and U.chinese_name like '%'||#{chineseName}||'%' ]]>
-		</if>
-		<if test="nodeName!=null and nodeName!=''">
-			and N.node_name=#{nodeName}
 		</if>
 		
 		<![CDATA[		
@@ -474,7 +480,6 @@
        		NODE_AUDIT                   N,
        		NODE_AUDIT_USER              p,
        		QZ_IESB_FOR_CIRCLE           circle,
-       		sys_user_organization        so,
        		sys_user                     su
  		WHERE 1 = 1
    		and U.ID = b.CUSTOMER_ID
@@ -485,11 +490,6 @@
    		and (b.status = 'audit' or b.status = 'RETURNAPPROVE')
    		and circle.application_id = a.APPLICATION_ID
    		and p.USER_ID = #{loginId}
-   		and so.user_id =
-       	(select s.login
-          from sys_user s
-         where s.id = #{loginId}
-   		and so.orgno = circle.regist_org_no)
    		and u.user_id = su.id
 		<if test="cardId!=null and cardId!=''">
 			and U.card_id=#{cardId}
@@ -497,8 +497,32 @@
 		<if test="chineseName!=null and chineseName!=''">
 			<![CDATA[ and U.chinese_name like '%'||#{chineseName}||'%' ]]>
 		</if>
-		<if test="nodeName!=null and nodeName!=''">
-			and N.node_name=#{nodeName}
-		</if>
 		</select>
+		
+		
+		<update id="updateQuotaProcessBySerialNumber" parameterType="com.cardpay.pccredit.intopieces.model.QuotaProcess">
+			UPDATE QUOTA_PROCESS c 
+			<set>
+				<if test="auditUser!=null">
+					c.AUDIT_USER=#{auditUser},
+				</if>
+				<if test="fallbackReason !=null">
+					c.FALLBACK_REASON=#{fallbackReason},
+				</if>
+				<if test="nextNodeId !=null">
+					c.NEXT_NODE_ID=#{nextNodeId},
+				</if>
+				<if test="refusalReason!=null">
+					c.REFUSAL_REASON=#{refusalReason},
+				</if>
+				<if test="auditTime!=null">
+					c.AUDIT_TIME=#{auditTime},
+				</if>
+				<if test="processOpStatus!=null">
+					c.PROCESS_OP_STATUS=#{processOpStatus},
+				</if>
+				c.Delay_Audit_User=''
+			</set>
+			WHERE c.SERIAL_NUMBER=#{serialNumber}
+		</update>
 </mapper>

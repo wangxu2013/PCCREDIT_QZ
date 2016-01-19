@@ -11,4 +11,8 @@ public class WfProcessInfoType {
 	public static final String process_type="6db61fe646bc4cedb46676a8a019a91e";
 	
 	public static final String amount_adjustment_type="6db61fe646bc4cedb46676a8a019a123";
+	
+	public static final String quotafreezeorthaw_type="6db61fe646bc4cedb46346a8a019a124";
+	
+	public static final String hetong_type="6db61fe646bc4cedb46676a8a719a123";
 }

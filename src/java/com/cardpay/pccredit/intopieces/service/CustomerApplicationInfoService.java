@@ -36,4 +36,8 @@ public class CustomerApplicationInfoService {
 	public int findCustomerApplicationInfoCount(String userId,String status1,String status2){
 		return customerApplicationInfoDao.findCustomerApplicationInfoCount(userId,status1,status2);
 	}
+	
+	public CustomerApplicationInfo findById(String id) {
+		return commonDao.findObjectById(CustomerApplicationInfo.class, id);
+	}
 }

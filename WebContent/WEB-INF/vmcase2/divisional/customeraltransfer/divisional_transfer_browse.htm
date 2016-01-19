@@ -8,6 +8,23 @@
       </div>
       
       <div class="inquiry">
+      <div class="search_tag">#i18n("label.browse.filter")</div>
+        <div class="search">
+          <form id="submitForm" action="${contextPath}/divisional/customeraltransfer/browse.page">
+            <ul>
+              <li>
+                <span>客户名称：<input type="text" name="chineseName" value="$!result.filter.chineseName" /></span>
+              </li>
+              <li>
+                <span>证件号码：<input type="text" name="cardId" value="$!result.filter.cardId" /></span>
+              </li>
+              <li class="search_button">
+                <input id="id_browse_button" type="button" value="#i18n('button.browse')" class="search_button_inquiry"
+                  title="#i18n('button.browse.hint')" style="height: 26px; line-height: 24px;" onclick="javascript:this.form.submit();"/>
+              </li>
+            </ul>
+          </form>
+        </div>
 <!-----------搜索------------------------------------------->  
 <!--  
         <div class="search_tag">#i18n("label.browse.filter")</div>
@@ -30,21 +47,17 @@
         <div id="topDiv" class="inquiry_list inquiry_top">
           <table>
             <colgroup>
+              <col width="5%" />
               <col width="12%"/>
               <col width="8%"/>
               <col width="15%"/>
-              <col width="40%"/>
-              <col width="10%" />
-              <col width="7%"/>
               <col width="8%"/>
             </colgroup>
             <tr class="title">
+              <th nowrap="nowrap"></th>
               <th nowrap="nowrap">中文姓名</th>
               <th nowrap="nowrap">证件类型</th>
               <th nowrap="nowrap">证件号码</th>
-              <th nowrap="nowrap">住宅地址</th>
-              <th nowrap="nowrap">手机</th>
-              <th nowrap="nowrap">移交状态</th>
               <th nowrap="nowrap">分配结果</th>
             </tr>
           </table>
@@ -52,12 +65,10 @@
         <div id="downDiv" class="inquiry_list inquiry_down">
           <table>
             <colgroup>
+              <col width="5%" />
               <col width="12%"/>
               <col width="8%"/>
               <col width="15%"/>
-              <col width="40%"/>
-              <col width="10%" />
-              <col width="7%"/>
               <col width="8%"/>
             </colgroup>
             #foreach ($!{transfer} in $result.items)
@@ -65,12 +76,10 @@
            <!--     <td class="checkbox"><input type="radio" name="checkbox" value="$!customer.id"
                   #if ($!request.getParameter("recordId") == $customer.id) checked="checked" #end /></td>
            -->  
+           	  <td class="checkbox"><input type="radio" name="checkbox"/></td>
               <td nowrap="nowrap">$!transfer.chineseName</td>
-              <td nowrap="nowrap">#customerInfor($request.getAttribute("cardTypeList"),$!transfer.cardType)</td>
+              <td nowrap="nowrap">#dictVal("CERT_TYPE",$!transfer.cardType)</td>
               <td nowrap="nowrap">$!transfer.cardId</td>
-              <td nowrap="nowrap">$!transfer.residentialAddress</td>
-              <td nowrap="nowrap">$!transfer.telephone</td>
-              <td nowrap="nowrap">#dictVal("DivisionalStatus", $!transfer.divisionalStatus)</td>
               <td nowrap="nowrap">#dictVal("DivisionalResult", $!transfer.divisionalResult)</td>
             </tr>
             #end

@@ -281,9 +281,10 @@ public class IESBForECIFController extends BaseController{
 				iesbForECIFForm.setCity(iesbForECIFForm.getCity_3().split("_")[1]);
 				//获取用户id
 				String customerId = request.getParameter("customerId");
-				System.out.println(customerId);
 				
-				ECIF ecif = ecifService.findEcifByCustomerId(customerId.trim());
+				ECIF ecifTmp = ecifService.findEcifByCustomerId(customerId.trim());
+				ECIF ecif = iesbForECIFForm.createModel(ECIF.class);
+				ecif.setId(ecifTmp.getId());
 				
 				//发送请求到ecif修改客户信息,客户信息表有客户号表示在核心开户成功，这个时候才要同步核心数据
 				if(StringUtils.isNotEmpty(ecif.getClientNo())){
@@ -296,7 +297,6 @@ public class IESBForECIFController extends BaseController{
 				}
 				
 				User user = (User) Beans.get(LoginManager.class).getLoggedInUser(request);
-				System.out.println(ecif.getGlobalId());
 				//写入数据到basic_customer_information表
 				CustomerInfor info = customerInforservice.findCustomerInforByCustomerId(customerId.trim());
 				if(info == null){
@@ -334,31 +334,7 @@ public class IESBForECIFController extends BaseController{
 				
 				ecif.setCreatedBy(user.getId());
 				ecif.setUserId(user.getId());
-				ecif.setGlobalId(iesbForECIFForm.getGlobalId());
-				ecif.setGlobalDesc(iesbForECIFForm.getGlobalDesc());
-				ecif.setGlobalType(iesbForECIFForm.getGlobalType());
-				ecif.setAddress(iesbForECIFForm.getAddress());
-				ecif.setAddressType(iesbForECIFForm.getAddressType());
-				ecif.setAreaCode(iesbForECIFForm.getAreaCode());
-				ecif.setBirthDate(iesbForECIFForm.getBirthDate());
-				ecif.setCertAreaCode(iesbForECIFForm.getCertAreaCode());
-				ecif.setCertOrg(iesbForECIFForm.getCertOrg());
-				ecif.setCity(iesbForECIFForm.getCity());
-				ecif.setCity_1(iesbForECIFForm.getCity_1());
-				ecif.setCity_2(iesbForECIFForm.getCity_2());
-				ecif.setCity_3(iesbForECIFForm.getCity_3());
-				ecif.setClientBelongOrg(iesbForECIFForm.getClientBelongOrg());
-				ecif.setClientName(iesbForECIFForm.getClientName());
-				ecif.setClientNameType(iesbForECIFForm.getClientNameType());
-				ecif.setClientType(iesbForECIFForm.getClientType());
-				ecif.setClientStatus(iesbForECIFForm.getClientStatus());
-				ecif.setCompanyName(iesbForECIFForm.getCompanyName());
-				ecif.setContactMode(iesbForECIFForm.getContactMode());
-				ecif.setContactModeType(iesbForECIFForm.getContactModeType());
-				ecif.setCountryCitizen(iesbForECIFForm.getCountryCitizen());
-				ecif.setCustManagerId(iesbForECIFForm.getCustManagerId());
 
-						
 				ecifService.updateCustomerInfor(ecif,info);
 				
 //				returnMap.put(RECORD_ID, id);

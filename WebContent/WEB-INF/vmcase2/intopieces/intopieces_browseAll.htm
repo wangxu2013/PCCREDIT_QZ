@@ -6,10 +6,10 @@
   <div class="content_main">
     <div class="contentinner">
       <div class="place">
-        <div class="title">进件查询</div>
+        <div class="title">进件查询(卡中心)</div>
       </div>
       <div class="inquiry">
-       <div class="search_tag">进件查询</div>
+       <div class="search_tag">进件查询(卡中心)</div>
         <div class="search">
           <form id="queryForm" action="${contextPath}/intopieces/intopiecesqueryAll/browseAll.page">
           <ul>
@@ -19,6 +19,11 @@
                <li>
                 <span>证件号码：<input type="text" id="cardId" name="cardId" value="$!result.filter.cardId" /></span>
               </li>
+              <span>产品名称：<select id="productId" name="productId">
+              		   <option value="ALL">请选择</option>
+	                   #dict("ProductName_1", $!$!result.filter.productId)
+	                </select>
+	            </span>
               <!-- <li>
                 <span>进件状态：<select id="status" name="status" value="$!result.filter.status" >
                 <option  value="" >ALL</option>
@@ -44,9 +49,10 @@
               <col width="5%" />
               <col width="15%" />
               <col width="15%"/>
-              <col width="20%"/>
+              <col width="10%"/>
               <col width="15%"/>
               <col width="15%"/>
+              <col width="5%" />
               <col />
             </colgroup>
             <tr class="title">
@@ -57,6 +63,7 @@
               <th nowrap="nowrap">申请额度</th>
               <th nowrap="nowrap">状态</th>
               <th nowrap="nowrap">进度</th>
+              <th nowrap="nowrap">续授信</th>
             </tr>
           </table>
         </div>
@@ -66,14 +73,15 @@
               <col width="5%" />
               <col width="15%" />
               <col width="15%"/>
-              <col width="20%"/>
+              <col width="10%"/>
               <col width="15%"/>
               <col width="15%"/>
+              <col width="5%" />
               <col />
             </colgroup>
             #foreach ($intoPieces in $result.items)
             <tr>
-              <td class="checkbox"><input type="radio" name="checkbox" value="$!{intoPieces.id}_$!{intoPieces.customerId}"/></td>
+              <td class="checkbox"><input type="radio" name="checkbox" value="$!{intoPieces.id}_$!{intoPieces.customerId}_$!{intoPieces.status}"/></td>
               <td nowrap="nowrap">$!intoPieces.chineseName</td>
               <td nowrap="nowrap">$!intoPieces.cardId</td>
               <td nowrap="nowrap">#dictVal("ProductName",$!intoPieces.productId)</td>
@@ -82,13 +90,21 @@
 	              #if($!intoPieces.status=='audit')已申请  
 	              #elseif($!intoPieces.status=='save')暂存 
 	              #elseif($!intoPieces.status=='nopass')申请未通过 
-	              #elseif($!intoPieces.status=='refuse')被拒绝
+	              #elseif($!intoPieces.status=='refuse')拒绝
 	              #elseif($!intoPieces.status=='RETURNAPPROVE')审核退回
 	              #elseif($!intoPieces.status=='approved')审批结束  
-	              #elseif($!intoPieces.status=='succeed')申请成功 
+	              #elseif($!intoPieces.status=='succeed')申请成功
+	              #elseif($!intoPieces.status=='returnedToFirst')退回客户经理
 	              #end
               </td>
                <td nowrap="nowrap">$!intoPieces.nodeName</td>
+               <td nowrap="nowrap">
+               		#if($!intoPieces.isContinue != $null)
+               			是
+               		#else
+               			否
+               		#end
+               </td>
             </tr>
             #end
           </table>
@@ -97,7 +113,7 @@
       <div class="pagebar">
         <div class="controlbtn"><a class="btn_g" href="javascript:void(0);" title="查看审批记录" onclick="viewIntoPicesApproveHistory('YES')">查看审批记录</a>
         <a class="btn_g" href="javascript:void(0);" title="查看申请信息" onclick="viewIntoPicesApproveDisplay('NO')">查看申请信息</a>
-        #btnpriv("scan")<a class="btn_g" href="javascript:void(0);" title="影像补扫" onclick="scan('NO')">影像补扫</a>#end
+        <!-- #btnpriv("scan")<a class="btn_g" href="javascript:void(0);" title="影像补扫" onclick="scan('NO')">影像补扫</a>#end -->
         </div>
         #parse ("common/pagination.htm")
         <div class="clear"></div>
@@ -154,10 +170,16 @@
 	function scan(flag){
 		var id = null;
 		var appId = null;
+		var status = null;
 		$("input[name='checkbox']:checked").each(function() {
 			appId = $(this).val().split("_")[0];
 			id = $(this).val().split("_")[1];
+			status = $(this).val().split("_")[2];
 		});
+		if(status == "save"){
+			Dialog.message("该进件未勾选待上传资料清单，无法补扫!");
+			return;
+		}
 		if(id!=null){
 			var url="${contextPath}/intopieces/intopiecesapprove/sunds_ocx.page?appId=" + appId;
 			window.location.href = url;

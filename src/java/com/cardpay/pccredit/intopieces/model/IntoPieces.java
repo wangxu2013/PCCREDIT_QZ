@@ -18,6 +18,9 @@ public class IntoPieces  extends BusinessModel {
     private String createTime;//创建时间
     
     private String nodeName;
+    private String loanStatus;//贷款状态
+    private String isContinue;//是否续授信
+    
     //进度
 	public String getId() {
 		return id;
@@ -85,5 +88,16 @@ public class IntoPieces  extends BusinessModel {
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
 	}
-
+	public String getLoanStatus() {
+		return loanStatus;
+	}
+	public void setLoanStatus(String loanStatus) {
+		this.loanStatus = loanStatus;
+	}
+	public String getIsContinue() {
+		return isContinue;
+	}
+	public void setIsContinue(String isContinue) {
+		this.isContinue = isContinue;
+	}
 }

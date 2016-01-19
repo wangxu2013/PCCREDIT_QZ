@@ -4,10 +4,31 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.cardpay.pccredit.afterloan.model.O_CLPM_ACC_LOAN;
+import com.cardpay.pccredit.afterloan.model.O_CLPM_CTR_LOAN_CONT;
+import com.cardpay.pccredit.afterloan.model.PspCheckTaskVo;
 import com.cardpay.pccredit.customer.model.CustomerCareersInformation;
 import com.cardpay.pccredit.customer.model.CustomerInfor;
 import com.cardpay.pccredit.customer.model.CustomerInforWeb;
+import com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList;
+import com.cardpay.pccredit.intopieces.model.QzApplnDbrxx;
+import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxDkjl;
+import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxFc;
+import com.cardpay.pccredit.intopieces.model.QzApplnDbrxxJdc;
+import com.cardpay.pccredit.intopieces.model.QzApplnJyxx;
+import com.cardpay.pccredit.intopieces.model.QzApplnYwsqb;
+import com.cardpay.pccredit.intopieces.model.QzApplnYwsqbJkjl;
+import com.cardpay.pccredit.intopieces.model.QzApplnYwsqbZygys;
+import com.cardpay.pccredit.intopieces.model.QzApplnYwsqbZykh;
+import com.cardpay.pccredit.intopieces.model.QzApplnZa;
+import com.cardpay.pccredit.intopieces.web.ApproveHistoryForm;
+import com.cardpay.pccredit.ipad.model.CustomerApplyInfoIpad;
+import com.cardpay.pccredit.ipad.model.CustomerDhJcInfoIpad;
+import com.cardpay.pccredit.ipad.model.CustomerDhJcTxInfoIpad;
+import com.cardpay.pccredit.ipad.model.CustomerDqwdtxInfoIpad;
+import com.cardpay.pccredit.ipad.model.CustomerInfoIpad;
 import com.cardpay.pccredit.system.model.Dict;
+import com.cardpay.pccredit.system.web.NodeAuditForm;
 import com.wicresoft.util.annotation.Mapper;
 /**
  * 
@@ -193,4 +214,103 @@ public interface CustomerInforDao {
 	public void deleteCloneDimensionalModelCredit(@Param("customerId") String customerId, @Param("applicationId") String applicationId);
 	
 	public void deleteCloneCustomerVideoAccessories(@Param("customerId") String customerId, @Param("applicationId") String applicationId);
+	
+	public List<CustomerInfoIpad> ipadFindAllCustomerByUserId(@Param("user_no") String user_no,@Param("client_name")  String client_name,@Param("default_type") String default_type,@Param("global_id") String global_id
+			,@Param("limit") String limit,@Param("page") String page);
+	public List<CustomerInfoIpad> ipadFindWsxCustomerByUserId(@Param("user_no") String user_no,@Param("client_name")  String client_name,@Param("default_type") String default_type,@Param("global_id") String global_id
+			,@Param("limit") String limit,@Param("page") String page);
+	public List<CustomerInfoIpad> ipadFindWjqCustomerByUserId(@Param("user_no") String user_no,@Param("client_name")  String client_name,@Param("default_type") String default_type,@Param("global_id") String global_id
+			,@Param("limit") String limit,@Param("page") String page);
+	public List<CustomerInfoIpad> ipadFindYjqCustomerByUserId(@Param("user_no") String user_no,@Param("client_name")  String client_name,@Param("default_type") String default_type,@Param("global_id") String global_id
+			,@Param("limit") String limit,@Param("page") String page);
+	
+	//01-查询已进件贷款申请列表
+	public List<CustomerApplyInfoIpad> ipadApplyInfoJjByUserId(@Param("tranType") String tranType,
+															   @Param("userNo")  String userNo,
+															   @Param("clientName") String clientName,
+															   @Param("globalId") String globalId,
+															   @Param("chl") String chl
+															   ,@Param("limit") String limit,@Param("page") String page);
+	//02-查询贷款申请待处理补退件列表
+	public List<CustomerApplyInfoIpad> ipadApplyInfoThByUserId(@Param("tranType") String tranType,
+															   @Param("userNo")  String userNo,
+															   @Param("clientName") String clientName,
+															   @Param("globalId") String globalId,
+															   @Param("chl") String chl
+															   ,@Param("limit") String limit,@Param("page") String page);
+	//03-查询贷中客户列表										
+	public List<CustomerApplyInfoIpad> ipadApplyInfoDzByUserId(@Param("tranType") String tranType,
+															   @Param("userNo")  String userNo,
+															   @Param("clientName") String clientName,
+															   @Param("globalId") String globalId
+															   ,@Param("limit") String limit,@Param("page") String page);
+   
+	public List<CustomerDhJcInfoIpad> ipadDhJcByUserId(@Param("QUERY_TYPE") String tranType,
+													   @Param("APPROVE_STATUS")  String userNo,
+													   @Param("userId") String userId,
+													   @Param("chineseName") String chineseName,
+													   @Param("cardId") String cardId,
+													   @Param("clientNo") String clientNo,
+													   @Param("checkType") String checkType,
+													   @Param("belongChildIds") String belongChildIds
+													   ,@Param("limit") String limit,@Param("page") String page);
+	
+	public CustomerDhJcTxInfoIpad ipadWdtxByUserId(@Param("userId") String userId,@Param("loginId") String loginId); 
+	
+	public List<CustomerDqwdtxInfoIpad> ipadDqwdByUserId(@Param("CLIENT_NAME") String CLIENT_NAME,
+														 @Param("GLOBAL_ID") String GLOBAL_ID,
+														 @Param("BUSS_TYPE") String BUSS_TYPE,
+														 @Param("userId") String userId
+														 ,@Param("limit") String limit,@Param("page") String page);
+	
+	public List<ApproveHistoryForm> ipadWdAuditInfo(@Param("id") String id);
+	
+	public List<NodeAuditForm> ipadWdApplyProcess(@Param("productId") String productId);
+	
+	//取最新的合同
+	public O_CLPM_CTR_LOAN_CONT ipadWdKuyx(@Param("clientCode") String clientCode);
+	//取正常的借据
+	public List<O_CLPM_ACC_LOAN> ipadWdKuyxList(@Param("clientCode") String clientCode);
+	
+	public  PspCheckTaskVo  ipadDhjcbrowse(@Param("taskId") String taskId);
+	
+	public List<Dict>  ipadDictList(@Param("dictType") String dictType);
+	
+	public List<QzApplnZa> ipadApplyZaList();
+	
+	public CustomerApplyInfoIpad Wdsqspbrowse(@Param("appId") String appId,@Param("customerId") String customerId);
+	
+	//贷款申请表信息
+	public QzApplnYwsqb findQzApplnYwsqb(@Param("appId") String appId);
+	
+	//经营信息
+	public QzApplnJyxx findQzApplJyxx(@Param("appId") String appId);
+	
+	//供应商信息
+	public List<QzApplnYwsqbZygys> findGys(@Param("ywsqbId") String ywsqbId);
+	
+	//查询客户
+	public List<QzApplnYwsqbZykh> findKh(@Param("ywsqbId") String ywsqbId);
+	
+	//查询贷款信息明细
+	public List<QzApplnYwsqbJkjl> findDk(@Param("ywsqbId") String ywsqbId);
+	
+	//查询担保人信息
+	public List<QzApplnDbrxx> findDbrxx(@Param("appId") String appId);
+	
+	//担保人贷款信息
+	public List<QzApplnDbrxxDkjl> findDbrxxDkjl(@Param("dbrxxId") String dbrxxId);
+	
+	//房产
+	public List<QzApplnDbrxxFc> findFcList(@Param("dbrxxId") String dbrxxId);
+	
+	//机动车
+	public List<QzApplnDbrxxJdc> findJdc(@Param("dbrxxId") String dbrxxId);
+	
+	//待上传资料
+	public QzApplnAttachmentList findAttachList(@Param("appId") String appId);
+	
+	//更新客户位置信息
+	public void updateCustomerLocationMsg(@Param("COORDINATE") String COORDINATE, @Param("CLIENT_CODE") String CLIENT_CODE,@Param("REMARK") String REMARK);
+	public int checkCanApplyOrNot(@Param("custId") String custId);
 }

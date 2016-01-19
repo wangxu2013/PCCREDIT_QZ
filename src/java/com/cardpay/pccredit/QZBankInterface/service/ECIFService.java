@@ -61,6 +61,7 @@ public class ECIFService {
 	 * @param customerinfo
 	 * @return
 	 */
+
 	public void insertCustomerInfor(ECIF ecif,CustomerInfor info) {
 		
 		//组包
@@ -86,7 +87,7 @@ public class ECIFService {
             commonDao.insertObject(ecif);
 //		}
 	}
-	
+
 	/**
 	 * 更新数据
 	 * @param customerinfo

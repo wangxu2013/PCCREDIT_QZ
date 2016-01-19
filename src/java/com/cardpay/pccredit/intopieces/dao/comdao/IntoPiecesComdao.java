@@ -338,6 +338,30 @@ public class IntoPiecesComdao {
 		}
 	}
 	
+	/**
+	 * 查找冻结解冻审批中的节点
+	 * @param id
+	 * @return
+	 */
+	public String findQuotaProgress(String id){
+		String sql = "select wsi.STATUS_NAME from "
+				+ "quota_process cap,wf_process_record wpr,wf_status_queue_record wsqr,wf_status_info wsi "
+				+ "where "
+				+ "cap.circle_id = #{id} "
+				+ "and cap.SERIAL_NUMBER = wsqr.CURRENT_PROCESS "
+				+ "and wpr.wf_status_queue_record = wsqr.id "
+				+ "and wsqr.current_status = wsi.id ";
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", id);
+		List<HashMap<String, Object>> list = commonDao.queryBySql(sql, params);
+		if(list != null && list.size() > 0){
+			HashMap<String, Object> map = list.get(0);
+			return (String) map.get("STATUS_NAME");
+		} else {
+			return null;
+		}
+	}
+	
 	public Float checkApplyQuota(String userId,String productId){
 		String sql = "select * from MANAGER_PRODUCTS_CONFIGURATION t where exists (select 1 from ACCOUNT_MANAGER_PARAMETER f where t.customer_manager_level = f.level_information and f.user_id = '"+userId+"' and t.product_id = '"+productId+"')";
 		List<ManagerProductsConfiguration> list = commonDao.queryBySql(ManagerProductsConfiguration.class, sql, null);
@@ -350,34 +374,6 @@ public class IntoPiecesComdao {
 		}else{
 			return null;
 		}
-	}
-	
-	//查询进件信息
-	/* 查询进价信息 */
-	public QueryResult<IntoPieces> findintoPiecesAllByFilter(IntoPiecesFilter filter) {
-		HashMap<String, Object> params = new HashMap<String, Object>();
-		String id = filter.getId();
-		String chineseName = filter.getChineseName();
-		String userId = filter.getUserId();
-		String cardId = filter.getCardId();
-		
-		StringBuffer sql = new StringBuffer("SELECT T.ID, T.customer_id, b.chinese_name, T.product_id, b.card_id, circle.CONTRACT_AMT as apply_quota, T.status ");
-		sql.append("FROM customer_application_info T inner JOIN basic_customer_information b ON T .customer_id = b. ID ");
-		if(StringUtils.trimToNull(cardId)!=null||StringUtils.trimToNull(chineseName)!=null){
-			if(StringUtils.trimToNull(cardId)!=null&&StringUtils.trimToNull(chineseName)!=null){
-			    sql.append(" and (b.card_id like '%"+cardId+"%' or b.chinese_name like '%"+chineseName+"%' )");
-			}else if(StringUtils.trimToNull(cardId)!=null&&StringUtils.trimToNull(chineseName)==null){
-				params.put("cardId", cardId);
-				sql.append(" and b.card_id like '%'||#{cardId}||'%' ");
-			}else if(StringUtils.trimToNull(cardId)==null&&StringUtils.trimToNull(chineseName)!=null){
-				params.put("chineseName", chineseName);
-				sql.append(" and b.chinese_name like '%'||#{chineseName}||'%' ");
-			}
-		}
-		sql.append("LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id ");
-		sql.append(" order by T.created_time desc");
-		return commonDao.queryBySqlInPagination(IntoPieces.class, sql.toString(), params,
-				filter.getStart(), filter.getLimit());
 	}
 		
 }

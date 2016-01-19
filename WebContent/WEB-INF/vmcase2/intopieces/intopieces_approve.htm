@@ -31,9 +31,10 @@
               <col width="5%" />
               <col width="15%" />
               <col width="15%"/>
-              <col width="20%"/>
+              <col width="10%"/>
               <col width="15%"/>
               <col width="15%"/>
+              <col width="5%" />
             </colgroup>
             <tr class="title">
               <th nowrap="nowrap"></th>
@@ -43,6 +44,7 @@
               <th nowrap="nowrap">申请额度</th>
               <th nowrap="nowrap">状态</th>
               <th nowrap="nowrap">进度</th>
+              <th nowrap="nowrap">续授信</th>
             </tr>
           </table>
         </div>
@@ -52,9 +54,10 @@
               <col width="5%" />
               <col width="15%" />
               <col width="15%"/>
-              <col width="20%"/>
+              <col width="10%"/>
               <col width="15%"/>
               <col width="15%"/>
+              <col width="5%" />
             </colgroup>
             #foreach ($intoPieces in $result.items)
             <tr>
@@ -67,11 +70,11 @@
 	              #if($!intoPieces.status=='audit')已申请  
 	              #elseif($!intoPieces.status=='save')暂存 
 	              #elseif($!intoPieces.status=='nopass')申请未通过 
-	              #elseif($!intoPieces.status=='refuse')被拒绝
+	              #elseif($!intoPieces.status=='refuse')拒绝
 	              #elseif($!intoPieces.status=='RETURNAPPROVE')审核退回
 	              #elseif($!intoPieces.status=='approved')审批结束  
-	              #elseif($!intoPieces.status=='succeed')申请成功 
-	              #elseif($!intoPieces.status=='returnedToFirst')退回客户经理 
+	              #elseif($!intoPieces.status=='succeed')申请成功
+	              #elseif($!intoPieces.status=='returnedToFirst')退回客户经理
 	              #end
               </td>
               #if($!intoPieces.status=='returnedToFirst')
@@ -79,6 +82,14 @@
                #else
                <td nowrap="nowrap">$!intoPieces.nodeName</td>
                #end
+               
+               <td nowrap="nowrap">
+               		#if($!intoPieces.isContinue != $null)
+               			是
+               		#else
+               			否
+               		#end
+               </td>
             </tr>
             #end
           </table>
@@ -92,6 +103,7 @@
         	<a id="id_delete_button" class="btn_g" href="javascript:void(0);" title="删除申请信息">删除申请信息</a>
 			<a id="id_apply_button" class="btn_g" href="javascript:void(0);" title="申请">申请贷款</a>
 			<a id="id_add_button" class="btn_g" title="初审拒件记录">补充上会记录</a>
+			<a id="id_continue_button" class="btn_g" title="续授信">续授信</a>
         </div>
         #parse ("common/pagination.htm")
         <div class="clear"></div>
@@ -186,7 +198,7 @@
 								type : "get",
 								success : function(data) {
 									if (data.success) {
-										topWin.Dialog.message("保存成功！");
+										topWin.Dialog.message("删除成功！");
 										window.location.reload(true);
 									}
 									else{
@@ -218,6 +230,13 @@
 				Dialog.message("请选择一条记录!");
 			}
 	    });
+		
+		//续授信
+		$("#id_continue_button").click(function() {
+			var url="${modulePath}/selectProduct.page?isContinue=continue";
+			window.location.href = url;
+	    });		
+					
 		prepareOperations(opsObj);
 	});
 </script>

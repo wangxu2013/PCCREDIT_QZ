@@ -23,7 +23,6 @@ public class OClpmAccLoanFilter extends BaseQueryFilter{
 	//客户经理Id
 	private String userId;
 	
-	
 	public String getManagerId() {
 		return managerId;
 	}

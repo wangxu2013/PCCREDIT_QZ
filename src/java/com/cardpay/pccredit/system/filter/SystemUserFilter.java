@@ -8,6 +8,8 @@ public class SystemUserFilter extends BaseQueryFilter{
 	private String orgId;
 	
 	private String oname;
+	
+	private String displayName;
 
 	public String getOrgId() {
 		return orgId;
@@ -24,6 +26,13 @@ public class SystemUserFilter extends BaseQueryFilter{
 	public void setOname(String oname) {
 		this.oname = oname;
 	}
-	
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
 }

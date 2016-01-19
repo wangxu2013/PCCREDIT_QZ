@@ -34,6 +34,369 @@
 		<result property="bankCode" column="BANK_CODE" />
 </resultMap>
 
+<resultMap id="CustomerInfoIpadMap" type="com.cardpay.pccredit.ipad.model.CustomerInfoIpad">
+		<result property="clientName" column="CLIENT_NAME" />
+		<result property="globalType" column="GLOBAL_TYPE" />
+		<result property="globalId" column="GLOBAL_ID" />
+		<result property="clientNo" column="CLIENT_NO" />
+		<result property="customerId" column="CUSTOMER_ID" />
+		<result property="coordinate" column="COORDINATE" />
+		<result property="describe" column="REMARK" />
+		<result property="process" column="process" />
+		<result property="total" column="total" />
+		<result property="wsx" column="wsx" />
+		<result property="wjq" column="wjq" />
+		<result property="yjq" column="yjq" />
+	</resultMap>
+	
+<resultMap id="CustomerApplyInfoMap" type="com.cardpay.pccredit.ipad.model.CustomerApplyInfoIpad">
+		<result property="inputWareRegNo" column="ID" />
+		<result property="clientName" column="CHINESE_NAME" />
+		<result property="globalId" column="CARD_ID" />
+		<result property="productCode" column="PRODUCT_ID" />
+		<result property="productName" column="PRODUCT_NAME" />
+		<result property="applyLimitAmt" column="APPLY_QUOTA" />
+		<result property="status" column="STATUS" />
+		<result property="process" column="PROCESS" />
+		<result property="backReason" column="BACKREASON" />
+		<result property="customerId" column="CUSTOMER_ID" />
+		<result property="chl" column="CHL" />
+</resultMap>
+
+<resultMap id="DhJcMap" type="com.cardpay.pccredit.ipad.model.CustomerDhJcInfoIpad">
+		<result property="taskId" column="TASKID" />
+		<result property="clientName" column="CHINESENAME" />
+		<result property="globalId" column="CARDID" />
+		<result property="clientCode" column="CUSID" />
+		<result property="taskType" column="TASKTYPE" />
+		<result property="taskDate" column="TASKCREATEDATE" />
+		<result property="loanAmt" column="LOANTOTLAMT" />
+		<result property="loanBalance" column="LOANBALANCE" />
+		<result property="cnt" column="QNT" />
+		<result property="approveStatus" column="APPROVESTATUS" />
+		<result property="backReason" column="FALLBACK_REASON" />
+		<result property="checkDescribe" column="CHECK_DESCRIBE" />
+		
+</resultMap>
+
+
+<resultMap id="WdtxMap" type="com.cardpay.pccredit.ipad.model.CustomerDhJcTxInfoIpad">
+		<result property="loanApplyNum" 	column="LOAN_APPLY_NUM" />
+		<result property="loanApplyBackNum" column="LOAN_APPLY_BACK_NUM" />
+		<result property="afterLoanTaskNum" column="AFTER_LOAN_TASK_NUM" />
+		<result property="afterLoanBackNum" column="AFTER_LOAN_BACK_NUM" />
+		<result property="expiryClientNum"  column="EXPIRY_CLIENT_NUM" />
+		<result property="overdueClinetNum" column="OVERDUE_CLIENT_NUM" />
+</resultMap>
+
+
+<resultMap id="DqwdMap" type="com.cardpay.pccredit.ipad.model.CustomerDqwdtxInfoIpad">
+		<result property="clientName" 	  column="CLIENT_NAME" />
+		<result property="clientCode"     column="CLIENT_NO" />
+		<result property="duebillNo"      column="BILL_NO" />
+		<result property="presentBalance" column="LOAN_BALANCE" />
+		<result property="expiryDate"     column="END_DATE" />
+		<result property="receInterest"   column="REC_INT_ACCUM" />
+</resultMap>
+
+<resultMap id="WsAuditMap" type="com.cardpay.pccredit.intopieces.web.ApproveHistoryForm">
+		<result property="statusName" 	        column="status_name" />
+		<result property="examineResult"        column="examine_result" />
+		<result property="displayName"          column="display_name" />
+		<result property="examineAmount"        column="examine_amount" />
+		<result property="startExamineTime"     column="start_examine_time" />
+</resultMap>
+
+<resultMap id="WsApplyProcessMap" type="com.cardpay.pccredit.system.web.NodeAuditForm">
+		<result property="id" 	  		column="ID" />
+		<result property="nodeName"     column="NODE_NAME" />
+		<result property="isstart"      column="ISSTART" />
+		<result property="isend" 		column="ISEND" />
+		<result property="seqNo"     	column="SEQ_NO" />
+</resultMap>
+
+
+<resultMap id="WdKuyxListMap" type="com.cardpay.pccredit.afterloan.model.O_CLPM_ACC_LOAN">
+		<result property="cusId" 	  		column="cus_id" />
+		<result property="billNo"     		column="BILL_NO" />
+		<result property="contNo"     		column="CONT_NO" />
+		<result property="loanAmt" 			column="loan_amt" />
+		<result property="distrDate"     	column="DISTR_DATE" />
+		<result property="overdue"     		column="OVERDUE" />
+		<result property="overdueBalance"   column="OVERDUE_BALANCE" />
+		<result property="loanBalance"   column="LOAN_BALANCE" />
+		<result property="accStatus"     	column="ACC_STATUS" />
+</resultMap>
+
+<resultMap id="WdKuyxMap" type="com.cardpay.pccredit.afterloan.model.O_CLPM_CTR_LOAN_CONT">
+		<result property="contAmt" 	  			column="CONT_AMT" />
+		<result property="contBalance"     		column="CONT_BALANCE" />
+		<result property="remainAmt"     		column="REMAIN_AMT" />
+</resultMap>
+
+<resultMap id="DhjcbrowseMap" type="com.cardpay.pccredit.afterloan.model.PspCheckTaskVo">
+		<result property="taskId" 	  			column="task_id" />
+		<result property="clientName"     		column="client_name" />
+		<result property="globalId"     		column="global_id" />
+		<result property="cusId"     		    column="client_no" />
+		<result property="taskType"     		column="task_type" />
+		<result property="taskCreateDate"     	column="task_create_date" />
+		<result property="LoanTotlAmt"     		column="loan_totl_amt" />
+		<result property="loanBalance"     		column="loan_balance" />
+		<result property="qnt"     				column="qnt" />
+		<result property="managerId"     		column="manager_id" />
+		<result property="managerBrId"     		column="manager_br_id" />
+		<result property="checkTime"     		column="check_time" />
+		<result property="checkAddr"     		column="check_addr" />
+		<result property="agreedPerson"     	column="agreed_person" />
+		<result property="contactInformation"   column="contact_information" />
+		<result property="repayment"     		column="repayment" />
+		<result property="repaymentOther"       column="repayment_other" />
+		<result property="reciprocalType"       column="reciprocal_type" />
+		<result property="checkDescribe"     	column="check_describe" />
+		<result property="remarks"     		    column="remarks" />
+		<result property="uploadFlag"     		column="upload_flag" />
+</resultMap>
+
+
+<resultMap id="DictListMap" type="com.cardpay.pccredit.system.model.Dict">
+		<result property="dictType" 	  	    column="DICT_TYPE" />
+		<result property="TypeCode"     		column="TYPE_CODE" />
+		<result property="TypeName"     		column="TYPE_NAME" />
+</resultMap>
+
+<resultMap id="ZaListMap" type="com.cardpay.pccredit.intopieces.model.QzApplnZa">
+		<result property="id" 	  	      column="ID" />
+		<result property="name"     	  column="NAME" />
+		<result property="address"     	  column="ADDRESS" />
+		<result property="initDate" 	  column="INIT_DATE" />
+		<result property="originator"     column="ORIGINATOR" />
+		<result property="initiator"      column="INITIATOR" />
+		<result property="sug"     		  column="SUG" />
+</resultMap>
+
+<resultMap id="YwsqbMap" type="com.cardpay.pccredit.intopieces.model.QzApplnYwsqb">
+		<result property="id" column="ID" />     
+		<result property="customerId" column="CUSTOMER_ID" />     
+		<result property="applicationId" column="APPLICATION_ID" />     
+		<result property="orgName" column="ORG_NAME" />     
+		<result property="orgId" column="ORG_ID" />     
+		<result property="applyTime" column="APPLY_TIME" />     
+		<result property="name" column="NAME" />     
+		<result property="sex" column="SEX" />     
+		<result property="globalId" column="GLOBAL_ID" />     
+		<result property="globalType" column="GLOBAL_TYPE" />     
+		<result property="globalTypeOther" column="GLOBAL_TYPE_OTHER" />     
+		<result property="educationLevel" column="EDUCATION_LEVEL" />     
+		<result property="educationLevelOther" column="EDUCATION_LEVEL_OTHER" />     
+		<result property="maritalStatus" column="MARITAL_STATUS" />     
+		<result property="maritalStatusOther" column="MARITAL_STATUS_OTHER" />     
+		<result property="maritalName" column="MARITAL_NAME" />     
+		<result property="maritalGlobalType" column="MARITAL_GLOBAL_TYPE" />     
+		<result property="maritalGlobalTypeOther" column="MARITAL_GLOBAL_TYPE_OTHER   " />     
+		<result property="maritalGlobalId" column="MARITAL_GLOBAL_ID" />     
+		<result property="maritalWorkunit" column="MARITAL_WORKUNIT" />     
+		<result property="maritalPhone" column="MARITAL_PHONE" />     
+		<result property="familyNum" column="FAMILY_NUM" />     
+		<result property="addressType" column="ADDRESS_TYPE" />     
+		<result property="addressTypeOther" column="ADDRESS_TYPE_OTHER" />     
+		<result property="address" column="ADDRESS" />     
+		<result property="phone_1" column="PHONE_1" />     
+		<result property="phone_2" column="PHONE_2" />     
+		<result property="homePhone" column="HOME_PHONE" />     
+		<result property="applyAmount" column="APPLY_AMOUNT" />     
+		<result property="applyDeadline" column="APPLY_DEADLINE" />     
+		<result property="applyUse" column="APPLY_USE" />     
+		<result property="applyEndTime" column="APPLY_END_TIME" />     
+		<result property="monthRepay" column="MONTH_REPAY" />     
+		<result property="guntThing" column="GUNT_THING" />     
+		<result property="guntPeople" column="GUNT_PEOPLE" />     
+		<result property="yearIncome" column="YEAR_INCOME" />     
+		<result property="profitType" column="PROFIT_TYPE" />     
+		<result property="profit" column="PROFIT" />     
+		<result property="totalAssets" column="TOTAL_ASSETS" />     
+		<result property="inMoney" column="IN_MONEY" />     
+		<result property="outMoney" column="OUT_MONEY" />     
+		<result property="otherOut" column="OTHER_OUT" />     
+		<result property="monthOtherIncome" column="MONTH_OTHER_INCOME" />     
+		<result property="otherIncomeSrc" column="OTHER_INCOME_SRC" />     
+		<result property="borrowHistory" column="BORROW_HISTORY" />     
+		<result property="haveGunt" column="HAVE_GUNT" />     
+		<result property="thing_1" column="THING_1" />     
+		<result property="thing_2" column="THING_2" />     
+		<result property="thing_3" column="THING_3" />     
+		<result property="thing_4" column="THING_4" />     
+		<result property="loanUser_1" column="LOAN_USER_1" />     
+		<result property="loanUser_2" column="LOAN_USER_2" />     
+		<result property="loanUser_3" column="LOAN_USER_3" />     
+		<result property="loanUser_4" column="LOAN_USER_4" />     
+		<result property="guntForOther" column="GUNT_FOR_OTHER" />     
+		<result property="guntForOtherBankname" column="GUNT_FOR_OTHER_BANKNAME" />     
+		<result property="guntForOtherClientname" column="GUNT_FOR_OTHER_CLIENTNAME" />     
+		<result property="haveApplyLoan" column="HAVE_APPLY_LOAN" />     
+		<result property="haveLoanTime" column="HAVE_LOAN_TIME" />     
+		<result property="haveElePro" column="HAVE_ELE_PRO" />     
+		<result property="haveEleProType" column="HAVE_ELE_PRO_TYPE" />     
+		<result property="haveGotLoan" column="HAVE_GOT_LOAN" />     
+		<result property="haveGotLoanName" column="HAVE_GOT_LOAN_NAME" />     
+		<result property="haveGotLoanRelation" column="HAVE_GOT_LOAN_RELATION" />     
+		<result property="sign" column="SIGN" />     
+		<result property="signDate" column="SIGN_DATE" />     
+		<result property="infoType" column="INFO_TYPE" />     
+		<result property="infoTypeOther" column="INFO_TYPE_OTHER" />     
+		<result property="commet" column="COMMET" />     
+		<result property="managerName" column="MANAGER_NAME" />     
+		<result property="managerId" column="MANAGER_ID" />     
+		<result property="managerTime" column="MANAGER_TIME" />     
+		<result property="email" column="EMAIL" />     
+		<result property="unit" column="UNIT" />     
+		<result property="profession" column="PROFESSION" />     
+		<result property="occupation" column="OCCUPATION" />     
+		<result property="jobPost" column="JOB_POST" />     
+		<result property="positionTitle" column="POSITION_TITLE" />     
+		<result property="unitAddress" column="UNIT_ADDRESS" />     
+		<result property="workYear" column="WORK_YEAR" />     
+		<result property="unitPhone" column="UNIT_PHONE" />     
+		<result property="companySize" column="COMPANY_SIZE" />     
+		<result property="unitType" column="UNIT_TYPE" />     
+		<result property="bussdistrictAddress" column="BUSSDISTRICT_ADDRESS" />     
+		<result property="helpManagerName" column="HELP_MANAGER_NAME" />     
+</resultMap>
+	
+<resultMap id="JyxxMap" type="com.cardpay.pccredit.intopieces.model.QzApplnJyxx">
+		<result property="id"  column="ID" />
+		<result property="customerId"  column="CUSTOMER_ID" />
+		<result property="applicationId"  column="APPLICATION_ID" />
+		<result property="bussName"  column="BUSS_NAME" />
+		<result property="bussScope"  column="BUSS_SCOPE" />
+		<result property="bussStartYear"  column="BUSS_START_YEAR" />
+		<result property="bussAddrType"  column="BUSS_ADDR_TYPE" />
+		<result property="bussAddrTypeOther"  column="BUSS_ADDR_TYPE_OTHER" />
+		<result property="bussAddr"  column="BUSS_ADDR" />
+		<result property="bussPhone"  column="BUSS_PHONE" />
+		<result property="bussEmployeeNum"  column="BUSS_EMPLOYEE_NUM" />
+		<result property="bussType"  column="BUSS_TYPE" />
+		<result property="bussTypeOther"  column="BUSS_TYPE_OTHER" />
+</resultMap>
+
+
+<resultMap id="GyMap" type="com.cardpay.pccredit.intopieces.model.QzApplnYwsqbZygys">
+		<result property="id"  		column="ID" />
+		<result property="ywsqbId"  column="YWSQB_ID" />
+		<result property="lsh"  	column="LSH" />
+		<result property="name"  	column="NAME" />
+		<result property="rate"  	column="RATE" />
+		<result property="condition"  column="CONDITION" />
+</resultMap>
+
+
+<resultMap id="KhMap" type="com.cardpay.pccredit.intopieces.model.QzApplnYwsqbZykh">
+		<result property="id"  		column="ID" />
+		<result property="ywsqbId"  column="YWSQB_ID" />
+		<result property="lsh"  	column="LSH" />
+		<result property="name"  	column="NAME" />
+		<result property="rate"  	column="RATE" />
+		<result property="condition"  column="CONDITION" />
+</resultMap>
+
+<resultMap id="DkMap" type="com.cardpay.pccredit.intopieces.model.QzApplnYwsqbJkjl">
+		<result property="id"  					column="ID" />
+		<result property="ywsqbId"  			column="YWSQB_ID" />
+		<result property="lsh"  				column="LSH" />
+		<result property="bankOrOtherType"  	column="BANK_OR_OTHER_TYPE" />
+		<result property="totalAmount"  		column="TOTAL_AMOUNT" />
+		<result property="loanDate"  			column="LOAN_DATE" />
+		<result property="deadline"  			column="DEADLINE" />
+		<result property="rates"  			    column="RATES" />
+		<result property="REPAY_TYPE"  			column="REPAY_TYPE" />
+		<result property="remainSum"  			column="REMAIN_SUM" />
+		<result property="guaranteeMode"  	    column="GUARANTEE_MODE" />
+</resultMap>
+
+<resultMap id="DbrxxMap" type="com.cardpay.pccredit.intopieces.model.QzApplnDbrxx">
+		<result property="id"  column="ID" />         
+		<result property="customerId"  column="CUSTOMER_ID" />         
+		<result property="applicationId"  column="APPLICATION_ID" />         
+		<result property="name"  column="NAME" />         
+		<result property="sex"  column="SEX" />         
+		<result property="birthday"  column="BIRTHDAY" />         
+		<result property="yeah"  column="YEAH" />         
+		<result property="globalType"  column="GLOBAL_TYPE" />         
+		<result property="globalId"  column="GLOBAL_ID" />         
+		<result property="haveGlobalIdCopy"  column="HAVE_GLOBAL_ID_COPY" />         
+		<result property="phone_1"  column="PHONE_1" />         
+		<result property="phone_2"  column="PHONE_2" />         
+		<result property="phoneOther"  column="PHONE_OTHER" />         
+		<result property="workUnitName"  column="WORK_UNIT_NAME" />         
+		<result property="workYear"  column="WORK_YEAR" />         
+		<result property="workUnitAddr"  column="WORK_UNIT_ADDR" />         
+		<result property="workUnitPhone"  column="WORK_UNIT_PHONE" />         
+		<result property="yeahIncome"  column="YEAH_INCOME" />         
+		<result property="haveProveFile"  column="HAVE_PROVE_FILE" />         
+		<result property="fileName"  column="FILE_NAME" />         
+		<result property="marriage"  column="MARRIAGE" />         
+		<result property="homePhone"  column="HOME_PHONE" />         
+		<result property="homeAddr"  column="HOME_ADDR" />         
+		<result property="homeType"  column="HOME_TYPE" />         
+</resultMap>
+
+<resultMap id="DbrxxDkjlMap" type="com.cardpay.pccredit.intopieces.model.QzApplnDbrxxDkjl">
+		<result property="id"  		      column="ID" />                                        
+		<result property="dbrxxId"        column="DBRXX_ID" />                       
+		<result property="lsh"  		  column="LSH" />                 
+		<result property="loanType"       column="LOAN_TYPE" />                           
+		<result property="amount"         column="AMOUNT" />                         
+		<result property="deadline"  	  column="DEADLINE" />                
+		<result property="loanDate"   	  column="LOAN_DATE" />                  
+		<result property="purpose"  	  column="PURPOSE" />       
+		<result property="remainAmount"   column="REMAIN_AMOUNT" />                           
+		<result property="guntForOther"   column="GUNT_FOR_OTHER" />                         
+		<result property="guntAmount"     column="GUNT_AMOUNT" />            
+		<result property="guntDeadline"   column="GUNT_DEADLINE" />                
+</resultMap> 
+
+<resultMap id="DbrxxFcMap" type="com.cardpay.pccredit.intopieces.model.QzApplnDbrxxFc">
+		<result property="id"  		   	  column="ID" />                                        
+		<result property="dbrxxId"  	  column="DBRXX_ID" />                       
+		<result property="lsh"  		  column="LSH" />                 
+		<result property="addr"  	      column="ADDR" />                           
+		<result property="price"          column="PRICE" />
+		<result property="usrSituation"   column="USR_SITUATION" />
+		<result property="haveCopy"       column="HAVE_COPY" />                        
+</resultMap> 
+
+
+<resultMap id="DbrxxJdcMap" type="com.cardpay.pccredit.intopieces.model.QzApplnDbrxxJdc">
+		<result property="id"  		   	  column="ID" />                                        
+		<result property="dbrxxId"  	  column="DBRXX_ID" />                       
+		<result property="lsh"  		  column="LSH" />                 
+		<result property="addr"  	      column="CARD_NO" />                           
+		<result property="price"          column="PRICE" />
+		<result property="usrSituation"   column="BUY_DATE" />
+		<result property="haveCopy"       column="HAVE_COPY_1" />   
+		<result property="haveCopy"       column="HAVE_COPY_2" />                        
+</resultMap> 
+
+ <resultMap id="AttachMap" type="com.cardpay.pccredit.intopieces.model.QzApplnAttachmentList">
+		<result property="id"  		   	  column="ID" />                                        
+		<result property="customerId"  	  column="CUSTOMER_ID" />                       
+		<result property="applicationId"  		  column="APPLICATION_ID" />                 
+		<result property="clientName"  	      column="CLIENT_NAME" />                           
+		<result property="globalId"          column="GLOBAL_ID" />
+		<result property="shopName"   column="SHOP_NAME" />
+		<result property="shopId"       column="SHOP_ID" />   
+		<result property="bussType"       column="BUSS_TYPE" />
+		<result property="chkValue"       column="CHK_VALUE" />
+		<result property="user_1"       column="USER_1" />
+		<result property="user_2"       column="USER_2" />
+		<result property="user_3"       column="USER_3" /> 
+		<result property="user_4"       column="USER_4" /> 
+		<result property="docid"       column="DOCID" />
+		<result property="uploadValue"       column="UPLOAD_VALUE" />                           
+</resultMap> 
+    
+
+
 <select id="findcloneCustomerCareersByCustomerId" resultMap="customerCareersInformationMap">
 	select * from customer_careers_information_s t 
 	where t.customer_id=#{customerId}
@@ -267,5 +630,787 @@
 <delete id="deleteCloneCustomerVideoAccessories">
 	delete video_accessories_s t WHERE t.customer_id = #{customerId} and t.application_id = #{applicationId}
 </delete>
+
+<select id="ipadFindAllCustomerByUserId" resultMap="CustomerInfoIpadMap">
+    with 
+    circle as (select circle.customer_id,client_no from CUSTOMER_APPLICATION_INFO cai 
+          left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+          left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+          where CAI.STATUS = 'approved'
+          group by circle.customer_id,client_no),
+          
+    not_circle as (select customer_id from QZ_IESB_FOR_CIRCLE 
+               where customer_id not in((select customer_id from circle))),
+          
+    loan_wjq as (select circle.customer_id from O_CLPM_ACC_LOAN loan 
+          inner join circle on loan.cus_id = circle.client_no where loan.acc_status = '1' 
+          and loan.prd_id in ('100084','100085')
+          group by circle.customer_id),
+          
+    loan_yjq as (select circle.customer_id from O_CLPM_ACC_LOAN loan 
+          inner join circle on loan.cus_id = circle.client_no where loan.acc_status = '9' 
+          and loan.prd_id in ('100084','100085')
+          group by circle.customer_id)
+	
+	<if test="limit != null and limit != '' and page != null and page != ''">
+	SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+	</if>
+	select ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,ecif.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,ecif.remark,max(n.node_name) as process,
+		not_circle.customer_id as wsx,
+	  	loan_wjq.customer_id as wjq,
+	  	loan_yjq.customer_id as yjq
+	from qz_iesb_for_ecif ecif
+	left join not_circle on ecif.customer_id = not_circle.customer_id
+    left join loan_wjq on ecif.customer_id = loan_wjq.customer_id
+    left join loan_yjq on ecif.customer_id = loan_yjq.customer_id
+    
+    left join customer_application_info info on info.customer_id = ecif.CUSTOMER_ID
+    left join customer_application_process p on info.id = p.application_id
+    left join node_audit n on n.id=p.next_node_id
+			 
+	where 1=1 
+	<if test="user_no != null and user_no != '' ">
+		and ecif.user_id = #{user_no}
+	</if>
+	<if test="client_name != null and client_name != '' ">
+		<![CDATA[ and ecif.CLIENT_NAME like '%'||#{client_name}||'%']]>
+	</if>
+	<if test="global_id != null and global_id != '' "> 
+		<![CDATA[ and ecif.global_id like '%'||#{global_id}||'%']]>
+	</if>
+	<if test="default_type != null and default_type != '' ">
+	    <if test='default_type == "3" '>
+	         and ecif.customer_id in
+       		(select ecif.customer_id
+          		from qz_iesb_for_ecif ecif
+         		inner join (select cont.cus_id
+                      from O_CLPM_CTR_LOAN_CONT cont
+                      left join o_clpm_acc_loan loan 
+               			on cont.cus_id=loan.cus_id
+                     where cont.prd_id = '100028'
+                     and loan.acc_status='1'
+                     group by cont.cus_id) 
+                     con on ecif.client_no =con.cus_id)
+	    </if>
+		<if test='default_type == "1" or default_type == "2" '>
+		    and ecif.customer_id not in
+       		(select ecif.customer_id
+          		from qz_iesb_for_ecif ecif
+         		inner join (select cont.cus_id
+                      from O_CLPM_CTR_LOAN_CONT cont
+                      left join o_clpm_acc_loan loan 
+               			on cont.cus_id=loan.cus_id
+                     where cont.prd_id = '100028'
+                     and loan.acc_status='1'
+                     group by cont.cus_id) 
+                     con on ecif.client_no =con.cus_id)
+		</if>
+	</if>
+	group by ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,ecif.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,
+		ecif.remark,not_circle.customer_id,loan_wjq.customer_id,loan_yjq.customer_id
+		
+		<if test="limit != null and limit != '' and page != null and page != ''">
+			<![CDATA[		
+						) ROW_
+					WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+				WHERE ROWNUM_ > #{limit}*#{page}
+				]]>
+		</if>
+</select>
+<select id="ipadFindWsxCustomerByUserId" resultMap="CustomerInfoIpadMap">
+    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+	left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+	left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+	where CAI.STATUS = 'approved')
+ 
+ <if test="limit != null and limit != '' and page != null and page != ''">
+ 	SELECT * FROM
+			
+
+
+
+
+
+			FROM (
+			</if>
+	select ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,ecif.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,ecif.remark,max(n.node_name) as process
+	from qz_iesb_for_ecif ecif
+    
+    left join customer_application_info info on info.customer_id = ecif.CUSTOMER_ID
+    left join customer_application_process p on info.id = p.application_id
+    left join node_audit n on n.id=p.next_node_id
+    
+	where 1=1 
+	<if test="user_no != null and user_no != '' ">
+		and ecif.user_id = #{user_no}
+	</if>
+	<if test="client_name != null and client_name != '' ">
+		<![CDATA[ and ecif.client_name like '%'||#{client_name}||'%']]>
+	</if>
+	<if test="global_id != null and global_id != '' "> 
+		<![CDATA[ and ecif.global_id like '%'||#{global_id}||'%']]>
+	</if>
+	and ecif.customer_id not in (select customer_id from circle)
+	<if test="default_type != null and default_type != '' ">
+	    <if test='default_type == "3" '>
+	         and ecif.customer_id in
+       		(select ecif.customer_id
+          		from qz_iesb_for_ecif ecif
+         		inner join (select cont.cus_id
+                      from O_CLPM_CTR_LOAN_CONT cont
+                      left join o_clpm_acc_loan loan 
+               			on cont.cus_id=loan.cus_id
+                     where cont.prd_id = '100028'
+                     and loan.acc_status='1'
+                     group by cont.cus_id) 
+                     con on ecif.client_no =con.cus_id)
+	    </if>
+		<if test='default_type == "1" or default_type == "2" '>
+		    and ecif.customer_id not in
+       		(select ecif.customer_id
+          		from qz_iesb_for_ecif ecif
+         		inner join (select cont.cus_id
+                      from O_CLPM_CTR_LOAN_CONT cont
+                      left join o_clpm_acc_loan loan 
+               			on cont.cus_id=loan.cus_id
+                     where cont.prd_id = '100028'
+                     and loan.acc_status='1'
+                     group by cont.cus_id) 
+                     con on ecif.client_no =con.cus_id)
+		</if>
+	</if>
+	group by ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,ecif.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,
+		ecif.remark
+		
+		<if test="limit != null and limit != '' and page != null and page != ''">
+	<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+<select id="ipadFindWjqCustomerByUserId" resultMap="CustomerInfoIpadMap">
+    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+	left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+	left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+	where CAI.STATUS = 'approved')
+	
+	<if test="limit != null and limit != '' and page != null and page != ''">
+	SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			</if>
+	select ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,circle.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,ecif.remark,max(n.node_name) as process
+	from qz_iesb_for_ecif ecif inner join circle on ecif.customer_id = circle.customer_id
+    
+    left join customer_application_info info on info.customer_id = ecif.CUSTOMER_ID
+    left join customer_application_process p on info.id = p.application_id
+    left join node_audit n on n.id=p.next_node_id
+    
+	where 1=1 
+	<if test="user_no != null and user_no != '' ">
+		and ecif.user_id = #{user_no}
+	</if>
+	<if test="client_name != null and client_name != '' ">
+		<![CDATA[ and ecif.CLIENT_NAME like '%'||#{client_name}||'%']]>
+	</if>
+	<if test="global_id != null and global_id != '' "> 
+		<![CDATA[ and ecif.GLOBAL_ID like '%'||#{global_id}||'%']]>
+	</if>
+	and exists (select 1 from O_CLPM_ACC_LOAN loan where loan.acc_status = '1' and loan.cus_id = circle.client_no and loan.prd_id in ('100084','100085'))
+	
+	group by ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,circle.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,
+		ecif.remark
+		
+		<if test="limit != null and limit != '' and page != null and page != ''">
+	<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+
+<select id="ipadFindYjqCustomerByUserId" resultMap="CustomerInfoIpadMap">
+	with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+	left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+	left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+	where CAI.STATUS = 'approved')
+	
+	<if test="limit != null and limit != '' and page != null and page != ''">
+	SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			</if>
+	select ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,circle.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,ecif.remark,max(n.node_name) as process
+	from qz_iesb_for_ecif ecif inner join circle on ecif.customer_id = circle.customer_id
+	
+	left join customer_application_info info on info.customer_id = ecif.CUSTOMER_ID
+    left join customer_application_process p on info.id = p.application_id
+    left join node_audit n on n.id=p.next_node_id
+    
+	where 1=1 
+	<if test="user_no != null and user_no != '' ">
+		and ecif.user_id = #{user_no}
+	</if>
+	<if test="client_name != null and client_name != '' ">
+		<![CDATA[ and ecif.CLIENT_NAME like '%'||#{client_name}||'%']]>
+	</if>
+	<if test="global_id != null and global_id != '' "> 
+		<![CDATA[ and ecif.GLOBAL_ID like '%'||#{global_id}||'%']]>
+	</if>
+	and not exists (select 1 from O_CLPM_ACC_LOAN loan where loan.acc_status = '1' and loan.cus_id = circle.client_no and loan.prd_id in ('100084','100085'))
+	
+	group by ecif.GLOBAL_ID, ecif.GLOBAL_TYPE,ecif.CLIENT_NAME,circle.CLIENT_NO,ecif.COORDINATE,ecif.customer_id,
+		ecif.remark
+		
+	<if test="limit != null and limit != '' and page != null and page != ''">
+	<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+
+
+<!--01-查询已进件贷款申请列表 -->
+<select id="ipadApplyInfoJjByUserId" resultMap="CustomerApplyInfoMap">
+    <if test="limit != null and limit != '' and page != null and page != ''">
+    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			</if>
+	SELECT T.ID,
+		   b.id as CUSTOMER_ID,
+	       b.chinese_name,
+	       prod.id as PRODUCT_ID,
+	       prod.product_name,
+	       b.card_id,
+	       nvl(circle.CONTRACT_AMT,0) as apply_quota,
+	      (case T.status when  'save' then '暂存' 
+	      	  when  'audit' then '已申请'
+		      when  'refuse' then '拒绝'  
+		      when  'RETURNAPPROVE' then '审核退回' 
+		      when  'returnedToFirst' then '退回客户经理' 
+		      when  'approved' then '审批通过' end) as status,
+	       T.CHL
+	  FROM customer_application_info T
+	  inner JOIN basic_customer_information b ON T.customer_id = b. ID
+	  LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id
+	  inner join product_attribute prod on prod.id = t.product_id
+	 where 
+	 	b.user_id = #{userNo} and T.status = 'save'
+	<!-- <if test="chl != null and chl != '' ">
+	 	and T.chl = #{chl}
+	 </if> -->
+	 <if test="clientName != null and clientName !='' ">
+	 	<![CDATA[ and b.chinese_name like '%'||#{clientName}||'%']]>
+	 </if>
+	 <if test="globalId != null and globalId != '' ">
+		<![CDATA[ and b.card_id like '%'||#{globalId}||'%']]>
+	 </if>
+	 
+	<if test="limit != null and limit != '' and page != null and page != ''">
+	 <![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+
+<!--02-查询贷款申请待处理补退件列表  -->
+<select id="ipadApplyInfoThByUserId" resultMap="CustomerApplyInfoMap">
+    <if test="limit != null and limit != '' and page != null and page != ''">
+    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+		</if>	
+	SELECT T.ID,
+		   b.id as CUSTOMER_ID,
+	       b.chinese_name,
+	       prod.id as PRODUCT_ID,
+	       prod.product_name,
+	       b.card_id,
+	       nvl(circle.CONTRACT_AMT,0) as apply_quota,
+	      (case T.status when  'save' then '暂存' 
+	      	  when  'audit' then '已申请'
+		      when  'refuse' then '拒绝'  
+		      when  'RETURNAPPROVE' then '审核退回' 
+		      when  'returnedToFirst' then '退回客户经理' 
+		      when  'approved' then '审批通过' end) as status
+	       process.FALLBACK_REASON as BACKREASON,
+	       T.CHL
+	  FROM customer_application_info T
+	  inner JOIN basic_customer_information b ON T.customer_id = b. ID
+	  LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id
+	  inner join product_attribute prod on prod.id = t.product_id
+	  inner join CUSTOMER_APPLICATION_PROCESS process on process.APPLICATION_ID = T.id
+	 where 
+	 	b.user_id = #{userNo} and T.status in('returnedToFirst')
+	 <if test="clientName != null and clientName !='' ">
+	 	<![CDATA[ and b.chinese_name like '%'||#{clientName}||'%']]>
+	 </if>
+	 <if test="globalId != null and globalId != '' ">
+		<![CDATA[ and b.card_id like '%'||#{globalId}||'%']]>
+	 </if>
+	 <!-- <if test="chl != null and chl != '' ">
+	 	and T.chl = #{chl}
+	 </if> -->
+	 <if test="limit != null and limit != '' and page != null and page != ''">
+	  <![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+
+<!-- 03-查询贷中客户列表	 -->
+<select id="ipadApplyInfoDzByUserId" resultMap="CustomerApplyInfoMap">
+    <if test="limit != null and limit != '' and page != null and page != ''">
+	SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			</if>
+	SELECT T.id,
+		   b.id as CUSTOMER_ID,
+	       b.chinese_name,
+	       prod.ID as product_id,
+	       prod.product_name,
+	       b.card_id,
+	       circle.CONTRACT_AMT as apply_quota,
+	      (case T.status when  'save' then '暂存' 
+	      	  when  'audit' then '已申请'
+		      when  'refuse' then '拒绝'  
+		      when  'RETURNAPPROVE' then '审核退回' 
+		      when  'returnedToFirst' then '退回客户经理' 
+		      when  'approved' then '审批通过' end) as status
+	  FROM customer_application_info T
+	  inner JOIN basic_customer_information b ON T.customer_id = b. ID
+	  LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id
+	  inner join product_attribute prod on prod.id = t.product_id
+	 where b.user_id = #{userNo} and T.status = 'audit'
+	 <if test="clientName != null and clientName !='' ">
+	 	<![CDATA[ and b.chinese_name like '%'||#{clientName}||'%']]>
+	 </if>
+	 <if test="globalId != null and globalId != '' ">
+		<![CDATA[ and b.card_id like '%'||#{globalId}||'%']]>
+	 </if>
+	 <if test="limit != null and limit != '' and page != null and page != ''">
+	 <![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+
+<select id ="ipadDhJcByUserId" resultMap="DhJcMap">
+    <if test="limit != null and limit != '' and page != null and page != ''">
+    SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+			</if>
+			select 
+				distinct task.task_id as taskId,       
+  				task.cus_id as cusId,
+  				task.task_type as taskType,
+  				task.task_create_date as taskCreateDate,
+  				task.task_request_time as taskRequestTime,
+  				task.qnt as qnt,
+  				task.loan_totl_amt as LoanTotlAmt,
+  				task.loan_balance as loanBalance,
+  				task.task_huser as taskHuser,
+  				task.task_horg as taskHorg,
+  				task.manager_id as managerId,
+  				task.manager_br_id as managerBrId,
+  				task.check_time as checkTime,
+  				task.check_addr as checkAddr,
+  				task.agreed_person as agreedPerson,
+   				task.remarks as remarks,
+    			task.approve_status as approveStatus,
+    			task.industry_outlook as industryOutlook,
+    			task.repayment as repayment,
+    			task.reciprocal_type as reciprocalType,
+    			task.contact_information as contactInformation,
+    			ecif.client_name as chineseName,
+    			ecif.global_id as cardId,
+    			task.REPAYMENT_OTHER as repaymentOther,
+    			task.CHECK_DESCRIBE as checkDescribe,
+    			task.FALLBACK_REASON as FALLBACK_REASON
+  			from psp_check_task task 
+  			left join qz_iesb_for_ecif ecif on task.cus_id = ecif.client_no
+ 			where 1 = 1
+   			and ecif.USER_ID = #{userId}
+   			and ecif.CLIENT_NO is not null
+   			 <if test="chineseName != null and chineseName != '' ">
+				<![CDATA[ AND ecif.client_name like '%'||#{chineseName}||'%']]>
+			</if>
+			<if test="cardId != null and cardId != '' ">
+				<![CDATA[ AND ecif.global_id like '%'||#{cardId}||'%']]>
+			</if>
+			<if test="clientNo != null and clientNo != '' ">
+				<![CDATA[ AND ecif.client_no like '%'||#{clientNo}||'%']]>
+			</if>
+		    <if test="checkType != null and checkType != ''">
+		        AND (task.task_type=#{checkType}
+			        <if test='checkType == "1" '>
+					  or task.CHECK_DESCRIBE like '%首次放款检查%'
+					 </if>
+					 <if test='checkType == "2" '>
+					 or task.CHECK_DESCRIBE like '%满额用信%'
+					 </if>
+					 <if test='checkType == "3" '>
+					 or task.CHECK_DESCRIBE like '%授信到期前最高额用信检查%'
+					 </if>
+					 <if test='checkType == "4" '>
+					 or task.CHECK_DESCRIBE like '%放款次月客户回访%'
+					 </if>
+				 )
+			</if>
+			<if test='QUERY_TYPE == "02"'>
+				AND task.FALLBACK_REASON is not null
+			</if>
+			
+			<if test="APPROVE_STATUS != null and APPROVE_STATUS != '' ">
+				AND task.approve_status in ${belongChildIds}
+			</if>
+			<if test="limit != null and limit != '' and page != null and page != ''">
+			<![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+
+<select id ="ipadWdtxByUserId" resultMap="WdtxMap">
+    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+	left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+	left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+	where CAI.STATUS = 'approved')
+	
+	select
+	(SELECT count(*)
+	FROM customer_application_info T
+	inner JOIN basic_customer_information b ON T.customer_id = b.ID
+	where b.user_id = #{userId} and t.status
+	in('save')) as LOAN_APPLY_NUM
+	,
+	(SELECT count(*)
+	FROM customer_application_info T
+	inner JOIN basic_customer_information b ON T.customer_id = b.ID
+	where b.user_id = #{userId} and t.status
+	in('returnedToFirst')) as LOAN_APPLY_BACK_NUM
+	,
+	(select count(*)
+	from psp_check_task task
+	where 1 = 1
+	and approve_status = '0'
+	and manager_id = #{loginId}) as AFTER_LOAN_TASK_NUM
+	,
+	(select count(*)
+	from psp_check_task task
+	where 1 = 1
+	and manager_id = #{loginId}
+	and APPROVE_STATUS in ('0')
+	and fallback_reason is not null) as
+	AFTER_LOAN_BACK_NUM
+	,
+	(select count(*)
+	from o_clpm_acc_loan loan
+	left join circle on loan.cus_id = circle.client_no
+	where 
+	loan.prd_id in ('100084','100085')
+	and loan.acc_status = '1'
+	and circle.manager_id = #{userId}
+	and to_date(to_char(sysdate,'yyyy-MM-dd'),'yyyy-MM-dd') <![CDATA[ >= ]]> to_date(loan.end_date,'yyyy-MM-dd')-7) as EXPIRY_CLIENT_NUM
+	,
+	(select count(*) from o_clpm_acc_loan loan
+	left join circle on loan.cus_id = circle.client_no
+	where 
+	loan.prd_id in ('100084','100085')
+	and loan.acc_status = '1'
+	and circle.manager_id = #{userId} 
+	and loan.overdue >= 1) as OVERDUE_CLIENT_NUM
+	from dual
+</select>
+
+
+<select id ="ipadDqwdByUserId" resultMap="DqwdMap">
+    with circle as (select CIRCLE.*,CAI.PRODUCT_ID,bci.user_id as manager_id from CUSTOMER_APPLICATION_INFO cai 
+	left join QZ_IESB_FOR_CIRCLE circle on CAI.id = CIRCLE.APPLICATION_ID
+	left join BASIC_CUSTOMER_INFORMATION bci on cai.customer_id = bci.id
+	where CAI.STATUS = 'approved')
+	
+	<if test="limit != null and limit != '' and page != null and page != ''">
+	SELECT * FROM
+			(SELECT ROW_.*,ROWNUM ROWNUM_
+			FROM (
+		</if>	
+ select circle.client_name,
+        circle.client_no,
+        loan.cus_id,
+        loan.bill_no,
+        loan.loan_balance,
+        loan.end_date,
+        loan.REC_INT_ACCUM
+ from o_clpm_acc_loan loan
+ left join circle on loan.cus_id = circle.client_no
+ where 
+   loan.prd_id in ('100084','100085')
+   and loan.acc_status = '1'
+   and circle.manager_id = #{userId}
+   <if test="CLIENT_NAME != null and CLIENT_NAME != '' ">
+	<![CDATA[ and circle.CLIENT_NAME like '%'||#{CLIENT_NAME}||'%']]>
+   </if>
+   <if test="GLOBAL_ID != null and GLOBAL_ID != '' ">
+	<![CDATA[ and circle.GLOBAL_ID like '%'||#{GLOBAL_ID}||'%']]>
+   </if>
+   <if test='BUSS_TYPE == "1"'>
+	and	sysdate <![CDATA[ >= ]]> to_date(loan.end_date,'yyyy-MM-dd')-7
+   </if>
+   <if test='BUSS_TYPE == "2"'>
+	and	to_number(loan.OVERDUE) >=1
+   </if>
+   
+   <if test="limit != null and limit != '' and page != null and page != ''">
+   <![CDATA[		
+				) ROW_
+			WHERE ROWNUM <= #{limit}*#{page} + #{limit}) 
+		WHERE ROWNUM_ > #{limit}*#{page}
+		]]>
+		</if>
+</select>
+
+<select id ="ipadWdAuditInfo" resultMap="WsAuditMap">
+select s.status_name,
+       t.examine_result,
+       su.display_name,
+       t.examine_amount,
+       t.start_examine_time
+  from wf_status_queue_record t
+  left join wf_status_info s on t.current_status = s.id
+  left join wf_process_record pr on t.current_process = pr.id
+  left join customer_application_process aa on pr.id = aa.serial_number
+  left join sys_user su on t.examine_user = su.id
+ where aa.application_id = #{id}
+   and su.display_name is not null
+ union 
+ select r.node_name as status_name,
+       r.operate_type ||','|| r.Remark as examine_result,
+       r.user_name as display_name,
+       '' as examine_amount,
+       r.created_time as start_examine_time 
+       from qz_appln_process_result r where r.application_id=#{id}
+order by start_examine_time desc
+</select>
+
+<select id ="ipadWdApplyProcess" resultMap="WsApplyProcessMap">
+	SELECT *
+  from node_audit t
+ WHERE 
+    product_id = #{productId}
+   and node_type = 'Product'
+   and is_deleted = '0'
+ order by seq_no asc
+</select>
+
+<select id ="ipadWdKuyx" resultMap="WdKuyxMap">
+select cont.CONT_AMT,
+  cont.CONT_BALANCE,
+  to_number(cont.CONT_AMT)-to_number(cont.CONT_BALANCE) as REMAIN_AMT
+  from o_clpm_ctr_loan_cont cont,
+  (select max(serno) as serno from o_clpm_ctr_loan_cont 
+  	where cus_id = #{clientCode} 
+  	and prd_id in ('100084','100085') 
+  	and to_date(CONT_END_DATE,'yyyy-MM-dd') > sysdate
+  	group by cus_id
+  )T
+  where cont.serno = T.serno
+</select>
+
+<select id ="ipadWdKuyxList" resultMap="WdKuyxListMap">
+select cus_id,
+       BILL_NO,
+       CONT_NO,
+       loan_amt,
+       DISTR_DATE,
+       OVERDUE,
+       OVERDUE_BALANCE,
+       LOAN_BALANCE,
+       acc_status
+  from o_clpm_acc_loan
+ where cus_id = #{clientCode}
+ and prd_id in ('100084','100085')
+ and acc_status = '1'
+</select>
+
+<select id ="ipadDhjcbrowse" resultMap="DhjcbrowseMap">
+select task.task_id,
+       ecif.client_name,
+       ecif.global_id,
+       ecif.client_no,
+       task.task_type,
+       task.task_create_date,
+       task.loan_totl_amt,
+       task.loan_balance,
+       task.qnt,
+       task.manager_id,
+       task.manager_br_id,
+       task.check_time,
+       task.check_addr,
+       task.agreed_person,
+       task.contact_information,
+       task.repayment,
+       task.repayment_other,
+       task.reciprocal_type,
+       task.check_describe,
+       task.remarks,
+       task.upload_flag
+  from psp_check_task task
+  left join qz_iesb_for_ecif ecif on task.cus_id = ecif.client_no
+  where task.task_id = #{taskId}
+</select>
+
+
+<select id ="ipadDictList" resultMap="DictListMap">
+	select dict_type,
+           type_code,
+           type_name from dict
+    where  dict_type  in ${dictType}
+</select>
+
+<select id ="ipadApplyZaList" resultMap="ZaListMap">
+	select * from qz_appln_za
+</select>
+
+
+<select id = "Wdsqspbrowse" resultMap="CustomerApplyInfoMap">
+	SELECT T.ID,
+	       b.chinese_name,
+	       prod.id as PRODUCT_ID,
+	       prod.product_name,
+	       b.card_id,
+	       circle.CONTRACT_AMT as apply_quota,
+	       T.status,
+	       T.customer_id
+	  FROM customer_application_info T
+	  inner JOIN basic_customer_information b ON T.customer_id = b. ID
+	  LEFT JOIN QZ_IESB_FOR_CIRCLE circle on T.id = circle.application_id
+	  inner join product_attribute prod on prod.id = t.product_id
+	 where 1=1
+	 <if test="appId != null and appId != '' ">
+	 	and T.ID = #{appId}
+	 </if>
+	 <if test="customerId != null and customerId != '' ">
+	 and b.id = #{customerId}
+	 and T.created_time = (select max(info.created_time) from customer_application_info info 
+	 				left join basic_customer_information b 
+	 				ON info.customer_id = b. ID 
+	 				where 1=1 and b.id = #{customerId}
+	 				group by info.customer_id)
+	 </if>
+</select>
+
+
+<!-- 查询贷款申请表信息 -->
+<select id = "findQzApplnYwsqb" resultMap="YwsqbMap">
+   select * from qz_appln_ywsqb where 1=1
+   <if test="appId != null and appId != '' ">
+ 	and APPLICATION_ID = #{appId}
+   </if>
+</select>
+
+<!-- 查询经营信息 -->
+<select id = "findQzApplJyxx" resultMap="JyxxMap">
+   select * from QZ_APPLN_JYXX where 1=1
+    <if test="appId != null and appId != '' ">
+ 	and APPLICATION_ID = #{appId}
+   </if>
+</select>
+
+<!-- 查询供应商信息 -->
+<select id = "findGys" resultMap="GyMap">
+   select * from QZ_APPLN_YWSQB_ZYGYS where 1=1
+   <if test="ywsqbId != null and ywsqbId != '' ">
+ 	and YWSQB_ID = #{ywsqbId}
+   </if>
+</select>
+
+<!-- 查询客户信息 -->
+<select id = "findKh" resultMap="KhMap">
+   select * from QZ_APPLN_YWSQB_ZYKH where 1=1
+   <if test="ywsqbId != null and ywsqbId != '' ">
+ 	and YWSQB_ID = #{ywsqbId}
+   </if>
+</select>
+
+<!-- 查询贷款信息明细 -->
+<select id = "findDk" resultMap="DkMap">
+   select * from qz_appln_ywsqb_Jkjl where 1=1
+    <if test="ywsqbId != null and ywsqbId != '' ">
+ 	and YWSQB_ID = #{ywsqbId}
+   </if>
+</select>
+
+
+<!--查询担保人信息 -->
+<select id = "findDbrxx" resultMap="DbrxxMap">
+   select * from qz_appln_dbrxx where 1=1
+   <if test="appId != null and appId != '' ">
+ 	and APPLICATION_ID = #{appId}
+   </if>
+</select>
+
+<!--查询担保人贷款信息 -->
+<select id = "findDbrxxDkjl" resultMap="DbrxxDkjlMap">
+   select * from qz_appln_dbrxx_dkjl where 1=1
+   <if test="ywsqbId != null and ywsqbId != '' ">
+ 	and DBRXX_ID = #{dbrxxId}
+   </if>
+</select>     
+
+
+<!--查询担保人房产 -->                                                
+<select id = "findDbrxxFc" resultMap="DbrxxFcMap">
+   select * from QZ_APPLN_DBRXX_FC where 1=1
+   <if test="ywsqbId != null and ywsqbId != '' ">
+ 	and DBRXX_ID = #{dbrxxId}
+   </if>
+</select> 
+
+<!--查询担保人机动车 -->                                                
+<select id = "findJdc" resultMap="DbrxxJdcMap">
+   select * from qz_appln_dbrxx_jdc where 1=1
+   <if test="ywsqbId != null and ywsqbId != '' ">
+ 	and DBRXX_ID = #{dbrxxId}
+   </if>
+</select> 
+
+<!-- 查询待上传资料 -->
+<select id = "findAttachList" resultMap="AttachMap">
+   select * from QZ_APPLN_ATTACHMENT_LIST where 1=1
+   <if test="appId != null and appId != '' ">
+ 	and APPLICATION_ID = #{appId}
+   </if>
+</select> 
+
+<update id="updateCustomerLocationMsg">
+		update qz_iesb_for_ecif 
+		set COORDINATE= #{COORDINATE},
+		REMARK =#{REMARK} 
+		where customer_id = #{CLIENT_CODE}
+</update>
+ 
+<select id="checkCanApplyOrNot" resultType="int">
+    select count(*) from customer_application_info where customer_id = #{custId} and status in ('save','audit','RETURNAPPROVE')
+</select>
+                                                                 
 
 </mapper>

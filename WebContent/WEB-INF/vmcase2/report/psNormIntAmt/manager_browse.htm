@@ -1,0 +1,111 @@
+#parse ("common/iframe_page_header.htm")
+<body>
+  <div class="content_main">
+    <div class="contentinner">
+      <div class="place">
+        <div class="title">利息计算</div>
+      </div>
+      
+      <div class="inquiry">
+<!-----------搜索------------------------------------------->  
+  
+        <div class="search_tag"></div>
+        <div class="search">
+          <form id="submitForm">
+            <ul>
+              <li>
+                <span>日期：<input type="text" name="endDate" value='$!date.format("yyyy-MM-dd",$!result.filter.endDate)' onmouseover="_calendar()" readonly="readonly" maxlength="30"/></span>
+              </li>
+              <!--  
+              <li>
+                <span>客户经理号：<input type="text" name="managerId" value='$!result.filter.managerId' /></span>
+              </li>
+              <li>
+                <span>客户名称：<input type="text" name="clientName" value='$!result.filter.clientName' /></span>
+              </li>
+              -->
+              <li class="search_button">
+              	<input id="id_export_button" type="button" value="导出excel" class="search_button_export"
+                  title="#i18n('button.export.hint')" style="height: 26px; line-height: 24px;" />
+              </li>
+              <li class="search_button">
+                <input id="id_browse_button" type="button" value="筛选" class="search_button_inquiry"
+                  title="#i18n('button.browse.hint')" style="height: 26px; line-height: 24px;" />
+              </li>
+            </ul>
+          </form>
+        </div>
+       
+		<!-------------- 信息显示 ------------------------------------->      
+		<div id="topDiv" class="inquiry_list inquiry_top">
+           <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+            </colgroup>
+            <tr class="title" align="center">
+              <th nowrap="nowrap"></th>
+              <th nowrap="nowrap">客户名称</th>
+              <th nowrap="nowrap">正常利息</th>
+              <th nowrap="nowrap">逾期利息</th>
+              <th nowrap="nowrap">已还利息</th>
+              <th nowrap="nowrap">已还逾期利息</th>
+              <th nowrap="nowrap">应还利息</th>
+              <th nowrap="nowrap">计算日期</th>
+            </tr>
+          </table>
+        </div>  
+        
+        <div id="downDiv" class="inquiry_list inquiry_down">
+          <table>
+            <colgroup>
+              <col width="5%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+              <col width="10%" />
+            </colgroup>
+            #foreach ($obj in $result.items)
+            	<tr id="$!accloan.rowIndex">
+            	  <td class="checkbox"><input type="radio"/></td>
+	              <td nowrap="nowrap">$!obj.client_name</td>
+	              <td nowrap="nowrap">$format.formatNumber(2, $!obj.ps_norm_int_amt)</td>
+	              <td nowrap="nowrap">$format.formatNumber(2, $!obj.ps_od_int_amt)</td>
+	              <td nowrap="nowrap">$format.formatNumber(2, $!obj.setl_norm_int)</td>
+	              <td nowrap="nowrap">$format.formatNumber(2, $!obj.setl_od_int_amt)</td>
+	              <td nowrap="nowrap">$format.formatNumber(2, $!obj.ps_amt)</td>
+	              <td nowrap="nowrap">$!obj.psTime</td>
+	            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+      <div class="pagebar">
+       #parse ("common/pagination.htm")		
+        <div class="clear"></div>
+      </div>
+    </div>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+	var layout = new TableLayout(2);
+	window.top.currentWindow.setLayout(layout);
+	
+	$(document).ready(function() {
+		var opsObj = new Object();
+		opsObj.formObj = $("#submitForm");
+		opsObj.browseUrl = "${modulePath}/browse.page";
+		opsObj.exportUrl = "${modulePath}/export.page";
+		prepareOperations(opsObj);
+	});
+</script>
+#parse ("common/iframe_page_footer.htm")

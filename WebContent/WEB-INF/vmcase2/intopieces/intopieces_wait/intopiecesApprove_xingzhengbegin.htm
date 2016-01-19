@@ -52,7 +52,8 @@
               <col width="10%"/>
               <col width="10%"/>
               <col width="10%"/>
-              <col width="20%"/>
+              <col width="10%"/>
+              <col width="5%" />
             </colgroup>
             <tr class="title">
               <th nowrap="nowrap"></th>
@@ -65,6 +66,7 @@
               <th nowrap="nowrap">申请时间</th>
               <th nowrap="nowrap">节点名称</th>
               <th nowrap="nowrap">退回原因</th>
+              <th nowrap="nowrap">续授信</th>
             </tr>
           </table>
         </div>
@@ -80,7 +82,8 @@
               <col width="10%"/>
               <col width="10%"/>
               <col width="10%"/>
-              <col width="20%"/>
+              <col width="10%"/>
+              <col width="5%" />
             </colgroup>
            #foreach ($wait in $result.items)
             <tr>
@@ -99,6 +102,14 @@
               #else
               <td nowrap="nowrap"></td>
               #end
+              
+              <td nowrap="nowrap">
+               		#if($!wait.isContinue != $null)
+               			是
+               		#else
+               			否
+               		#end
+               </td>
             </tr>
             #end
 

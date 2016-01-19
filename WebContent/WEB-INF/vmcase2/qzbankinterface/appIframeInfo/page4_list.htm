@@ -44,10 +44,10 @@
 	<script type="text/javascript">			
 	$(document).ready(function() {
 		if("${type}"=="readonly"){
-			$("input[type='text']").attr("disabled",true);
+			$("input[type='text']").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
 			$("input[type='radio']").attr("disabled",true);
 			$("input[type='checkbox']").attr("disabled",true);
-			$("select").attr("disabled",true);
+			$("select").attr("disabled",true).css({"background-color":"#fff","color":"#000","font-color":"#000"});
 		}
 		$("#id_change_button").click(function() {
 	        if ($(".checkbox :checked").length == 1) {

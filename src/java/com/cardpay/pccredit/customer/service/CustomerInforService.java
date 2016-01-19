@@ -52,7 +52,10 @@ import com.cardpay.pccredit.intopieces.model.CustomerApplicationRecom;
 import com.cardpay.pccredit.intopieces.model.IntoPieces;
 import com.cardpay.pccredit.intopieces.model.QzApplnDcnr;
 import com.cardpay.pccredit.intopieces.model.VideoAccessories;
+import com.cardpay.pccredit.ipad.constant.IpadConstant;
+import com.cardpay.pccredit.ipad.model.CustomerInfoIpad;
 import com.cardpay.pccredit.ipad.model.ProductAttribute;
+import com.cardpay.pccredit.product.service.ProductService;
 import com.cardpay.pccredit.system.constants.NodeAuditTypeEnum;
 import com.cardpay.pccredit.system.constants.YesNoEnum;
 import com.cardpay.pccredit.system.model.Dict;
@@ -64,10 +67,16 @@ import com.cardpay.workflow.models.WfProcessInfo;
 import com.cardpay.workflow.models.WfStatusInfo;
 import com.cardpay.workflow.models.WfStatusResult;
 import com.cardpay.workflow.service.ProcessService;
+import com.dc.eai.data.Array;
+import com.dc.eai.data.CompositeData;
+import com.dc.eai.data.Field;
+import com.dc.eai.data.FieldAttr;
+import com.dc.eai.data.FieldType;
 import com.wicresoft.jrad.base.database.dao.common.CommonDao;
 import com.wicresoft.jrad.base.database.id.IDGenerator;
 import com.wicresoft.jrad.base.database.model.BusinessModel;
 import com.wicresoft.jrad.base.database.model.QueryResult;
+import com.wicresoft.jrad.modules.privilege.model.User;
 
 /**
  * 
@@ -96,6 +105,9 @@ public class CustomerInforService {
 	
 	@Autowired
 	private ECIFService eCIFService;
+	
+	@Autowired
+	private ProductService productService;
 	
 	/**
 	 * 得到该客户经理下的客户数量
@@ -200,8 +212,6 @@ public class CustomerInforService {
 	public QueryResult<VideoAccessories> findCustomerVideoAccessoriesByFilter(VideoAccessoriesFilter filter) {
 		return commonDao.findObjectsByFilter(VideoAccessories.class, filter);
 	}
-	
-	
 	
 	/**
 	 * 按id查找相应的客户基本信息
@@ -1466,4 +1476,19 @@ public class CustomerInforService {
 		}
 	}
 	
+	//根据登陆名查询userid
+	public List<User> findUserByLogin(String login){
+		return customerinforcommDao.findUserByLogin(login);
+	}
+	
+	//add 进件
+	public void insertApplication(com.cardpay.pccredit.ipad.model.CustomerApplicationInfo appInfo){
+		commonDao.insertObject(appInfo);
+	}
+	
+	//检查是否允许进件
+	public int checkCanApplyOrNot(String custId, String userId) {
+		// TODO Auto-generated method stub
+		return customerInforDao.checkCanApplyOrNot(custId);
+	}
 }

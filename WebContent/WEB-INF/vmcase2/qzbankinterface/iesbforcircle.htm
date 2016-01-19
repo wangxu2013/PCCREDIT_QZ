@@ -58,7 +58,7 @@
             </tr>
             <tr>
               <td><label>担保方式:</label></td>
-              <td><select id="guaranteeMode" name="guaranteeMode" onchange="change_guaranteeMode(this);">#dict("ASSURE_MAIN", "")</select></td>
+              <td><select id="guaranteeMode" name="guaranteemode" onchange="change_guaranteeMode(this);">#dict("ASSURE_MAIN", "")</select></td>
               <td><label>担保方式细分:</label></td>
               <td><select id="guaranteeModeDetail" name="guaranteeModeDetail">#dict("ASSURE_MAIN_DETAILS", "")</select></td>
             </tr>
@@ -409,7 +409,7 @@
 		//保存按钮
 		$("#id_save_button").click(function() {
 			if(submitFlag == 1){
-				alert("请勿重复提交!")
+				alert("等待后台响应,请勿重复提交!")
 				return;
 			}
 			submitFlag = 1;

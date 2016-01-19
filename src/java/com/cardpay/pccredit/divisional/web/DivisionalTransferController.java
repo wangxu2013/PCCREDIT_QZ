@@ -100,4 +100,30 @@ public class DivisionalTransferController extends BaseController{
 		}
 		return returnMap;
 	}
+	
+	/**
+	 * 移交客户-泉州
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "transfer_qz.json",method = { RequestMethod.GET })
+	@JRadOperation(JRadOperation.BROWSE)
+	public Map<String,Object> transfer_qz(HttpServletRequest request) {
+		Map<String,Object> returnMap = new HashMap<String,Object>();
+		try {
+			IUser user = Beans.get(LoginManager.class).getLoggedInUser(request);
+			String customerId = RequestHelper.getStringValue(request, ID);
+			divisionalservice.insertDivisionalCustomer_qz(customerId,DivisionalTypeEnum.initiative,DivisionalProgressEnum.charge);
+			returnMap.put(JRadConstants.SUCCESS,true);
+			returnMap.put(JRadConstants.MESSAGE,CustomerInforConstant.TRANSFERSUCCESS);
+			
+		}catch (Exception e) {
+			returnMap.put(JRadConstants.MESSAGE, DataPriConstants.SYS_EXCEPTION_MSG);
+			returnMap.put(JRadConstants.SUCCESS, false);
+			return WebRequestHelper.processException(e);
+		}
+		return returnMap;
+	}
 }

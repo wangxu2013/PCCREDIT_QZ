@@ -100,7 +100,18 @@ public class ECIF extends BusinessModel{
 	
 	private String clientNo;//客户号
 	private String customerId;
+	
+	
+	private String chl;//渠道
+	
+	
     
+	public String getChl() {
+		return chl;
+	}
+	public void setChl(String chl) {
+		this.chl = chl;
+	}
 	public String getGlobalType() {
 		return globalType;
 	}

@@ -109,7 +109,7 @@ public class IntopiecesIpadController {
 					intoPieces.setStatusName("申请退回");
 				}
 				if(intoPieces.getStatus().equalsIgnoreCase(Constant.REFUSE_INTOPICES)){
-					intoPieces.setStatusName("拒接");
+					intoPieces.setStatusName("拒绝");
 				}
 				if(intoPieces.getStatus().equalsIgnoreCase(Constant.APPROVED_INTOPICES)){
 					intoPieces.setStatusName("审批结束");

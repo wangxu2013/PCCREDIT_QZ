@@ -11,6 +11,7 @@ import com.wicresoft.util.annotation.Mapper;
 @Mapper
 public interface QuotaFreezeOrThawDao {
 	public List<QuotaFreezeInfo> getQzIesbForCircleByFilter(QuotaFreezeOrThawFilter filter);
-	
+	public List<QuotaFreezeInfo> getQzIesbForCircleWFByFilter(QuotaFreezeOrThawFilter filter);
 	public int getQzIesbForCircleCountByFilter(QuotaFreezeOrThawFilter filter);
+	public int getQzIesbForCircleCountWFByFilter(QuotaFreezeOrThawFilter filter);
 }

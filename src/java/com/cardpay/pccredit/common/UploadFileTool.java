@@ -3,6 +3,7 @@ package com.cardpay.pccredit.common;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -153,15 +154,43 @@ public class UploadFileTool {
 		map.put("url", Constant.FILE_PATH + newFileName);
 		return map;
 	}
-
+	
 	/* 删除资料 */
 	public static void deleteFile(String filePath) {
 		File tempFile = new File(filePath);
 		if (tempFile.exists()) {
-			tempFile.delete();
+			System.out.println("111");
+			tempFile.deleteOnExit();
 		}
 	}
 
+	public static void deleteFile_qz(String folder) {
+		File file = new File(folder);
+		if(file.exists()){
+			if(file.isDirectory()){
+				String[] fileList = file.list();
+				for(int i = 0;i<fileList.length;i++){
+					File readFile = new File(folder + "/" + fileList[i]);
+					
+					if(!readFile.isDirectory()){//读取文件
+						if (readFile.exists()) {
+							readFile.delete();
+						}
+					}
+					else if(readFile.isDirectory()){//循环
+						deleteFile_qz(folder + "/" + fileList[i]);
+					}
+				}
+			}
+			else{//读取文件
+				if (file.exists()) {
+					file.delete();
+				}
+			}
+			file.delete();
+		}
+	}
+	
 	/* 下载资料 */
 	public static void downLoadFile(HttpServletResponse response,
 			String filePath, String fileName) throws Exception {
@@ -309,8 +338,59 @@ public class UploadFileTool {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-}
+	}
 
+	//泉州影像上传
+	public static String uploadYxzlFileBySpring_qz(MultipartFile file,String batch_id) throws Exception {
+		String newFileName = null;
+		String fileName = null;
+		String serverPath = Constant.FILE_PATH + batch_id + "/";
+		File tempDir = new File(serverPath);
+		if (!tempDir.isDirectory()) {
+			tempDir.mkdirs();
+		}
+		// 取得上传文件
+		if (file != null && !file.isEmpty()) {
+			fileName = file.getOriginalFilename();
+			File tempFile = new File(serverPath + fileName);
+			if (tempFile.exists()) {
+				newFileName = IDGenerator.generateID() + "." + fileName.split("\\.")[1];
+			} else {
+				newFileName = fileName;
+			}
+			File localFile = new File(serverPath + newFileName);
+			file.transferTo(localFile);
+		}
+		
+		return newFileName;
+	}
 	
-
+	//无效的函数
+	public static void uploadYxzlFileBySpring_qz(File readFile, String batch_id) throws Exception {
+		// TODO Auto-generated method stub
+		String newFileName = null;
+		String serverPath = Constant.FILE_PATH + batch_id + "/";
+		File tempDir = new File(serverPath);
+		if (!tempDir.isDirectory()) {
+			tempDir.mkdirs();
+		}
+		InputStream stream = new FileInputStream(readFile);
+		
+		File tempFile = new File(serverPath + readFile.getName());
+		if (tempFile.exists()) {
+			newFileName = IDGenerator.generateID() + "." + readFile.getName().split("\\.")[1];
+		} else {
+			newFileName = readFile.getName();
+		}
+		
+		OutputStream bos = new FileOutputStream(serverPath + newFileName);
+		int bytesRead = 0;
+		byte[] buffer = new byte[8192];
+		while((bytesRead = stream.read(buffer,0,8192)) != -1){
+			bos.write(buffer, 0, bytesRead);
+		}
+		bos.close();
+		stream.close();
+		
+	}
 }
